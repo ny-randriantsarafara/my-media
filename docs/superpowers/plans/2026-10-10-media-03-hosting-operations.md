@@ -893,9 +893,11 @@ readonly RELEASE
 readonly RELEASE_DIR="$APP_ROOT/releases/$RELEASE"
 
 echo "Envoi de la version $RELEASE vers $DESTINATION…"
+# shellcheck disable=SC2029
 git archive --format=tar HEAD | ssh "$DESTINATION" "mkdir -p '$RELEASE_DIR' && tar -x -C '$RELEASE_DIR'"
 
 echo "Mise en service sur le serveur…"
+# shellcheck disable=SC2029
 ssh "$DESTINATION" "RELEASE='$RELEASE' '$RELEASE_DIR/ops/scripts/server-release.sh' '$RELEASE_DIR'"
 ```
 
