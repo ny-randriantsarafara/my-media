@@ -1,0 +1,27 @@
+---
+import NotFound from '../../components/NotFound.astro';
+import RecentList from '../../components/RecentList.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { publicQueries } from '../../lib/cms.ts';
+
+const section = await publicQueries.sectionPage(Astro.params.slug ?? '');
+if (section === null) {
+  Astro.response.status = 404;
+}
+---
+
+<BaseLayout title={section?.name ?? 'Page introuvable'} description={section?.description ?? null}>
+  {section === null && <NotFound />}
+  {
+    section !== null && (
+      <>
+        <header class="shell page-header">
+          <h1 class="page-title">{section.name}</h1>
+          {section.description && <p class="dek">{section.description}</p>}
+        </header>
+        {section.articles.length === 0 && <p class="shell empty-state">Aucun article publié dans cette rubrique pour le moment.</p>}
+        {section.articles.length > 0 && <RecentList title={`Articles de la rubrique ${section.name}`} articles={section.articles} hideTitle />}
+      </>
+    )
+  }
+</BaseLayout>

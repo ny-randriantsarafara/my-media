@@ -1,0 +1,22 @@
+---
+import RecentList from '../components/RecentList.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { publicQueries } from '../lib/cms.ts';
+import { emptySearchMessage, searchResultsTitle } from '../lib/search-copy.ts';
+
+const query = (Astro.url.searchParams.get('q') ?? '').trim();
+const results = await publicQueries.searchOrList(query);
+---
+
+<BaseLayout title="Rechercher" noindex={query !== ''}>
+  <section class="shell page">
+    <h1>Rechercher</h1>
+    <form class="search-form" role="search" action="/recherche" method="get">
+      <label class="visually-hidden" for="recherche-texte">Rechercher dans les articles publiés</label>
+      <input id="recherche-texte" type="search" name="q" value={query} maxlength="200" />
+      <button type="submit">Rechercher</button>
+    </form>
+  </section>
+  {results.length === 0 && <p class="shell empty-state">{emptySearchMessage(query)}</p>}
+  {results.length > 0 && <RecentList title={searchResultsTitle(query)} articles={results} />}
+</BaseLayout>

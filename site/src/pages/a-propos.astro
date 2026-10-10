@@ -1,0 +1,41 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { renderMarkdown } from '../lib/article-body.ts';
+import { publicQueries } from '../lib/cms.ts';
+
+const { identity } = await publicQueries.siteFrame();
+---
+
+<BaseLayout title="À propos" description={identity.presentation}>
+  <article class="shell page">
+    <h1>À propos</h1>
+    {identity.presentation && <p class="dek">{identity.presentation}</p>}
+    {
+      identity.aboutBody && (
+        <div class="prose">
+          <Fragment set:html={renderMarkdown(identity.aboutBody)} />
+        </div>
+      )
+    }
+    {
+      identity.contactEmail && (
+        <section aria-labelledby="titre-contact">
+          <h2 id="titre-contact">Contact</h2>
+          <p class="prose">
+            <a href={`mailto:${identity.contactEmail}`}>{identity.contactEmail}</a>
+          </p>
+        </section>
+      )
+    }
+    <section id="mentions-legales" aria-labelledby="titre-mentions">
+      <h2 id="titre-mentions">Mentions légales</h2>
+      {
+        identity.legalNotice && (
+          <div class="prose">
+            <Fragment set:html={renderMarkdown(identity.legalNotice)} />
+          </div>
+        )
+      }
+    </section>
+  </article>
+</BaseLayout>
