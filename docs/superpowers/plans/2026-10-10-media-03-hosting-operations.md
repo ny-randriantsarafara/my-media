@@ -1392,7 +1392,7 @@ Les commandes « root » se lancent depuis le compte d’administration : `ssh d
 ## Mettre à jour Directus
 
 1. Lire les notes de version entre 12.5.0 et la cible ; repérer les changements sur le MCP, les flows, les permissions et la licence Core (3 sièges, 25 collections, 5 flows).
-2. Sur une branche : remplacer `directus/directus:12.5.0` dans `compose.yaml` et `Dockerfile`, et la version attendue dans `cms/tests/src/server.test.ts`.
+2. Sur une branche : remplacer `directus/directus:12.5.0` dans `compose.yaml` et `Dockerfile`, et la version attendue dans `cms/tests/src/server.test.ts` ; en cas de changement de version majeure, aussi la plage `host` de `cms/extensions/editorial/package.json`.
 3. En local : `pnpm cms:up && pnpm provision && pnpm test && pnpm test:cms && pnpm test:e2e`.
 4. En root sur le serveur, lancer une sauvegarde à la demande (`systemctl start media-backup.service`, puis vérifier `journalctl -u media-backup.service -n 30`) ; ensuite, depuis le poste : `ops/scripts/deploy.sh media@<serveur>`.
 5. Refaire un essai de connexion MCP depuis Claude et ChatGPT.
@@ -1501,11 +1501,15 @@ Comptes sur le serveur : `media` (clé SSH, groupe `docker`, sans sudo) pour dé
 
 ## Déployer une nouvelle version
 
+Avant le tout premier déploiement, déposer `production.env` sur le serveur (commande de la section « Modifier un réglage de production »).
+
 Depuis le poste, sur un dépôt sans modification en cours :
 
     ops/scripts/deploy.sh media@<serveur>
 
-Le script envoie le code commité et construit les images sur le serveur ; il démarre d’abord la base et Directus, exécute le conteneur de provisionnement (`compose run --rm provision` : schéma, accès, flow « Publier », réglages MCP), relance l’ensemble des services, puis lance les vérifications publiques (`smoke.sh`). Revenir en arrière : se placer sur le commit précédent et relancer la même commande.
+Le script envoie le code commité et construit les images sur le serveur ; il démarre d’abord la base et Directus, exécute le conteneur de provisionnement (`compose run --rm provision` : schéma, accès, flow « Publier », réglages MCP), relance l’ensemble des services, puis lance les vérifications publiques (`smoke.sh`). Pendant le provisionnement, les droits de lecture publics sont réécrits : le site peut répondre en erreur quelques secondes, d’où un déploiement à une heure creuse. Revenir en arrière : se placer sur le commit précédent et relancer la même commande.
+
+Si les vérifications échouent, la nouvelle version tourne déjà et `/opt/my-media/current` pointe vers elle : lire les journaux (`/opt/my-media/current/ops/scripts/compose-production.sh logs --tail 100 site directus`), puis corriger et redéployer, ou revenir au commit précédent comme ci-dessus.
 
 ## Modifier un réglage de production
 
