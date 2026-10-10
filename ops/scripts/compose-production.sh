@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Runs docker compose on the production project defined next to this script.
 # Usage: ops/scripts/compose-production.sh <compose arguments...>
+# Compose gives exported shell variables precedence over --env-file; run from a shell
+# where no other env file (such as the development .env) is exported.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
