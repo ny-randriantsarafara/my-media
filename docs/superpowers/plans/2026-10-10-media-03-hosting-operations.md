@@ -892,7 +892,7 @@ RELEASE="$(git rev-parse --short=12 HEAD)"
 readonly RELEASE
 readonly RELEASE_DIR="$APP_ROOT/releases/$RELEASE"
 
-echo "Envoi de la version $RELEASE vers $DESTINATION…"
+echo "Envoi de la version $RELEASE vers ${DESTINATION}…"
 # shellcheck disable=SC2029
 git archive --format=tar HEAD | ssh "$DESTINATION" "mkdir -p '$RELEASE_DIR' && tar -x -C '$RELEASE_DIR'"
 
@@ -1208,7 +1208,7 @@ restore_volume() {
   echo "Volume $volume restauré."
 }
 
-echo "Lecture de l’instantané $SNAPSHOT…"
+echo "Lecture de l’instantané ${SNAPSHOT}…"
 restic restore "$SNAPSHOT" --target "$WORK_DIR"
 DUMP_FILE="$(find "$WORK_DIR" -name directus.dump -type f | head -n 1)"
 readonly DUMP_FILE
