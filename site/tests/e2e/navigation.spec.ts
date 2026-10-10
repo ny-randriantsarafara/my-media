@@ -16,6 +16,7 @@ test('an unknown section answers 404', async ({ page }) => {
   const response = await page.goto('/rubriques/rubrique-inconnue');
 
   expect(response?.status()).toBe(404);
+  await expect(page.getByRole('heading', { level: 1, name: 'Page introuvable' })).toBeVisible();
 });
 
 test('search finds a published article and ignores drafts', async ({ page, seed }) => {
@@ -28,6 +29,7 @@ test('search finds a published article and ignores drafts', async ({ page, seed 
   await expect(page.getByRole('heading', { level: 2, name: `Résultats pour « ${seed.suffix} »` })).toBeVisible();
   await expect(page.getByRole('link', { name: seed.articleTitle })).toBeVisible();
   await expect(page.getByText(seed.draftTitle)).toHaveCount(0);
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, nofollow');
 });
 
 test('a word that exists only in a draft finds nothing', async ({ page, seed }) => {
@@ -41,6 +43,7 @@ test('an empty search lists all published articles', async ({ page, seed }) => {
 
   await expect(page.getByRole('heading', { level: 2, name: 'Tous les articles' })).toBeVisible();
   await expect(page.getByRole('link', { name: seed.articleTitle })).toBeVisible();
+  await expect(page.locator('meta[name="robots"]')).toHaveCount(0);
 });
 
 test('the about page presents the media, its contact and the legal notice', async ({ page }) => {

@@ -1,6 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import type { ArticleCardRecord, DraftArticleRecord, HomeFeatureRecord } from './cms-records.ts';
-import { buildHomePage, composeDocumentTitle, safeExternalUrl, toArticleCard, toDraftArticleView, toSiteIdentity } from './mapping.ts';
+import type { ArticleCardRecord, DraftArticleRecord, HomeFeatureRecord, PublishedArticleRecord } from './cms-records.ts';
+import {
+  buildHomePage,
+  composeDocumentTitle,
+  safeExternalUrl,
+  toArticleCard,
+  toDraftArticleView,
+  toPublishedArticleView,
+  toSiteIdentity,
+  wasUpdated,
+} from './mapping.ts';
 
 function card(slug: string, overrides: Partial<ArticleCardRecord> = {}): ArticleCardRecord {
   return {
@@ -64,6 +73,41 @@ describe('buildHomePage', () => {
 
   it('has no lead when nothing is published', () => {
     expect(buildHomePage([], []).lead).toBeNull();
+  });
+});
+
+function publishedArticle(overrides: Partial<PublishedArticleRecord> = {}): PublishedArticleRecord {
+  return {
+    slug: 'article',
+    title: 'Titre',
+    summary: 'Chapô',
+    byline: null,
+    format: null,
+    first_published_at: '2026-10-10T08:30:00.000Z',
+    last_published_at: '2026-10-10T08:30:00.000Z',
+    body: 'Corps',
+    section: null,
+    images: [],
+    references: [],
+    ...overrides,
+  };
+}
+
+describe('toPublishedArticleView', () => {
+  it('is not marked updated when last publication matches the first publication', () => {
+    const view = toPublishedArticleView(
+      publishedArticle({ first_published_at: '2026-10-10T08:30:00.000Z', last_published_at: '2026-10-10T08:30:00.000Z' }),
+    );
+
+    expect(wasUpdated(view)).toBe(false);
+  });
+
+  it('is marked updated when last publication is later than the first', () => {
+    const view = toPublishedArticleView(
+      publishedArticle({ first_published_at: '2026-10-10T08:30:00.000Z', last_published_at: '2026-10-11T14:00:00.000Z' }),
+    );
+
+    expect(wasUpdated(view)).toBe(true);
   });
 });
 

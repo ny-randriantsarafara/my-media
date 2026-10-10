@@ -48,10 +48,13 @@ test('never shows private editorial data', async ({ page, seed }) => {
 });
 
 test('answers 404 for a draft or unknown slug', async ({ page, seed }) => {
-  const response = await page.goto(`/articles/${seed.draftSlug}`);
+  for (const slug of [seed.draftSlug, 'slug-inconnu-e2e']) {
+    const response = await page.goto(`/articles/${slug}`);
 
-  expect(response?.status()).toBe(404);
-  await expect(page.getByText(seed.draftTitle)).toHaveCount(0);
+    expect(response?.status(), slug).toBe(404);
+    await expect(page.getByRole('heading', { level: 1, name: 'Page introuvable' })).toBeVisible();
+    await expect(page.getByText(seed.draftTitle)).toHaveCount(0);
+  }
 });
 
 test('serves only published media file names', async ({ request }) => {

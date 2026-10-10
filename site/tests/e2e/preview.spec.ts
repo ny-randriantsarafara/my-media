@@ -6,6 +6,8 @@ test('an anonymous visitor cannot preview a draft', async ({ page, seed }) => {
   const response = await page.goto(`/apercu/${seed.draftId}`);
 
   expect(response?.status()).toBe(404);
+  expect(response?.headers()['cache-control']).toBe('private, no-store');
+  expect(response?.headers()['x-robots-tag']).toBe('noindex, nofollow');
   await expect(page.getByText(seed.draftTitle)).toHaveCount(0);
 });
 
@@ -30,4 +32,6 @@ test('a malformed preview address answers 404 even when signed in', async ({ pag
   const response = await page.goto('/apercu/pas-un-identifiant');
 
   expect(response?.status()).toBe(404);
+  expect(response?.headers()['cache-control']).toBe('private, no-store');
+  expect(response?.headers()['x-robots-tag']).toBe('noindex, nofollow');
 });

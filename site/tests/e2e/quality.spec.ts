@@ -10,7 +10,8 @@ test.describe('on a 390 px wide phone', () => {
 
   test('pages fit the screen without horizontal scrolling', async ({ page, seed }) => {
     for (const path of publicPaths(seed)) {
-      await page.goto(path);
+      const response = await page.goto(path);
+      expect(response?.status(), path).toBe(200);
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
       expect(overflow, path).toBeLessThanOrEqual(0);
     }
@@ -58,7 +59,8 @@ test('keyboard focus is visible', async ({ page }) => {
 
 test('every page is in French, has one main heading and describes its images', async ({ page, seed }) => {
   for (const path of publicPaths(seed)) {
-    await page.goto(path);
+    const response = await page.goto(path);
+    expect(response?.status(), path).toBe(200);
     await expect(page.locator('html')).toHaveAttribute('lang', 'fr');
     await expect(page.getByRole('heading', { level: 1 }), path).toHaveCount(1);
     await expect(page.locator('img:not([alt])'), path).toHaveCount(0);
@@ -67,7 +69,8 @@ test('every page is in French, has one main heading and describes its images', a
 
 test('public pages never mention artificial intelligence', async ({ page, seed }) => {
   for (const path of publicPaths(seed)) {
-    await page.goto(path);
+    const response = await page.goto(path);
+    expect(response?.status(), path).toBe(200);
     const text = await page.locator('body').innerText();
     expect(text, path).not.toMatch(/\bIA\b/);
     expect(text, path).not.toMatch(/intelligence artificielle|chatgpt|openai|anthropic|généré automatiquement|assistant/i);
