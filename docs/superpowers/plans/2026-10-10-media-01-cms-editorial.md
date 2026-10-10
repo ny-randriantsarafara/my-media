@@ -4728,11 +4728,11 @@ Check the latest Directus release notes and security advisories (`https://github
 
 - Version installée : 12.5.0 (`directus/directus:12.5.0`). Dernière version publiée à cette date : …
 - Correctifs de sécurité publiés depuis 12.5.0 : …
-- Licence : Directus Core sans clé (BSL 1.1, gratuite sous 5 M$ de chiffre d’affaires annuel).
+- Licence : … (texte livré dans l’image, `/directus/node_modules/@directus/api/license` ; Directus 12.5.0 est sous MSCL-1.0-GPL : tout usage sauf « Competing Use », sans seuil de chiffre d’affaires, limites de la clé non contournables).
 - Limites Core relevées dans le code 12.5.0 : 3 sièges, 25 collections, 5 flows, règles de permission personnalisées interdites.
 - Utilisation actuelle : … collections personnalisées sur 25, 1 flow sur 5, … utilisateurs actifs sur 3.
 - Conséquence de conception : permissions par collection uniquement ; protections fines dans l’extension `editorial` (clé de création, publication) et copies publiques séparées.
-- Option : une clé gratuite du programme Open Innovation (organisations sous 5 M$ de revenus et 50 salariés) lèverait ces limites ; la V1 n’en dépend pas.
+- Option : une clé gratuite (programme Open Innovation, conditions à vérifier) lèverait ces limites ; la V1 n’en dépend pas.
 ```
 
 Replace each `…` with the observed value; the usage numbers come from `pnpm test:cms` (`limits.test.ts`) or the Studio.

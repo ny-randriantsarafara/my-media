@@ -2,8 +2,8 @@
 
 - Version installée : 12.5.0 (`directus/directus:12.5.0`). Dernière version publiée à cette date : 12.5.0 (publiée le 2026-10-07 sur GitHub).
 - Correctifs de sécurité publiés depuis 12.5.0 : aucun avis GitHub Security publié après le 2026-10-07 (consultation le 2026-10-10). Les dix avis listés sur la page des advisories datent du 2026-08-05 au 2026-09-02 et concernent des versions antérieures à 12.5.0.
-- Licence : Directus Core sans clé (BSL 1.1, gratuite sous 5 M$ de chiffre d’affaires annuel).
+- Licence : Monospace Sustainable Core License 1.0 (MSCL-1.0-GPL), texte livré dans l’image 12.5.0 (`/directus/node_modules/@directus/api/license`) et publié sur `https://directus.io/bsl`. Tout usage est permis sauf un « Competing Use » (proposer Directus à des tiers en concurrence avec l’offre payante de Monospace) ; l’usage interne, dont l’auto-hébergement pour notre propre média, est permis sans seuil de chiffre d’affaires. Interdiction de contourner ou modifier les fonctions protégées par la clé de licence (les limites Core). Passage sous GPL-3.0 quatre ans après la publication de chaque version. La mention « BSL 1.1, gratuite sous 5 M$ » des documents de cadrage ne s’applique plus à cette version.
 - Limites Core relevées dans le code 12.5.0 : 3 sièges, 25 collections, 5 flows, règles de permission personnalisées interdites.
 - Utilisation actuelle : 14 collections personnalisées sur 25, 1 flow actif sur 5, 2 utilisateurs consommant un siège sur 3 (3 comptes actifs ; l’assistant n’a pas d’accès application, `AI_APP_ACCESS=false`).
 - Conséquence de conception : permissions par collection uniquement ; protections fines dans l’extension `editorial` (clé de création, publication) et copies publiques séparées.
-- Option : une clé gratuite du programme Open Innovation (organisations sous 5 M$ de revenus et 50 salariés) lèverait ces limites ; la V1 n’en dépend pas.
+- Option : une clé gratuite (programme Open Innovation cité dans `docs/recherche-cms.md`) lèverait ces limites ; conditions actuelles non vérifiées le 2026-10-10. La V1 n’en dépend pas.
