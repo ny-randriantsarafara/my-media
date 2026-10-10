@@ -1374,7 +1374,7 @@ Expected: an "up" email at the next check.
 | « CMS down » | UptimeRobot, toutes les 5 min | même chose avec `directus`, puis `database` |
 | « Sauvegarde my-media » en retard ou en échec | Healthchecks.io, quotidien | `ssh debian@<serveur>` puis `sudo journalctl -u media-backup.service -n 50` |
 
-Redémarrer un service : `compose-production.sh restart <service>`. Ne jamais lancer `down -v` en production : l’option supprime les volumes.
+Redémarrer un service : `/opt/my-media/current/ops/scripts/compose-production.sh restart <service>`. Ne jamais lancer `… down -v` en production : l’option supprime les volumes.
 
 ## Mises à jour automatiques
 
@@ -1383,9 +1383,9 @@ Les correctifs de sécurité Debian s’installent chaque jour (`unattended-upgr
 ## Revue mensuelle (15 minutes)
 
 1. `df -h /` : alerte si plus de 80 % utilisés ; nettoyer avec `docker image prune -a --filter "until=720h"`.
-2. `restic snapshots --tag my-media` (root, voir ci-dessous) : une sauvegarde par jour.
+2. En root : `set -a && . /etc/my-media/backup.env && set +a && restic snapshots --tag my-media` : une sauvegarde par jour.
 3. Notes de version et avis de sécurité Directus (`https://github.com/directus/directus/releases`, `https://github.com/directus/directus/security/advisories`).
-4. `apt list --upgradable` puis `apt full-upgrade` (root) si des paquets attendent.
+4. En root : `apt update`, puis `apt list --upgradable` ; si des paquets attendent, `apt full-upgrade`.
 
 Les commandes « root » se lancent depuis le compte d’administration : `ssh debian@<serveur>` puis `sudo -i`. Le compte `media` sert aux déploiements et n’a pas de droits root.
 
@@ -1394,7 +1394,7 @@ Les commandes « root » se lancent depuis le compte d’administration : `ssh d
 1. Lire les notes de version entre 12.5.0 et la cible ; repérer les changements sur le MCP, les flows, les permissions et la licence Core (3 sièges, 25 collections, 5 flows).
 2. Sur une branche : remplacer `directus/directus:12.5.0` dans `compose.yaml` et `Dockerfile`, et la version attendue dans `cms/tests/src/server.test.ts`.
 3. En local : `pnpm cms:up && pnpm provision && pnpm test && pnpm test:cms && pnpm test:e2e`.
-4. Lancer une sauvegarde à la demande en production, puis `ops/scripts/deploy.sh media@<serveur>`.
+4. En root sur le serveur, lancer une sauvegarde à la demande (`systemctl start media-backup.service`, puis vérifier `journalctl -u media-backup.service -n 30`) ; ensuite, depuis le poste : `ops/scripts/deploy.sh media@<serveur>`.
 5. Refaire un essai de connexion MCP depuis Claude et ChatGPT.
 
 ## Mettre à jour Postgres, Caddy, Node
@@ -1505,11 +1505,11 @@ Depuis le poste, sur un dépôt sans modification en cours :
 
     ops/scripts/deploy.sh media@<serveur>
 
-Le script envoie le code commité, construit les images sur le serveur, redémarre ce qui a changé, applique `pnpm provision` (schéma, accès, flow « Publier », réglages MCP) et lance les vérifications publiques. Revenir en arrière : se placer sur le commit précédent et relancer la même commande.
+Le script envoie le code commité et construit les images sur le serveur ; il démarre d’abord la base et Directus, exécute le conteneur de provisionnement (`compose run --rm provision` : schéma, accès, flow « Publier », réglages MCP), relance l’ensemble des services, puis lance les vérifications publiques (`smoke.sh`). Revenir en arrière : se placer sur le commit précédent et relancer la même commande.
 
 ## Modifier un réglage de production
 
-Modifier la copie de `production.env` du gestionnaire de mots de passe, l’envoyer (`ssh media@<serveur> 'umask 077 && cat > /opt/my-media/shared/production.env' < production.env`), puis redéployer.
+Modifier la copie de `production.env` du gestionnaire de mots de passe, l’envoyer (`ssh media@<serveur> 'umask 077 && cat > /opt/my-media/shared/production.env' < production.env`), puis redéployer avec `ops/scripts/deploy.sh media@<serveur>`.
 
 ## Secrets
 
