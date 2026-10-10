@@ -1,0 +1,59 @@
+---
+import { renderArticleBody } from '../lib/article-body.ts';
+import { formatLongDate, toDateTimeAttribute } from '../lib/dates.ts';
+import { renderFigure } from '../lib/figure.ts';
+import { wasUpdated } from '../lib/mapping.ts';
+import type { ArticleView } from '../lib/view-models.ts';
+import SourcesList from './SourcesList.astro';
+
+type Props = { article: ArticleView };
+
+const { article } = Astro.props;
+const [leadImage] = article.images;
+const bodyHtml = renderArticleBody(article.body, { sourceCount: article.sources.length, images: article.images });
+const showUpdate = wasUpdated(article);
+---
+
+<article>
+  <header class="shell article-header">
+    {article.kicker && <p class="kicker">{article.kicker}</p>}
+    <h1>{article.title}</h1>
+    {article.summary && <p class="dek">{article.summary}</p>}
+    <div class="article-meta">
+      {article.byline && <span class="byline-name">{article.byline}</span>}
+      {
+        article.firstPublishedAt && (
+          <span>Publié le <time datetime={toDateTimeAttribute(article.firstPublishedAt)}>{formatLongDate(article.firstPublishedAt)}</time></span>
+        )
+      }
+      {
+        showUpdate && article.lastPublishedAt && (
+          <span>Mis à jour le <time datetime={toDateTimeAttribute(article.lastPublishedAt)}>{formatLongDate(article.lastPublishedAt)}</time></span>
+        )
+      }
+      {
+        article.sources.length > 0 && (
+          <a class="sources-shortcut" href="#sources">
+            Sources et documents ({article.sources.length})
+          </a>
+        )
+      }
+    </div>
+  </header>
+  {
+    leadImage && (
+      <div class="shell">
+        <Fragment set:html={renderFigure(leadImage, { className: 'lead-figure', loading: 'eager' })} />
+      </div>
+    )
+  }
+  <div class="shell reading-layout">
+    <aside class="reading-aside" aria-label="Rubrique">
+      {article.section && <a href={article.section.href}>{article.section.name}</a>}
+    </aside>
+    <div class="reading-body">
+      <Fragment set:html={bodyHtml} />
+    </div>
+  </div>
+  {article.sources.length > 0 && <SourcesList sources={article.sources} />}
+</article>

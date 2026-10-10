@@ -1,0 +1,16 @@
+---
+import ArticleView from '../../components/ArticleView.astro';
+import NotFound from '../../components/NotFound.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { publicQueries } from '../../lib/cms.ts';
+
+const article = await publicQueries.article(Astro.params.slug ?? '');
+if (article === null) {
+  Astro.response.status = 404;
+}
+---
+
+<BaseLayout title={article?.title ?? 'Page introuvable'} description={article?.summary ?? null}>
+  {article === null && <NotFound />}
+  {article !== null && <ArticleView article={article} />}
+</BaseLayout>

@@ -1,0 +1,33 @@
+---
+import type { ArticleSource } from '../lib/view-models.ts';
+
+type Props = { sources: ArticleSource[] };
+
+const { sources } = Astro.props;
+---
+
+<section id="sources" class="shell sources" aria-labelledby="titre-sources">
+  <h2 id="titre-sources">Sources et documents</h2>
+  <ol class="source-list">
+    {
+      sources.map((source) => (
+        <li id={source.anchor} class="source-item">
+          <span class="source-number" aria-hidden="true">
+            {source.number}
+          </span>
+          <div>
+            {source.organization && <strong>{source.organization}</strong>}
+            {source.url !== null && (
+              <a href={source.url} rel="noopener noreferrer">
+                {source.title}
+              </a>
+            )}
+            {source.url === null && <span class="source-title">{source.title}</span>}
+            {source.details && <small>{source.details}</small>}
+            {source.note && <p class="source-note">{source.note}</p>}
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+</section>
