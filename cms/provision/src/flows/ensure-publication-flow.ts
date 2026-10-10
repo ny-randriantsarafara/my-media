@@ -1,9 +1,13 @@
-import { createFlow, createOperation, readFlows, readOperations, updateFlow } from '@directus/sdk';
+import { createFlow, createOperation, readFlows, readOperations, updateFlow, updateOperation } from '@directus/sdk';
 import type { AdminClient, Log } from '../directus-client.ts';
+import {
+  declaredPublicationOperationFields,
+  operationFieldsDiffer,
+  PUBLICATION_OPERATION_KEY,
+  type PublicationOperationFields,
+} from './publication-operation.ts';
 
 export const PUBLICATION_FLOW_NAME = 'Publier';
-
-const PUBLICATION_OPERATION_KEY = 'publish';
 
 const publicationFlow = {
   name: PUBLICATION_FLOW_NAME,
@@ -40,19 +44,47 @@ async function ensureFlow(client: AdminClient, log: Log): Promise<string> {
 }
 
 async function ensureOperation(client: AdminClient, flowId: string, log: Log): Promise<void> {
+  const declared = declaredPublicationOperationFields();
   const [existing] = await client.request(
-    readOperations({ filter: { flow: { _eq: flowId }, key: { _eq: PUBLICATION_OPERATION_KEY } }, fields: ['id'], limit: 1 }),
+    readOperations({
+      filter: { flow: { _eq: flowId }, key: { _eq: PUBLICATION_OPERATION_KEY } },
+      fields: ['id', 'type', 'name', 'position_x', 'position_y', 'options'],
+      limit: 1,
+    }),
   );
   if (existing !== undefined) {
+    const stored = storedOperationFields(existing);
+    if (operationFieldsDiffer(stored, declared)) {
+      await client.request(
+        updateOperation(existing.id, { flow: flowId, key: PUBLICATION_OPERATION_KEY, ...declared }),
+      );
+      log('Opération de publication mise à jour');
+    }
     await client.request(updateFlow(flowId, { operation: existing.id }));
     return;
   }
   const created = await client.request(
     createOperation(
-      { flow: flowId, key: PUBLICATION_OPERATION_KEY, type: 'publish-article', name: 'Publier l’article', position_x: 19, position_y: 1, options: {} },
+      { flow: flowId, key: PUBLICATION_OPERATION_KEY, ...declared },
       { fields: ['id'] },
     ),
   );
   await client.request(updateFlow(flowId, { operation: created.id }));
   log('Opération de publication créée');
+}
+
+function storedOperationFields(operation: {
+  type: string;
+  name: string | null;
+  position_x: number;
+  position_y: number;
+  options: PublicationOperationFields['options'];
+}): PublicationOperationFields {
+  return {
+    type: operation.type,
+    name: operation.name ?? '',
+    position_x: operation.position_x,
+    position_y: operation.position_y,
+    options: operation.options,
+  };
 }

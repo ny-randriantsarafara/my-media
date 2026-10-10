@@ -8,3 +8,9 @@ export function createAdminClient(url: string, token: string) {
 }
 
 export type AdminClient = ReturnType<typeof createAdminClient>;
+
+export function createSystemAdminClient(url: string, token: string) {
+  return createDirectus(url).with(staticToken(token)).with(rest());
+}
+
+export type SystemAdminClient = ReturnType<typeof createSystemAdminClient>;
