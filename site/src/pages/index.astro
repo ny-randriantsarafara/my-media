@@ -9,7 +9,7 @@ import { publicQueries } from '../lib/cms.ts';
 const [home, frame] = await Promise.all([publicQueries.homePage(), publicQueries.siteFrame()]);
 ---
 
-<BaseLayout title={null} description={frame.identity.presentation}>
+<BaseLayout title={null} description={frame.identity.presentation} frame={frame}>
   <h1 class="visually-hidden">{frame.identity.mediaName} — À la une</h1>
   {home.lead === null && <p class="shell empty-state">Aucun article publié pour le moment.</p>}
   {home.lead !== null && <LeadStory article={home.lead} />}

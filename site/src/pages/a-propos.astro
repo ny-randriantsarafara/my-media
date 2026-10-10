@@ -3,10 +3,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { renderMarkdown } from '../lib/article-body.ts';
 import { publicQueries } from '../lib/cms.ts';
 
-const { identity } = await publicQueries.siteFrame();
+const frame = await publicQueries.siteFrame();
+const { identity } = frame;
 ---
 
-<BaseLayout title="À propos" description={identity.presentation}>
+<BaseLayout title="À propos" description={identity.presentation} frame={frame}>
   <article class="shell page">
     <h1>À propos</h1>
     {identity.presentation && <p class="dek">{identity.presentation}</p>}

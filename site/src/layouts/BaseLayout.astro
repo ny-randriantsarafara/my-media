@@ -3,16 +3,18 @@ import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import { publicQueries } from '../lib/cms.ts';
 import { composeDocumentTitle } from '../lib/mapping.ts';
+import type { SiteFrame } from '../lib/view-models.ts';
 import '../styles/global.css';
 
 type Props = {
   title: string | null;
   description?: string | null;
   noindex?: boolean;
+  frame?: SiteFrame;
 };
 
 const { title, description = null, noindex = false } = Astro.props;
-const frame = await publicQueries.siteFrame();
+const frame = Astro.props.frame ?? (await publicQueries.siteFrame());
 const documentTitle = composeDocumentTitle(title, frame.identity.mediaName);
 ---
 
