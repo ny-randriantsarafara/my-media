@@ -1593,7 +1593,10 @@ import type { SeedData } from './support/seed-data.ts';
 
 const MEDIA_NAME = 'La Revue d’essai';
 const ONE_PIXEL_PNG = Uint8Array.from(
-  Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64'),
+  Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAACXBIWXMAAAPoAAAD6AG1e1JrAAAADElEQVQImWNgYGAAAAAEAAGjChXjAAAAAElFTkSuQmCC',
+    'base64',
+  ),
 );
 
 function createEditorClient() {
