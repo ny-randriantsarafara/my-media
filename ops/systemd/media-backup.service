@@ -1,0 +1,12 @@
+[Unit]
+Description=Sauvegarde du média (base, fichiers, réglages)
+Wants=network-online.target
+After=network-online.target docker.service
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/my-media/backup.env
+Environment=MEDIA_ENV_FILE=/opt/my-media/shared/production.env
+ExecStart=/opt/my-media/current/ops/scripts/backup.sh
+Nice=10
+IOSchedulingClass=idle
