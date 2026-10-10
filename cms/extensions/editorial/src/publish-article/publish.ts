@@ -72,14 +72,7 @@ const DRAFT_QUERY: Query = {
 };
 
 const PUBLIC_IMAGE_TRANSFORMATION: TransformationSet = {
-  transformationParams: {
-    width: PUBLIC_IMAGE_MAX_WIDTH,
-    height: PUBLIC_IMAGE_MAX_WIDTH,
-    fit: 'inside',
-    withoutEnlargement: true,
-    format: 'webp',
-    quality: 82,
-  },
+  transformationParams: { width: PUBLIC_IMAGE_MAX_WIDTH, withoutEnlargement: true, format: 'webp', quality: 82 },
 };
 
 export async function publishArticle(dependencies: PublishDependencies): Promise<PublishResult> {

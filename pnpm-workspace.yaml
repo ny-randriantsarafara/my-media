@@ -3,3 +3,4 @@ packages:
   - cms/extensions/*
 onlyBuiltDependencies:
   - esbuild
+  - sharp
