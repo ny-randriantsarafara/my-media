@@ -1187,7 +1187,7 @@ readonly SERVER_VOLUMES_ROOT=/var/lib/docker/volumes
 # shellcheck source=SCRIPTDIR/lib.sh
 source "$SCRIPT_DIR/lib.sh"
 
-WORK_DIR="$(mktemp -d)"
+WORK_DIR="$(mktemp -d /var/tmp/my-media-restore.XXXXXX)"
 readonly WORK_DIR
 trap 'rm -rf "$WORK_DIR"' EXIT
 
@@ -1292,6 +1292,7 @@ En root : `set -a && . /etc/my-media/backup.env && set +a && restic snapshots --
 2. En root : charger `backup.env` comme ci-dessus.
 3. `MEDIA_ENV_FILE=/opt/my-media/shared/production.env /opt/my-media/current/ops/scripts/restore.sh <instantané|latest> --confirm-overwrite`
 4. `/opt/my-media/current/ops/scripts/smoke.sh https://<domaine> https://cms.<domaine>`
+5. Si la restauration s’arrête sur une erreur, le site et le CMS restent arrêtés : corrigez la cause, puis relancez la même commande de restauration (le script recrée la base et vide chaque volume avant la copie, donc une relance est possible).
 
 ## Reconstruire sur un nouveau serveur
 
