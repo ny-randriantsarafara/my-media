@@ -364,7 +364,13 @@ readonly MEDIA_PROJECT=my-media-production
 read_env_value() {
   local file="$1"
   local name="$2"
-  grep -E "^${name}=" "$file" | tail -n 1 | cut -d '=' -f 2-
+  local line
+  line="$(grep -E "^${name}=" "$file" | tail -n 1 || true)"
+  if [[ -z "$line" ]]; then
+    echo "Réglage $name absent de $file." >&2
+    return 1
+  fi
+  echo "${line#*=}"
 }
 
 # Prints the Docker volume name of a production volume, for example "uploads".
@@ -379,6 +385,8 @@ media_volume_name() {
 #!/usr/bin/env bash
 # Runs docker compose on the production project defined next to this script.
 # Usage: ops/scripts/compose-production.sh <compose arguments...>
+# Compose gives exported shell variables precedence over --env-file; run from a shell
+# where no other env file (such as the development .env) is exported.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
