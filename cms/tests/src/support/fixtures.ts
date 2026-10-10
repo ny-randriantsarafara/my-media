@@ -5,7 +5,10 @@ import type { Article } from '@my-media/cms-schema';
 import type { EditorialClient } from './clients.ts';
 
 export const ONE_PIXEL_PNG = new Uint8Array(
-  Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=', 'base64'),
+  Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAACXBIWXMAAAPoAAAD6AG1e1JrAAAADElEQVQImWNgYGAAAAAEAAGjChXjAAAAAElFTkSuQmCC',
+    'base64',
+  ),
 );
 
 export function uniqueSuffix(): string {

@@ -2,6 +2,7 @@ import { isDirectusError } from '@directus/sdk';
 import { ensureAccess } from './access/ensure-access.ts';
 import { createAdminClient } from './directus-client.ts';
 import { readProvisionEnvironment } from './environment.ts';
+import { ensurePublicationFlow } from './flows/ensure-publication-flow.ts';
 import { editorialCollections } from './schema/collections.ts';
 import { ensureSchema } from './schema/ensure-schema.ts';
 import { editorialRelations } from './schema/relations.ts';
@@ -16,6 +17,7 @@ async function provision(): Promise<void> {
 
   await ensureSchema(client, editorialCollections(environment.siteUrl), editorialRelations, log);
   await ensureAccess(client, environment, log);
+  await ensurePublicationFlow(client, log);
   log('Provisionnement terminé.');
 }
 

@@ -14,6 +14,14 @@
         "type": "hook",
         "name": "require-creation-key",
         "source": "src/require-creation-key/index.ts"
+      },
+      {
+        "type": "operation",
+        "name": "publish-article",
+        "source": {
+          "app": "src/publish-article/app.ts",
+          "api": "src/publish-article/api.ts"
+        }
       }
     ],
     "host": "^12.5.0"
