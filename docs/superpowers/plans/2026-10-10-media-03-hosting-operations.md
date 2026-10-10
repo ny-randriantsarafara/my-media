@@ -1036,7 +1036,7 @@ readonly APP_ROOT=/opt/my-media
 readonly COMPOSE="$SCRIPT_DIR/compose-production.sh"
 readonly HEALTHCHECK_URL="${HEALTHCHECK_URL:?HEALTHCHECK_URL est obligatoire}"
 
-# shellcheck source=lib.sh
+# shellcheck source=SCRIPTDIR/lib.sh
 source "$SCRIPT_DIR/lib.sh"
 
 WORK_DIR="$(mktemp -d /var/tmp/my-media-backup.XXXXXX)"
@@ -1184,7 +1184,7 @@ readonly SCRIPT_DIR
 readonly COMPOSE="$SCRIPT_DIR/compose-production.sh"
 readonly SERVER_VOLUMES_ROOT=/var/lib/docker/volumes
 
-# shellcheck source=lib.sh
+# shellcheck source=SCRIPTDIR/lib.sh
 source "$SCRIPT_DIR/lib.sh"
 
 WORK_DIR="$(mktemp -d)"
