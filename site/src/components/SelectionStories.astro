@@ -1,0 +1,27 @@
+---
+import { formatLongDate, toDateTimeAttribute } from '../lib/dates.ts';
+import type { ArticleCard } from '../lib/view-models.ts';
+
+type Props = { articles: ArticleCard[] };
+
+const { articles } = Astro.props;
+---
+
+<section class="shell selection" aria-labelledby="titre-selection">
+  <h2 id="titre-selection" class="visually-hidden">Sélection de la rédaction</h2>
+  {
+    articles.map((article) => (
+      <article class="selection-item">
+        {article.kicker && <p class="kicker">{article.kicker}</p>}
+        <h3>
+          <a href={article.href}>{article.title}</a>
+        </h3>
+        {article.summary && <p>{article.summary}</p>}
+        <p class="byline">
+          {article.byline && <span>{article.byline}</span>}
+          <time datetime={toDateTimeAttribute(article.publishedAt)}>{formatLongDate(article.publishedAt)}</time>
+        </p>
+      </article>
+    ))
+  }
+</section>

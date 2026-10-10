@@ -1,0 +1,20 @@
+---
+import type { SiteIdentity } from '../lib/view-models.ts';
+
+type Props = { identity: SiteIdentity };
+
+const { identity } = Astro.props;
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="shell">
+    <p class="footer-name">{identity.mediaName}</p>
+    <nav aria-label="Informations">
+      <a href="/a-propos">À propos</a>
+      <a href="/a-propos#mentions-legales">Mentions légales</a>
+      {identity.contactEmail && <a href={`mailto:${identity.contactEmail}`}>Contact</a>}
+    </nav>
+    <p>© {year} {identity.mediaName}</p>
+  </div>
+</footer>

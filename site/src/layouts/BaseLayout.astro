@@ -1,0 +1,36 @@
+---
+import SiteFooter from '../components/SiteFooter.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import { publicQueries } from '../lib/cms.ts';
+import { composeDocumentTitle } from '../lib/mapping.ts';
+import '../styles/global.css';
+
+type Props = {
+  title: string | null;
+  description?: string | null;
+  noindex?: boolean;
+};
+
+const { title, description = null, noindex = false } = Astro.props;
+const frame = await publicQueries.siteFrame();
+const documentTitle = composeDocumentTitle(title, frame.identity.mediaName);
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{documentTitle}</title>
+    {description && <meta name="description" content={description} />}
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+  </head>
+  <body>
+    <a class="skip-link" href="#contenu">Aller au contenu</a>
+    <SiteHeader identity={frame.identity} sections={frame.sections} />
+    <main id="contenu" tabindex="-1">
+      <slot />
+    </main>
+    <SiteFooter identity={frame.identity} />
+  </body>
+</html>

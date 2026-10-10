@@ -1,0 +1,18 @@
+---
+import type { SiteIdentity } from '../lib/view-models.ts';
+
+type Props = { identity: SiteIdentity };
+
+const { identity } = Astro.props;
+---
+
+{
+  identity.presentation && (
+    <section class="shell about-strip" aria-label="À propos du média">
+      <p>{identity.presentation}</p>
+      <a class="readlink" href="/a-propos">
+        Découvrir le média
+      </a>
+    </section>
+  )
+}

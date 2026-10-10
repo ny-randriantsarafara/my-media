@@ -1,0 +1,23 @@
+---
+import { formatLongDate, toDateTimeAttribute } from '../lib/dates.ts';
+import { renderFigure } from '../lib/figure.ts';
+import type { ArticleCard } from '../lib/view-models.ts';
+
+type Props = { article: ArticleCard };
+
+const { article } = Astro.props;
+---
+
+<section class="shell hero" aria-labelledby="titre-une">
+  <div>
+    {article.kicker && <p class="kicker">{article.kicker}</p>}
+    <h2 id="titre-une" class="lead-title"><a href={article.href}>{article.title}</a></h2>
+    {article.summary && <p class="dek">{article.summary}</p>}
+    <p class="byline">
+      {article.byline && <span>{article.byline}</span>}
+      <time datetime={toDateTimeAttribute(article.publishedAt)}>{formatLongDate(article.publishedAt)}</time>
+    </p>
+    <a class="readlink" href={article.href} aria-label={`Lire l’article : ${article.title}`}>Lire l’article</a>
+  </div>
+  {article.image && <Fragment set:html={renderFigure(article.image, { className: 'lead-photo', loading: 'eager' })} />}
+</section>

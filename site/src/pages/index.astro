@@ -1,0 +1,19 @@
+---
+import AboutStrip from '../components/AboutStrip.astro';
+import LeadStory from '../components/LeadStory.astro';
+import RecentList from '../components/RecentList.astro';
+import SelectionStories from '../components/SelectionStories.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { publicQueries } from '../lib/cms.ts';
+
+const [home, frame] = await Promise.all([publicQueries.homePage(), publicQueries.siteFrame()]);
+---
+
+<BaseLayout title={null} description={frame.identity.presentation}>
+  <h1 class="visually-hidden">{frame.identity.mediaName} — À la une</h1>
+  {home.lead === null && <p class="shell empty-state">Aucun article publié pour le moment.</p>}
+  {home.lead !== null && <LeadStory article={home.lead} />}
+  {home.selection.length > 0 && <SelectionStories articles={home.selection} />}
+  {home.recent.length > 0 && <RecentList title="Derniers articles" articles={home.recent} />}
+  <AboutStrip identity={frame.identity} />
+</BaseLayout>

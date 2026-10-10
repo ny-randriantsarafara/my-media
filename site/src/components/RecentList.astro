@@ -1,0 +1,23 @@
+---
+import { formatShortDate, toDateTimeAttribute } from '../lib/dates.ts';
+import type { ArticleCard } from '../lib/view-models.ts';
+
+type Props = { title: string; articles: ArticleCard[]; hideTitle?: boolean };
+
+const { title, articles, hideTitle = false } = Astro.props;
+---
+
+<section class="shell recent" aria-labelledby="titre-liste">
+  <h2 id="titre-liste" class:list={[{ 'visually-hidden': hideTitle }]}>{title}</h2>
+  <ol class="recent-list">
+    {
+      articles.map((article) => (
+        <li>
+          <time datetime={toDateTimeAttribute(article.publishedAt)}>{formatShortDate(article.publishedAt)}</time>
+          <a href={article.href}>{article.title}</a>
+          <span class="recent-section">{article.section?.name}</span>
+        </li>
+      ))
+    }
+  </ol>
+</section>
