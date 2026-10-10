@@ -277,7 +277,7 @@ services:
       MCP_OAUTH_DCR_ENABLED: ${MCP_OAUTH_DCR_ENABLED:-false}
       MCP_OAUTH_CIMD_ALLOW_HTTP: ${MCP_OAUTH_CIMD_ALLOW_HTTP:-false}
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8055/server/health || exit 1"]
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8055/server/ping || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 30
@@ -288,7 +288,7 @@ volumes:
   uploads:
 ```
 
-`ASSETS_TRANSFORM_IMAGE_MAX_DIMENSION` is raised because phone photos often exceed the 6000 px default and the publish operation resizes them. The Directus container runs as uid 1000 (`node`); `pnpm cms:up` creates `.data/public-media` as your user first, which is writable on macOS and on Linux when your uid is 1000 (otherwise run `sudo chown 1000:1000 .data/public-media`). `PUBLIC_MEDIA_PATH` is read by the publish operation (Task 7). `AI_ROLE_ID` is read by the creation-key hook (Task 4).
+Directus 12 answers `/server/health` only to authenticated users (anonymous requests get `403`), so the container healthcheck uses the public `/server/ping`, which answers `pong`. `ASSETS_TRANSFORM_IMAGE_MAX_DIMENSION` is raised because phone photos often exceed the 6000 px default and the publish operation resizes them. The Directus container runs as uid 1000 (`node`); `pnpm cms:up` creates `.data/public-media` as your user first, which is writable on macOS and on Linux when your uid is 1000 (otherwise run `sudo chown 1000:1000 .data/public-media`). `PUBLIC_MEDIA_PATH` is read by the publish operation (Task 7). `AI_ROLE_ID` is read by the creation-key hook (Task 4).
 
 - [ ] **Step 5: Create the integration test package**
 
@@ -395,9 +395,12 @@ describe('local Directus server', () => {
     expect(serverInfoResponse.parse(await response.json()).data.version).toBe('12.5.0');
   });
 
-  it('reports a healthy status', async () => {
-    const response = await fetch(`${testEnvironment.directusUrl}/server/health`);
+  it('reports a healthy status to the administrator', async () => {
+    const response = await fetch(`${testEnvironment.directusUrl}/server/health`, {
+      headers: { Authorization: `Bearer ${testEnvironment.adminToken}` },
+    });
 
+    expect(response.status).toBe(200);
     expect(healthResponse.parse(await response.json()).status).toBe('ok');
   });
 });

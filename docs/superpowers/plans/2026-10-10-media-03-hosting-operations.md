@@ -326,7 +326,7 @@ check_status() {
 check_status "accueil du site" "200" GET "$SITE_URL/"
 check_status "page inconnue du site" "404" GET "$SITE_URL/page-inexistante-verification"
 check_status "image publique inexistante" "404" GET "$SITE_URL/media/00000000-0000-4000-8000-000000000000.webp"
-check_status "santé de Directus" "200" GET "$CMS_URL/server/health"
+check_status "Directus répond" "200" GET "$CMS_URL/server/ping"
 check_status "versions publiées, lecture anonyme" "200" GET "$CMS_URL/items/published_articles?limit=1"
 for collection in "${PRIVATE_COLLECTIONS[@]}"; do
   check_status "données privées refusées : $collection" "403" GET "$CMS_URL/items/$collection?limit=1"
@@ -466,7 +466,7 @@ services:
       MCP_OAUTH_CIMD_ALLOWED_DOMAINS: ${MCP_OAUTH_CIMD_ALLOWED_DOMAINS:-}
       MCP_OAUTH_ALLOWED_REDIRECT_DOMAINS: ${MCP_OAUTH_ALLOWED_REDIRECT_DOMAINS:-}
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8055/server/health || exit 1"]
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8055/server/ping || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 30
@@ -1325,7 +1325,7 @@ git commit -m "feat(ops): restore backups and record the first restore drill"
 
 On UptimeRobot (free plan), create:
 1. Keyword monitor "Site" — `https://example.fr/`, keyword: the media name, interval 5 min.
-2. Keyword monitor "CMS" — `https://cms.example.fr/server/health`, keyword `ok`, interval 5 min.
+2. Keyword monitor "CMS" — `https://cms.example.fr/server/ping`, keyword `pong`, interval 5 min (Directus 12 refuses `/server/health` to anonymous callers).
 
 Alert contact: the owner's email for both.
 
