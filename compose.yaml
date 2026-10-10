@@ -25,6 +25,7 @@ services:
     volumes:
       - uploads:/directus/uploads
       - ./.data/public-media:/directus/public-media
+      - ./cms/extensions/editorial:/directus/extensions/editorial:ro
     environment:
       SECRET: ${DIRECTUS_SECRET:?DIRECTUS_SECRET is required}
       PUBLIC_URL: ${DIRECTUS_PUBLIC_URL:?DIRECTUS_PUBLIC_URL is required}

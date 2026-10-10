@@ -1,0 +1,39 @@
+{
+  "name": "directus-extension-editorial",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "directus:extension": {
+    "type": "bundle",
+    "path": {
+      "app": "dist/app.js",
+      "api": "dist/api.js"
+    },
+    "entries": [
+      {
+        "type": "hook",
+        "name": "require-creation-key",
+        "source": "src/require-creation-key/index.ts"
+      }
+    ],
+    "host": "^12.5.0"
+  },
+  "scripts": {
+    "build": "directus-extension build",
+    "dev": "directus-extension build --watch --no-minify",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@directus/errors": "3.0.0"
+  },
+  "devDependencies": {
+    "@directus/extensions-sdk": "18.0.6",
+    "@directus/types": "18.0.0",
+    "@types/node": "^24.19.2",
+    "knex": "3.1.0",
+    "pino": "9.7.0",
+    "typescript": "~6.0.3",
+    "vitest": "^5.0.3"
+  }
+}
