@@ -16,6 +16,7 @@
     "test:cms": "pnpm --filter @my-media/cms-tests test",
     "typecheck": "pnpm -r --if-present typecheck",
     "dev:site": "pnpm --filter @my-media/site dev",
-    "test:e2e": "pnpm --filter @my-media/site test:e2e"
+    "test:e2e": "pnpm --filter @my-media/site test:e2e",
+    "lint:ops": "shellcheck --external-sources ops/scripts/*.sh"
   }
 }
