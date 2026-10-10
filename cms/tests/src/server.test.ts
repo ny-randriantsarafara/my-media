@@ -15,9 +15,12 @@ describe('local Directus server', () => {
     expect(serverInfoResponse.parse(await response.json()).data.version).toBe('12.5.0');
   });
 
-  it('reports a healthy status', async () => {
-    const response = await fetch(`${testEnvironment.directusUrl}/server/health`);
+  it('reports a healthy status to the administrator', async () => {
+    const response = await fetch(`${testEnvironment.directusUrl}/server/health`, {
+      headers: { Authorization: `Bearer ${testEnvironment.adminToken}` },
+    });
 
+    expect(response.status).toBe(200);
     expect(healthResponse.parse(await response.json()).status).toBe('ok');
   });
 });
