@@ -17,7 +17,7 @@ RELEASE="$(git rev-parse --short=12 HEAD)"
 readonly RELEASE
 readonly RELEASE_DIR="$APP_ROOT/releases/$RELEASE"
 
-echo "Envoi de la version $RELEASE vers $DESTINATION…"
+echo "Envoi de la version $RELEASE vers ${DESTINATION}…"
 # shellcheck disable=SC2029
 git archive --format=tar HEAD | ssh "$DESTINATION" "mkdir -p '$RELEASE_DIR' && tar -x -C '$RELEASE_DIR'"
 
