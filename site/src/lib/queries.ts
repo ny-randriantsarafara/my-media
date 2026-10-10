@@ -1,6 +1,8 @@
 import { z } from 'zod';
-import { fetchPublicData, fetchSessionData } from './cms-client.ts';
+import { fetchPublicData, fetchSessionData, SESSION_COOKIE_NAME } from './cms-client.ts';
 import type { CmsConnection } from './cms-client.ts';
+
+export { SESSION_COOKIE_NAME };
 import {
   ARTICLE_FIELDS,
   articleCardRecord,
@@ -17,8 +19,6 @@ import {
 import type { ArticleCardRecord } from './cms-records.ts';
 import { buildHomePage, sectionHref, toArticleCard, toDraftArticleView, toPublishedArticleView, toSiteIdentity } from './mapping.ts';
 import type { ArticleCard, ArticleView, HomePage, SectionPage, SiteFrame } from './view-models.ts';
-
-export const SESSION_COOKIE_NAME = 'directus_session_token';
 
 const RECENT_LIMIT = '10';
 const LIST_LIMIT = '50';

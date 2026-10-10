@@ -1,7 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
-import { CmsRequestError, fetchPublicData, fetchSessionData } from './cms-client.ts';
+import { CmsRequestError, fetchPublicData, fetchSessionData, SESSION_COOKIE_NAME } from './cms-client.ts';
 import type { FetchFunction } from './cms-client.ts';
+import { siteSettingsRecord } from './cms-records.ts';
+import { toSiteIdentity } from './mapping.ts';
 
 const titles = z.array(z.object({ title: z.string() }));
 
@@ -33,6 +35,20 @@ describe('fetchPublicData', () => {
 
     await expect(fetchPublicData(connection, { path: '/items/sections' }, titles)).rejects.toThrow();
   });
+
+  it('accepts an unsaved site_settings singleton and maps default identity', async () => {
+    const { connection } = connectionReturning(Response.json({ data: {} }));
+
+    const settings = await fetchPublicData(connection, { path: '/items/site_settings' }, siteSettingsRecord);
+    const identity = toSiteIdentity(settings);
+
+    expect(identity.mediaName).toBe('Média');
+    expect(identity.editionLabel).toBeNull();
+    expect(identity.presentation).toBeNull();
+    expect(identity.aboutBody).toBeNull();
+    expect(identity.contactEmail).toBeNull();
+    expect(identity.legalNotice).toBeNull();
+  });
 });
 
 describe('fetchSessionData', () => {
@@ -42,7 +58,7 @@ describe('fetchSessionData', () => {
     await fetchSessionData(connection, { path: '/items/articles/abc', sessionToken: 'jeton' }, titles);
 
     expect(fetch).toHaveBeenCalledWith('http://cms.test/items/articles/abc', {
-      headers: { Accept: 'application/json', Cookie: 'directus_session_token=jeton' },
+      headers: { Accept: 'application/json', Cookie: `${SESSION_COOKIE_NAME}=jeton` },
     });
   });
 

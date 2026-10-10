@@ -105,6 +105,7 @@ describe('small helpers', () => {
   it('keeps only web links for sources', () => {
     expect(safeExternalUrl('https://example.org/rapport')).toBe('https://example.org/rapport');
     expect(safeExternalUrl('javascript:alert(1)')).toBeNull();
+    expect(safeExternalUrl('data:text/html,hello')).toBeNull();
     expect(safeExternalUrl('pas une adresse')).toBeNull();
     expect(safeExternalUrl(null)).toBeNull();
   });

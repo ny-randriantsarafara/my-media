@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+export const SESSION_COOKIE_NAME = 'directus_session_token';
+
 export type FetchFunction = (input: string, init: RequestInit) => Promise<Response>;
 
 export type CmsConnection = { baseUrl: string; fetch: FetchFunction };
@@ -54,7 +56,7 @@ function buildHeaders(request: CmsRequest): Record<string, string> {
   if (request.sessionToken === undefined) {
     return { Accept: 'application/json' };
   }
-  return { Accept: 'application/json', Cookie: `directus_session_token=${request.sessionToken}` };
+  return { Accept: 'application/json', Cookie: `${SESSION_COOKIE_NAME}=${request.sessionToken}` };
 }
 
 async function parseData<T>(response: Response, schema: z.ZodType<T>): Promise<T> {

@@ -59,12 +59,12 @@ export const homeFeatureRecord = z.object({
 export const sectionPageRecord = z.object({ name: z.string(), slug: z.string(), description: z.string().nullable() });
 
 export const siteSettingsRecord = z.object({
-  media_name: z.string().nullable(),
-  edition_label: z.string().nullable(),
-  presentation: z.string().nullable(),
-  about_body: z.string().nullable(),
-  contact_email: z.string().nullable(),
-  legal_notice: z.string().nullable(),
+  media_name: z.string().nullable().default(null),
+  edition_label: z.string().nullable().default(null),
+  presentation: z.string().nullable().default(null),
+  about_body: z.string().nullable().default(null),
+  contact_email: z.string().nullable().default(null),
+  legal_notice: z.string().nullable().default(null),
 });
 
 export const draftArticleRecord = z.object({
