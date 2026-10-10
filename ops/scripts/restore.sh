@@ -19,7 +19,7 @@ readonly SERVER_VOLUMES_ROOT=/var/lib/docker/volumes
 # shellcheck source=SCRIPTDIR/lib.sh
 source "$SCRIPT_DIR/lib.sh"
 
-WORK_DIR="$(mktemp -d)"
+WORK_DIR="$(mktemp -d /var/tmp/my-media-restore.XXXXXX)"
 readonly WORK_DIR
 trap 'rm -rf "$WORK_DIR"' EXIT
 
