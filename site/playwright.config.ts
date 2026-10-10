@@ -19,7 +19,7 @@ export default defineConfig({
   webServer: {
     command: 'pnpm build && pnpm start',
     url: e2eEnvironment.siteUrl,
-    reuseExistingServer: !process.env['CI'],
+    reuseExistingServer: false,
     timeout: 180_000,
     env: {
       HOST: siteAddress.hostname,
