@@ -1,3 +1,4 @@
+import { readFile } from 'node:fs/promises';
 import { isDirectusError } from '@directus/sdk';
 import { ensureAccess } from './access/ensure-access.ts';
 import { createAdminClient } from './directus-client.ts';
@@ -6,6 +7,7 @@ import { ensurePublicationFlow } from './flows/ensure-publication-flow.ts';
 import { editorialCollections } from './schema/collections.ts';
 import { ensureSchema } from './schema/ensure-schema.ts';
 import { editorialRelations } from './schema/relations.ts';
+import { ensureSettings } from './settings/ensure-settings.ts';
 
 function log(message: string): void {
   console.log(message);
@@ -14,10 +16,12 @@ function log(message: string): void {
 async function provision(): Promise<void> {
   const environment = readProvisionEnvironment(process.env);
   const client = createAdminClient(environment.directusUrl, environment.adminToken);
+  const assistantProtocol = await readFile(new URL('./assistant-protocol.md', import.meta.url), 'utf8');
 
   await ensureSchema(client, editorialCollections(environment.siteUrl), editorialRelations, log);
   await ensureAccess(client, environment, log);
   await ensurePublicationFlow(client, log);
+  await ensureSettings(client, environment, assistantProtocol, log);
   log('Provisionnement terminé.');
 }
 
