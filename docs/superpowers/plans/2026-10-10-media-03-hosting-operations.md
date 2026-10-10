@@ -688,10 +688,14 @@ Stop the development stack first (it uses port 8055, not 80/443, but shares the 
 Run:
 
 ```bash
-MEDIA_ENV_FILE=ops/rehearsal.env ops/scripts/compose-production.sh up -d --build --wait
+MEDIA_ENV_FILE=ops/rehearsal.env ops/scripts/compose-production.sh --profile tools build
+MEDIA_ENV_FILE=ops/rehearsal.env ops/scripts/compose-production.sh up -d --wait database directus
 MEDIA_ENV_FILE=ops/rehearsal.env ops/scripts/compose-production.sh run --rm provision
+MEDIA_ENV_FILE=ops/rehearsal.env ops/scripts/compose-production.sh up -d --wait
 ops/scripts/smoke.sh https://site.localhost https://cms.localhost --insecure
 ```
+
+Provisioning runs before the site starts: on an empty database the public policy cannot read anything yet, so the site's health check (its home page) fails until provisioning has run. Run these commands from a shell where the development `.env` is not exported: Compose gives shell variables precedence over `--env-file`, so exported development values would silently replace the rehearsal ones.
 
 Expected: all services healthy (Caddy issues local certificates for `*.localhost` from its internal authority); provisioning ends with its final log line; every smoke check prints `ok` and the script ends with `Toutes les vérifications sont passées.`
 
@@ -912,8 +916,9 @@ readonly SITE_DOMAIN CMS_DOMAIN
 
 "$COMPOSE" pull database caddy
 "$COMPOSE" --profile tools build --pull
-"$COMPOSE" up -d --wait --remove-orphans
+"$COMPOSE" up -d --wait database directus
 "$COMPOSE" run --rm provision
+"$COMPOSE" up -d --wait --remove-orphans
 ln -sfn "$RELEASE_DIR" "$APP_ROOT/current"
 
 find "$APP_ROOT/releases" -mindepth 1 -maxdepth 1 -type d -printf '%T@ %p\n' \
@@ -925,6 +930,8 @@ find "$APP_ROOT/releases" -mindepth 1 -maxdepth 1 -type d -printf '%T@ %p\n' \
 "$RELEASE_DIR/ops/scripts/smoke.sh" "https://$SITE_DOMAIN" "https://$CMS_DOMAIN"
 echo "Version $RELEASE en service."
 ```
+
+Provisioning runs between Directus and the site: on the first release the database is empty and the site's health check (its home page) passes only once the public permissions exist; on later releases the schema is up to date before the new site starts.
 
 `git archive` keeps the executable bit of the scripts. Rolling back means checking out an earlier commit on the laptop and running `deploy.sh` again; volumes are untouched by a release.
 
