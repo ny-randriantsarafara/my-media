@@ -1,0 +1,22 @@
+{
+  "name": "@my-media/cms-provision",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./access": "./src/access/policies.ts"
+  },
+  "scripts": {
+    "start": "node --env-file=../../.env src/main.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@directus/sdk": "27.0.0"
+  },
+  "devDependencies": {
+    "@my-media/cms-schema": "workspace:*",
+    "@types/node": "^24.19.2",
+    "typescript": "~6.0.3",
+    "vitest": "^5.0.3"
+  }
+}

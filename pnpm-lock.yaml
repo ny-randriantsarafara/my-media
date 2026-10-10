@@ -8,8 +8,45 @@ importers:
 
   .: {}
 
+  cms/provision:
+    dependencies:
+      '@directus/sdk':
+        specifier: 27.0.0
+        version: 27.0.0
+    devDependencies:
+      '@my-media/cms-schema':
+        specifier: workspace:*
+        version: link:../schema
+      '@types/node':
+        specifier: ^24.19.2
+        version: 24.19.2
+      typescript:
+        specifier: ~6.0.3
+        version: 6.0.3
+      vitest:
+        specifier: ^5.0.3
+        version: 5.0.3(@types/node@24.19.2)(vite@8.3.4(@types/node@24.19.2))
+
+  cms/schema:
+    devDependencies:
+      '@types/node':
+        specifier: ^24.19.2
+        version: 24.19.2
+      typescript:
+        specifier: ~6.0.3
+        version: 6.0.3
+
   cms/tests:
     devDependencies:
+      '@directus/sdk':
+        specifier: 27.0.0
+        version: 27.0.0
+      '@my-media/cms-provision':
+        specifier: workspace:*
+        version: link:../provision
+      '@my-media/cms-schema':
+        specifier: workspace:*
+        version: link:../schema
       '@types/node':
         specifier: ^24.19.2
         version: 24.19.2
@@ -24,6 +61,10 @@ importers:
         version: 4.6.5
 
 packages:
+
+  '@directus/sdk@27.0.0':
+    resolution: {integrity: sha512-aoBjJgU9ewYQiLXQQExoahl5pAJew+BImSJhFOmZbgT5a8SdFwv+NIvIeBKoThmVYNK6BsxpwKGO11aKGvirhQ==}
+    engines: {node: '>=22'}
 
   '@jridgewell/resolve-uri@3.1.2':
     resolution: {integrity: sha512-bRISgCIjP20/tbWSPWMEi54QVPRZExkuD9lJL+UIxUKtwVJA8wW1Trb1jMs1RFXo1CBTNZ/5hpC9QvmKWdopKw==}
@@ -421,6 +462,8 @@ packages:
     resolution: {integrity: sha512-v5l/aFXZQeai4awLbOpSoHecE9UiMrnfx75tEXLjNonXVARxQ5mOeipTjROUchszUNCqnE+hqAMujRsRHsut2Q==}
 
 snapshots:
+
+  '@directus/sdk@27.0.0': {}
 
   '@jridgewell/resolve-uri@3.1.2': {}
 
