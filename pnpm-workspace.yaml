@@ -1,6 +1,7 @@
 packages:
   - cms/*
   - cms/extensions/*
+  - site
 onlyBuiltDependencies:
   - esbuild
   - sharp

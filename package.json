@@ -14,6 +14,8 @@
     "provision": "pnpm --filter @my-media/cms-provision start",
     "test": "pnpm -r --filter '!@my-media/cms-tests' --if-present test",
     "test:cms": "pnpm --filter @my-media/cms-tests test",
-    "typecheck": "pnpm -r --if-present typecheck"
+    "typecheck": "pnpm -r --if-present typecheck",
+    "dev:site": "pnpm --filter @my-media/site dev",
+    "test:e2e": "pnpm --filter @my-media/site test:e2e"
   }
 }

@@ -1,0 +1,28 @@
+{
+  "name": "@my-media/site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "start": "node ./dist/server/entry.mjs",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "typecheck": "astro check"
+  },
+  "dependencies": {
+    "@astrojs/node": "11.1.7",
+    "astro": "7.3.8",
+    "markdown-it": "15.0.2",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.10",
+    "@directus/sdk": "27.0.0",
+    "@my-media/cms-schema": "workspace:*",
+    "@playwright/test": "1.64.0",
+    "@types/node": "^24.19.2",
+    "typescript": "~6.0.3",
+    "vitest": "^5.0.3"
+  }
+}
