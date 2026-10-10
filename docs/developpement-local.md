@@ -4,8 +4,8 @@ Prérequis : Node 24, pnpm 10 (`corepack enable`), Docker.
 
 1. `cp .env.example .env`, puis remplacer chaque valeur `change-me…` par `openssl rand -hex 32`.
 2. `pnpm install`
-3. `pnpm build:extension` — construit l’extension `editorial` (clé de création, publication). À exécuter avant `pnpm cms:up` et `pnpm test:cms` : Directus charge le hook et l’opération depuis `cms/extensions/editorial/dist/`.
-4. `pnpm cms:up` — Postgres et Directus sur http://localhost:8055.
+3. `pnpm build:extension` — construit l’extension `editorial` (clé de création, publication). Obligatoire avant `pnpm test:cms` ; `pnpm cms:up` l’exécute aussi automatiquement. Directus charge le hook et l’opération depuis `cms/extensions/editorial/dist/`.
+4. `pnpm cms:up` — construit l’extension, puis Postgres et Directus sur http://localhost:8055.
 5. `pnpm provision` — collections, accès, flow « Publier », réglages MCP. Relançable sans risque.
 6. `pnpm test` (tests unitaires) et `pnpm test:cms` (tests d’intégration contre le Directus local).
 

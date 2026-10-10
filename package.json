@@ -7,7 +7,7 @@
     "node": ">=24"
   },
   "scripts": {
-    "cms:up": "mkdir -p .data/public-media && docker compose up -d --wait",
+    "cms:up": "pnpm build:extension && mkdir -p .data/public-media && docker compose up -d --wait",
     "cms:down": "docker compose down",
     "cms:logs": "docker compose logs -f directus",
     "build:extension": "pnpm --filter directus-extension-editorial build",
