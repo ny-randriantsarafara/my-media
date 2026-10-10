@@ -1,0 +1,59 @@
+name: my-media
+
+services:
+  database:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: directus
+      POSTGRES_USER: directus
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+      - database:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U directus -d directus"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  directus:
+    image: directus/directus:12.5.0
+    depends_on:
+      database:
+        condition: service_healthy
+    ports:
+      - "8055:8055"
+    volumes:
+      - uploads:/directus/uploads
+      - ./.data/public-media:/directus/public-media
+    environment:
+      SECRET: ${DIRECTUS_SECRET:?DIRECTUS_SECRET is required}
+      PUBLIC_URL: ${DIRECTUS_PUBLIC_URL:?DIRECTUS_PUBLIC_URL is required}
+      DB_CLIENT: pg
+      DB_HOST: database
+      DB_PORT: "5432"
+      DB_DATABASE: directus
+      DB_USER: directus
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      ADMIN_TOKEN: ${ADMIN_TOKEN}
+      CACHE_ENABLED: "false"
+      WEBSOCKETS_ENABLED: "false"
+      EXTENSIONS_AUTO_RELOAD: "true"
+      ASSETS_TRANSFORM_IMAGE_MAX_DIMENSION: "12000"
+      PUBLIC_MEDIA_PATH: /directus/public-media
+      AI_ROLE_ID: ${AI_ROLE_ID:?AI_ROLE_ID is required}
+      MCP_OAUTH_ENABLED: ${MCP_OAUTH_ENABLED:-false}
+      MCP_OAUTH_CIMD_ENABLED: ${MCP_OAUTH_CIMD_ENABLED:-false}
+      MCP_OAUTH_DCR_ENABLED: ${MCP_OAUTH_DCR_ENABLED:-false}
+      MCP_OAUTH_CIMD_ALLOW_HTTP: ${MCP_OAUTH_CIMD_ALLOW_HTTP:-false}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8055/server/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+volumes:
+  database:
+  uploads:

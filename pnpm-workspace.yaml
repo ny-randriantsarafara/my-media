@@ -1,0 +1,5 @@
+packages:
+  - cms/*
+  - cms/extensions/*
+onlyBuiltDependencies:
+  - esbuild

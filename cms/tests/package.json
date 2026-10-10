@@ -1,0 +1,15 @@
+{
+  "name": "@my-media/cms-tests",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "typescript": "~6.0.3",
+    "vitest": "^5.0.3",
+    "zod": "^4.6.5"
+  }
+}
