@@ -83,9 +83,13 @@ Open `https://www.ovhcloud.com/fr/vps/` and the Object Storage price page (`http
 `docs/adr/0002-hebergement.md`:
 
 ```markdown
-# ADR 0002 — Hébergement de la V1
+---
+status: proposed
+---
 
-Statut : proposé — à valider par la personne qui commande.
+# Hébergement de la V1
+
+À valider par la personne qui commande.
 Date : 2026-10-10.
 
 ## Contexte
