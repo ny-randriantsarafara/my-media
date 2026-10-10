@@ -1,0 +1,33 @@
+---
+import ArticleView from '../../components/ArticleView.astro';
+import NotFound from '../../components/NotFound.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { cmsConnection, directusPublicUrl } from '../../lib/cms.ts';
+import { readDraftPreview, SESSION_COOKIE_NAME } from '../../lib/queries.ts';
+
+Astro.response.headers.set('Cache-Control', 'private, no-store');
+Astro.response.headers.set('X-Robots-Tag', 'noindex, nofollow');
+
+const draft = await readDraftPreview(cmsConnection, {
+  articleId: Astro.params.id ?? '',
+  sessionToken: Astro.cookies.get(SESSION_COOKIE_NAME)?.value ?? null,
+  directusPublicUrl,
+});
+if (draft === null) {
+  Astro.response.status = 404;
+}
+---
+
+<BaseLayout title={draft?.title ?? 'Page introuvable'} noindex>
+  {draft === null && <NotFound />}
+  {
+    draft !== null && (
+      <>
+        <p class="preview-banner" role="status">
+          Aperçu du brouillon — non publié
+        </p>
+        <ArticleView article={draft} />
+      </>
+    )
+  }
+</BaseLayout>
