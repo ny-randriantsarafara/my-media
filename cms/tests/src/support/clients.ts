@@ -12,3 +12,7 @@ export const adminClient = createTokenClient(testEnvironment.adminToken);
 export const editorClient = createTokenClient(testEnvironment.editorToken);
 export const assistantClient = createTokenClient(testEnvironment.assistantToken);
 export const anonymousClient = createDirectus<EditorialSchema>(testEnvironment.directusUrl).with(rest());
+
+export const systemAdminClient = createDirectus(testEnvironment.directusUrl)
+  .with(staticToken(testEnvironment.adminToken))
+  .with(rest());
