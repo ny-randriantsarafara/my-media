@@ -1,0 +1,12 @@
+---
+all:
+  hosts:
+    vps:
+      ansible_host: 51.210.10.127
+      ansible_user: "{{ deploy_account }}"
+      ansible_python_interpreter: /usr/bin/python3
+      # Fingerprint copied from vps-services/inventories/production/known_hosts: a changed host key stops the delivery.
+      ansible_ssh_common_args: >-
+        -o StrictHostKeyChecking=yes
+        -o UserKnownHostsFile={{ inventory_dir }}/known_hosts
+        -o IdentitiesOnly=yes

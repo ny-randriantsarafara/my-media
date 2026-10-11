@@ -86,3 +86,38 @@ jobs:
           path: site/test-results
           retention-days: 7
           if-no-files-found: ignore
+
+  # main only: build once, deliver to staging, keep the digests for production (production.yml).
+  images:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [checks, integration]
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/images.yml
+
+  staging:
+    needs: images
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: staging
+      github-environment: nonprod
+      release: ${{ needs.images.outputs.release }}
+    secrets: inherit
+
+  release:
+    name: Record the staging release
+    needs: [images, staging]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: release.json
+        env:
+          RELEASE: ${{ needs.images.outputs.release }}
+        run: echo "$RELEASE" | jq . > release.json
+      - name: Upload
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release
+          path: release.json
+          retention-days: 90

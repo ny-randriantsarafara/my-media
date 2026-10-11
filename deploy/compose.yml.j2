@@ -1,0 +1,132 @@
+# Rendered on the CI runner by ny.vps.app (vps-services/docs/APP-CONTRACT.md). Values come from a
+# private file written by the workflow, never from Git. Every service counts in the admission budget.
+{% set limits = instance_limits %}
+{% set site_url = 'https://' ~ media_site_hostname %}
+{% set cms_url = 'https://' ~ media_cms_hostname %}
+{% set mcp = instance_mcp_oauth %}
+services:
+  database:
+    image: {{ media_database_image | to_json }}
+    # The controller drops every capability: the image entrypoint cannot switch user as root.
+    user: "70:70"
+    command: ["postgres", "-c", "shared_buffers={{ limits.database.shared_buffers }}", "-c", "max_connections=40"]
+    cpus: {{ limits.database.cpus }}
+    mem_limit: "{{ limits.database.memory_mib }}m"
+    pids_limit: {{ limits.database.pids }}
+    environment:
+      POSTGRES_DB: directus
+      POSTGRES_USER: directus
+      POSTGRES_PASSWORD: {{ media_secrets.postgres_password | to_json }}
+    x-vps-required-environment: [POSTGRES_PASSWORD]
+    volumes:
+      - database:/var/lib/postgresql/data
+    healthcheck:
+      # TCP only: the initialization server listens on the Unix socket before its restart.
+      test: ["CMD", "pg_isready", "--host", "127.0.0.1", "--username", "directus", "--dbname", "directus"]
+      interval: 5s
+      timeout: 3s
+      start_period: 60s
+      retries: 10
+
+  directus:
+    image: {{ media_release.directus | to_json }}
+    cpus: {{ limits.directus.cpus }}
+    mem_limit: "{{ limits.directus.memory_mib }}m"
+    pids_limit: {{ limits.directus.pids }}
+    depends_on:
+      database: {condition: service_healthy}
+    volumes:
+      - uploads:/directus/uploads
+      - public-media:/directus/public-media
+    environment:
+      SECRET: {{ media_secrets.directus_secret | to_json }}
+      PUBLIC_URL: {{ cms_url | to_json }}
+      DB_CLIENT: pg
+      DB_HOST: database
+      DB_PORT: "5432"
+      DB_DATABASE: directus
+      DB_USER: directus
+      DB_PASSWORD: {{ media_secrets.postgres_password | to_json }}
+      ADMIN_EMAIL: {{ media_secrets.admin_email | to_json }}
+      ADMIN_PASSWORD: {{ media_secrets.admin_password | to_json }}
+      ADMIN_TOKEN: {{ media_secrets.admin_token | to_json }}
+      CACHE_ENABLED: "false"
+      WEBSOCKETS_ENABLED: "false"
+      EXTENSIONS_AUTO_RELOAD: "false"
+      TELEMETRY: "false"
+      LOG_LEVEL: info
+      IP_TRUST_PROXY: "true"
+      HSTS_ENABLED: "true"
+      SESSION_COOKIE_SECURE: "true"
+      REFRESH_TOKEN_COOKIE_SECURE: "true"
+      # The site's draft preview reads this cookie: the site hostname covers cms.<site hostname> and no other instance.
+      SESSION_COOKIE_DOMAIN: {{ media_site_hostname | to_json }}
+      CONTENT_SECURITY_POLICY_DIRECTIVES__FRAME_SRC: {{ ("'self'," ~ site_url) | to_json }}
+      ASSETS_TRANSFORM_IMAGE_MAX_DIMENSION: "12000"
+      PUBLIC_MEDIA_PATH: /directus/public-media
+      AI_ROLE_ID: {{ media_ai_role_id | to_json }}
+      MCP_OAUTH_ENABLED: {{ mcp.enabled | string | lower | to_json }}
+      MCP_OAUTH_CIMD_ENABLED: {{ mcp.cimd_enabled | string | lower | to_json }}
+      MCP_OAUTH_DCR_ENABLED: {{ mcp.dcr_enabled | string | lower | to_json }}
+      MCP_OAUTH_CIMD_ALLOWED_DOMAINS: {{ mcp.cimd_allowed_domains | to_json }}
+      MCP_OAUTH_ALLOWED_REDIRECT_DOMAINS: {{ mcp.allowed_redirect_domains | to_json }}
+    x-vps-required-environment: [SECRET, DB_PASSWORD, ADMIN_EMAIL, ADMIN_PASSWORD, ADMIN_TOKEN]
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8055/server/ping || exit 1"]
+      interval: 10s
+      timeout: 5s
+      start_period: 60s
+      retries: 10
+
+  provision:
+    image: {{ media_release.provision | to_json }}
+    x-vps-init: true
+    # Runs at every delivery: schema, access and flow are ensured idempotently; the demo loads only into an empty CMS.
+    cpus: {{ limits.provision.cpus }}
+    mem_limit: "{{ limits.provision.memory_mib }}m"
+    pids_limit: {{ limits.provision.pids }}
+    depends_on:
+      directus: {condition: service_healthy}
+    environment:
+      DIRECTUS_URL: http://directus:8055
+      ADMIN_TOKEN: {{ media_secrets.admin_token | to_json }}
+      SITE_URL: {{ site_url | to_json }}
+      EDITOR_EMAIL: {{ media_secrets.editor_email | to_json }}
+      EDITOR_PASSWORD: {{ media_secrets.editor_password | to_json }}
+      EDITOR_ROLE_ID: {{ media_editor_role_id | to_json }}
+      AI_EMAIL: {{ media_secrets.ai_email | to_json }}
+      AI_PASSWORD: {{ media_secrets.ai_password | to_json }}
+      AI_ROLE_ID: {{ media_ai_role_id | to_json }}
+      AI_APP_ACCESS: "false"
+      MCP_OAUTH_ENABLED: {{ mcp.enabled | string | lower | to_json }}
+      MCP_OAUTH_CIMD_ENABLED: {{ mcp.cimd_enabled | string | lower | to_json }}
+      MCP_OAUTH_DCR_ENABLED: {{ mcp.dcr_enabled | string | lower | to_json }}
+      DEMO_CONTENT: {{ instance_loads_demo | string | lower | to_json }}
+    x-vps-required-environment: [ADMIN_TOKEN, EDITOR_PASSWORD, AI_PASSWORD]
+
+  site:
+    image: {{ media_release.site | to_json }}
+    cpus: {{ limits.site.cpus }}
+    mem_limit: "{{ limits.site.memory_mib }}m"
+    pids_limit: {{ limits.site.pids }}
+    read_only: true
+    depends_on:
+      directus: {condition: service_healthy}
+      provision: {condition: service_completed_successfully}
+    environment:
+      DIRECTUS_URL: http://directus:8055
+      DIRECTUS_PUBLIC_URL: {{ cms_url | to_json }}
+      PUBLIC_MEDIA_DIR: /srv/public-media
+    volumes:
+      - public-media:/srv/public-media:ro
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4321/').then((response) => process.exit(response.ok ? 0 : 1), () => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      start_period: 20s
+      retries: 10
+
+volumes:
+  database: {}
+  uploads: {}
+  public-media: {}

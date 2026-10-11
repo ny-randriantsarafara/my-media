@@ -1,22 +1,45 @@
 #!/usr/bin/env bash
-# Public checks after a deployment or a restore.
-# Usage: ops/scripts/smoke.sh <site-url> <cms-url> [--insecure]
+# Public checks after a delivery.
+# Usage: deploy/smoke.sh <site-url> <cms-url> [--insecure] [--wait <seconds>]
+# --wait gives a new instance time to get its certificates before the checks start.
 set -euo pipefail
 
 if [[ $# -lt 2 ]]; then
-  echo "Usage : $0 <adresse-du-site> <adresse-du-cms> [--insecure]" >&2
+  echo "Usage : $0 <adresse-du-site> <adresse-du-cms> [--insecure] [--wait <secondes>]" >&2
   exit 2
 fi
 
 SITE_URL="${1%/}"
 CMS_URL="${2%/}"
 readonly SITE_URL CMS_URL
+shift 2
 
 CURL_OPTIONS=(--silent --output /dev/null --write-out '%{http_code}' --max-time 20)
-if [[ "${3:-}" == "--insecure" ]]; then
-  CURL_OPTIONS+=(--insecure)
+wait_seconds=0
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --insecure) CURL_OPTIONS+=(--insecure); shift ;;
+    --wait) wait_seconds="${2:?--wait attend un nombre de secondes}"; shift 2 ;;
+    *) echo "Option inconnue : $1" >&2; exit 2 ;;
+  esac
+done
+readonly CURL_OPTIONS wait_seconds
+
+wait_until_up() {
+  local deadline=$((SECONDS + wait_seconds))
+  until [[ "$(curl "${CURL_OPTIONS[@]}" "$SITE_URL/" || true)" == 200 \
+    && "$(curl "${CURL_OPTIONS[@]}" "$CMS_URL/server/ping" || true)" == 200 ]]; do
+    if ((SECONDS >= deadline)); then
+      echo "Pas de réponse HTTPS après ${wait_seconds} s : les vérifications continuent." >&2
+      return
+    fi
+    sleep 10
+  done
+}
+
+if ((wait_seconds > 0)); then
+  wait_until_up
 fi
-readonly CURL_OPTIONS
 
 readonly PRIVATE_COLLECTIONS=(articles article_references article_images verification_points review_remarks materials watch_sources editorial_line)
 
