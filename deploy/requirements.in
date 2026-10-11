@@ -1,0 +1,2 @@
+# Delivery tooling. Lock: uv pip compile deploy/requirements.in --universal --python-version 3.13 --generate-hashes -o deploy/requirements.txt
+ansible-core==2.21.5

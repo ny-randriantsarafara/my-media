@@ -17,6 +17,6 @@
     "typecheck": "pnpm -r --if-present typecheck",
     "dev:site": "pnpm --filter @my-media/site dev",
     "test:e2e": "pnpm --filter @my-media/site test:e2e",
-    "lint:shell": "shellcheck --external-sources ops/scripts/*.sh scripts/ci/*.sh"
+    "lint:shell": "shellcheck --external-sources deploy/*.sh scripts/ci/*.sh"
   }
 }

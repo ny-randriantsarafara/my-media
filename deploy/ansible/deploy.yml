@@ -1,0 +1,67 @@
+---
+# Delivers one instance of my-media through the VPS controller (ny.vps.app).
+# Run by .github/workflows/deploy.yml; usable from a workstation, see docs/exploitation/livraison.md.
+- name: Deliver an instance of my-media
+  hosts: vps
+  gather_facts: false
+  vars_files:
+    - "environments/{{ target_environment }}.yml"
+  vars:
+    delivery_operation: "{{ operation | default('apply') }}"
+    media_domain: apps.nyhasinavalona.com
+    # Same rule as the workflow (deploy.yml, "Instance hostnames"): production answers on the application name.
+    media_label: >-
+      {{ 'my-media' if target_environment == 'prod'
+         else 'my-media-staging' if target_environment == 'staging'
+         else 'my-media-pr-' ~ pull_request_number }}
+    media_site_hostname: "{{ media_label }}.{{ media_domain }}"
+    media_cms_hostname: "cms.{{ media_label }}.{{ media_domain }}"
+    # Digest read from docker.io on 2026-10-11 (postgres 17.11).
+    media_database_image: >-
+      docker.io/library/postgres:17.11-alpine@sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24
+    media_editor_role_id: 2b0c4c3e-7a8f-4d7e-9a51-3f6f0b9c1e42
+    media_ai_role_id: 6f1d1f4e-2b7a-4c55-9f58-4c1b3e8a9d21
+  pre_tasks:
+    - name: Require the delivery inputs
+      ansible.builtin.assert:
+        that:
+          - release_generation | int > 0
+          - media_release.directus is ansible.builtin.match('^[^@\s]+@sha256:[a-f0-9]{64}$')
+          - media_release.site is ansible.builtin.match('^[^@\s]+@sha256:[a-f0-9]{64}$')
+          - media_release.provision is ansible.builtin.match('^[^@\s]+@sha256:[a-f0-9]{64}$')
+        fail_msg: Fournir release_generation et media_release (images publiées, par digest).
+      when: delivery_operation in ['apply', 'plan']
+      tags: [always]
+
+    - name: Require the private secrets of this instance
+      ansible.builtin.assert:
+        that:
+          - media_secrets.postgres_password | default('') | length >= 24
+          - media_secrets.directus_secret | default('') | length >= 32
+          - media_secrets.admin_token | default('') | length >= 32
+          - media_secrets.admin_password | default('') | length >= 16
+          - media_secrets.editor_password | default('') | length >= 16
+          - media_secrets.ai_password | default('') | length >= 16
+          - media_secrets.admin_email | default('') is ansible.builtin.match('^[^@\s]+@[^@\s]+$')
+          - media_secrets.editor_email | default('') is ansible.builtin.match('^[^@\s]+@[^@\s]+$')
+          - media_secrets.ai_email | default('') is ansible.builtin.match('^[^@\s]+@[^@\s]+$')
+        fail_msg: Fournir media_secrets depuis un fichier privé (-e @/chemin/prive.json).
+        quiet: true
+      no_log: true
+      when: delivery_operation in ['apply', 'plan']
+      tags: [always]
+  roles:
+    - role: ny.vps.app
+      vars:
+        app_application: my-media
+        app_environment: "{{ target_environment }}"
+        app_pull_request: "{{ (pull_request_number | int) if target_environment == 'preview' else none }}"
+        app_generation: "{{ release_generation | default(none) }}"
+        app_operation: "{{ delivery_operation }}"
+        app_compose_template: "{{ playbook_dir }}/../compose.yml.j2"
+        app_routes:
+          - {hostname: "{{ media_site_hostname }}", service: site, port: 4321}
+          - {hostname: "{{ media_cms_hostname }}", service: directus, port: 8055}
+        app_storage_budget_gib: "{{ instance_storage_budget_gib }}"
+        # A preview closed or expired earlier comes back on its next delivery; a late one stays refused by its generation.
+        app_reopen: "{{ target_environment == 'preview' }}"

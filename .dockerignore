@@ -1,6 +1,5 @@
 .git
 .env
-ops/*.env
 **/node_modules
 **/dist
 **/.astro
@@ -9,3 +8,5 @@ ops/*.env
 .data
 .superpowers
 docs
+.github
+deploy

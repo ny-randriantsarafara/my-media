@@ -1,0 +1,81 @@
+name: Preview
+
+# One preview per non-draft pull request of this repository, removed when the pull request closes.
+# The VPS holds two previews at most; a refused delivery fails this check, which is not required to merge.
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review, closed]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: preview-${{ github.event.pull_request.number }}
+  # Never interrupt a running vpsctl request; the newest pending run replaces older pending ones.
+  cancel-in-progress: false
+
+jobs:
+  images:
+    if: >-
+      github.event.action != 'closed'
+      && !github.event.pull_request.draft
+      && github.event.pull_request.head.repo.full_name == github.repository
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/images.yml
+
+  deploy:
+    needs: images
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: preview
+      github-environment: nonprod
+      pull-request: ${{ github.event.pull_request.number }}
+      release: ${{ needs.images.outputs.release }}
+    secrets: inherit
+
+  comment:
+    name: Comment the preview URLs
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pull-requests: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPOSITORY: ${{ github.repository }}
+      NUMBER: ${{ github.event.pull_request.number }}
+      SITE_URL: ${{ needs.deploy.outputs.site-url }}
+      CMS_URL: ${{ needs.deploy.outputs.cms-url }}
+      COMMIT: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - name: Create or update the preview comment
+        run: |
+          marker='<!-- my-media-preview -->'
+          body="$marker
+          **Preview** de \`${COMMIT:0:7}\` :
+
+          - Site : $SITE_URL
+          - CMS : $CMS_URL/admin
+
+          Données de démonstration. Supprimée à la fermeture de la PR ou 72 h après la dernière livraison."
+          existing="$(gh api "repos/$REPOSITORY/issues/$NUMBER/comments" --paginate \
+            --jq "map(select(.body | startswith(\"$marker\"))) | first | .id // empty")"
+          if [[ -n "$existing" ]]; then
+            gh api --method PATCH "repos/$REPOSITORY/issues/comments/$existing" -f body="$body" > /dev/null
+          else
+            gh api --method POST "repos/$REPOSITORY/issues/$NUMBER/comments" -f body="$body" > /dev/null
+          fi
+
+  destroy:
+    if: >-
+      github.event.action == 'closed'
+      && github.event.pull_request.head.repo.full_name == github.repository
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: preview
+      github-environment: nonprod
+      operation: destroy
+      pull-request: ${{ github.event.pull_request.number }}
+    secrets: inherit

@@ -1,0 +1,83 @@
+name: Images
+
+# Builds the three Dockerfile targets once and returns their digests. Deliveries use the digests only.
+on:
+  workflow_call:
+    outputs:
+      release:
+        description: JSON object with the commit and the directus, site and provision images by digest.
+        value: ${{ jobs.build.outputs.release }}
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build images
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      release: ${{ steps.release.outputs.release }}
+    env:
+      IMAGE: ghcr.io/${{ github.repository_owner }}/my-media
+      COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      - name: Sign in to GHCR
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Directus
+        id: directus
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          target: directus
+          push: true
+          tags: ${{ env.IMAGE }}:directus-${{ env.COMMIT }}
+          labels: org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+          cache-from: type=gha,scope=directus
+          cache-to: type=gha,scope=directus,mode=max
+      - name: Site
+        id: site
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          target: site
+          push: true
+          tags: ${{ env.IMAGE }}:site-${{ env.COMMIT }}
+          labels: org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+          cache-from: type=gha,scope=site
+          cache-to: type=gha,scope=site,mode=max
+      - name: Provision
+        id: provision
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          target: provision
+          push: true
+          tags: ${{ env.IMAGE }}:provision-${{ env.COMMIT }}
+          labels: org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+          cache-from: type=gha,scope=provision
+          cache-to: type=gha,scope=provision,mode=max
+      - name: Release
+        id: release
+        env:
+          DIRECTUS: ${{ env.IMAGE }}:directus-${{ env.COMMIT }}@${{ steps.directus.outputs.digest }}
+          SITE: ${{ env.IMAGE }}:site-${{ env.COMMIT }}@${{ steps.site.outputs.digest }}
+          PROVISION: ${{ env.IMAGE }}:provision-${{ env.COMMIT }}@${{ steps.provision.outputs.digest }}
+        run: |
+          release="$(jq -cn --arg commit "$COMMIT" --arg directus "$DIRECTUS" --arg site "$SITE" --arg provision "$PROVISION" \
+            '{commit: $commit, directus: $directus, site: $site, provision: $provision}')"
+          echo "release=$release" >> "$GITHUB_OUTPUT"
+          echo "$release" | jq . >> "$GITHUB_STEP_SUMMARY"

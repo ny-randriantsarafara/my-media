@@ -1,0 +1,6 @@
+---
+collections:
+  # Reviewed release of vps-services (ny.vps 1.2.0: routes cms.<instance>, inventory budgets). Update by full commit SHA only.
+  - name: https://github.com/ny-randriantsarafara/vps-services.git#/collections/ansible_collections/ny/vps
+    type: git
+    version: b1352edc790cd580e7b566d328464945437f9c26

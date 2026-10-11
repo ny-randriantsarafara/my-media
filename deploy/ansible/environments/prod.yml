@@ -1,0 +1,18 @@
+---
+deploy_account: my-media-prod
+# Plafond de toutes les productions du socle : 1,5 vCPU / 3072 MiB, job d'initialisation compris.
+instance_limits:
+  database: {cpus: 0.4, memory_mib: 768, pids: 256, shared_buffers: 192MB}
+  directus: {cpus: 0.6, memory_mib: 1280, pids: 512}
+  site: {cpus: 0.3, memory_mib: 512, pids: 256}
+  provision: {cpus: 0.2, memory_mib: 256, pids: 128}
+instance_storage_budget_gib: 10
+# Jamais de démo en production (spec, décision 9).
+instance_loads_demo: false
+# MCP OAuth s'active à l'ouverture publique, avec les domaines relevés dans docs/validation.
+instance_mcp_oauth:
+  enabled: false
+  cimd_enabled: false
+  dcr_enabled: false
+  cimd_allowed_domains: ""
+  allowed_redirect_domains: ""
