@@ -6,5 +6,4 @@ dist/
 .astro/
 test-results/
 playwright-report/
-ops/*.env
 __pycache__/
