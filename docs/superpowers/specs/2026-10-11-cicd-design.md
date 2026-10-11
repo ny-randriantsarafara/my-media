@@ -1,6 +1,6 @@
 # CI/CD de The Media sur le socle `vps-services`
 
-Date : 11 octobre 2026. Statut : décisions validées par l'utilisateur (séance de questions du 11/10/2026) ; implémentation autorisée.
+Date : 11 octobre 2026. Statut : décisions validées par l'utilisateur (séance de questions du 11/10/2026) ; implémenté le 11/10/2026 (plan `docs/superpowers/plans/2026-10-11-cicd.md`).
 
 ## 1. Résultat attendu
 
