@@ -58,3 +58,7 @@ La sauvegarde quotidienne incluse dans le VPS (dernières 24 h) est un compléme
 
 - La maintenance (mises à jour, surveillance, restauration) est documentée dans `docs/exploitation/`.
 - Les secrets de production et le mot de passe restic sont aussi conservés hors du serveur (gestionnaire de mots de passe de l’utilisateur).
+
+## Mise à jour du 11/10/2026
+
+Le VPS est désormais géré par le socle [vps-services](https://github.com/ny-randriantsarafara/vps-services) : Caddy partagé, admission par `vpsctl`, images construites en CI. Le Compose de production, le Caddyfile et les scripts de déploiement, de sauvegarde et de restauration de ce dépôt sont retirés (spec `docs/superpowers/specs/2026-10-11-cicd-design.md`). Les sauvegardes hors serveur restent à reconstruire sur ce modèle avant l'ouverture publique de la production.

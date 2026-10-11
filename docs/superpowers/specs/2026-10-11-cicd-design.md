@@ -100,10 +100,12 @@ Budgets initiaux, job d'init compris :
 | Service | Preview / staging | Production |
 | --- | --- | --- |
 | database | 0,1 vCPU / 192 Mo | 0,4 vCPU / 768 Mo |
-| directus | 0,2 vCPU / 448 Mo | 0,6 vCPU / 1280 Mo |
+| directus | 0,7 vCPU / 448 Mo | 0,6 vCPU / 1280 Mo |
 | site | 0,1 vCPU / 192 Mo | 0,3 vCPU / 512 Mo |
 | provision | 0,1 vCPU / 192 Mo | 0,2 vCPU / 256 Mo |
-| **Total** | **0,5 vCPU / 1024 Mo** | **1,5 vCPU / 2816 Mo** |
+| **Total** | **1 vCPU / 1024 Mo** | **1,5 vCPU / 2816 Mo** |
+
+Mesure du 11/10/2026, avec le Compose normalisé par le contrôleur et les mêmes limites : Directus met plus de 120 s à démarrer sous 0,2 vCPU, ce qui dépasse le délai du socle, et 21 s sous 0,7 vCPU. Sa mémoire reste vers 205 Mo. Comme prévu par la décision 14, une PR du socle passe les previews et le staging à 1 vCPU, sans toucher à la mémoire.
 
 Génération de livraison : `run_id × 100 + run_attempt`, croissante entre les runs et entre les relances. Les livraisons de preview passent `app_reopen: true` : une preview expirée ou fermée puis rouverte renaît. Une livraison en retard reste refusée, puisque sa génération est inférieure au tombstone.
 

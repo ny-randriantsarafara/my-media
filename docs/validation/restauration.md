@@ -1,5 +1,7 @@
 # Essai de restauration
 
+> Archive : cet essai porte sur l'outillage restic retiré le 11/10/2026. Les sauvegardes seront reconstruites sur le socle `vps-services` (spec CI/CD, décision 12).
+
 | Date | Instantané | Cible | Durée de `restore.sh` | Article témoin visible | Images visibles | Contenu identique à la production | Vérifications `smoke.sh` | Opérateur |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 2026-10-11 | fad29e49 (répétition locale, pas la production) | répétition locale, volumes recréés à vide | 22 s (`time` : 22,181 s total) | ✅ `/articles/repetition-media-62c38524` 200 | ✅ `/media/a88d2f99-8a01-413f-b719-ef2ffe4e7c6d.webp` 200 | non applicable : pas encore de production (liste identique à l’état sauvegardé) | ✅ toutes les vérifications `ok` | essai automatisé avant mise en production |

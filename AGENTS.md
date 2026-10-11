@@ -16,7 +16,9 @@ pnpm cms:up && pnpm provision && pnpm test:cms && pnpm test:e2e   # stack locale
 
 ## CI/CD
 
-Décisions : `docs/superpowers/specs/2026-10-11-cicd-design.md`. Exploitation : `docs/exploitation/`.
+Décisions : `docs/superpowers/specs/2026-10-11-cicd-design.md`. Exploitation : `docs/exploitation/livraison.md`.
 
-- Le schéma Directus est du code (`cms/provision`) et s'applique de façon idempotente : pas de modification manuelle de schéma dans un Directus déployé.
+- Chaque PR non-draft reçoit une preview (`my-media-pr-<n>.apps.nyhasinavalona.com`, CMS sur `cms.…`), détruite à la fermeture. Le staging suit `main`. La production ne part que par « Deploy production », avec approbation humaine.
+- `deploy/` décrit la livraison sur le socle `vps-services` (Compose, Ansible, contrôles publics). Ne rien y ajouter que le socle refuse : voir `vps-services/docs/APP-CONTRACT.md`.
+- Le schéma Directus est du code (`cms/provision`) et s'applique de façon idempotente à chaque livraison : pas de modification manuelle de schéma dans un Directus déployé.
 - Aucun secret dans Git, les journaux ou les sorties de commande.
