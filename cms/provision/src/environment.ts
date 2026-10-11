@@ -12,6 +12,7 @@ export type ProvisionEnvironment = {
   editor: AccountEnvironment;
   assistant: AccountEnvironment & { appAccess: boolean };
   mcpOAuth: { enabled: boolean; cimdEnabled: boolean; dcrEnabled: boolean };
+  demoContent: boolean;
 };
 
 type EnvironmentSource = Record<string, string | undefined>;
@@ -39,6 +40,7 @@ export function readProvisionEnvironment(source: EnvironmentSource): ProvisionEn
       cimdEnabled: readFlag(source, 'MCP_OAUTH_CIMD_ENABLED'),
       dcrEnabled: readFlag(source, 'MCP_OAUTH_DCR_ENABLED'),
     },
+    demoContent: readFlag(source, 'DEMO_CONTENT'),
   };
 }
 

@@ -33,6 +33,11 @@ describe('readProvisionEnvironment', () => {
     expect(environment.mcpOAuth).toEqual({ enabled: true, cimdEnabled: true, dcrEnabled: false });
   });
 
+  it('loads the demo content only when DEMO_CONTENT is true', () => {
+    expect(readProvisionEnvironment(completeSource).demoContent).toBe(false);
+    expect(readProvisionEnvironment({ ...completeSource, DEMO_CONTENT: 'true' }).demoContent).toBe(true);
+  });
+
   it('treats an empty token as no static token', () => {
     expect(readProvisionEnvironment(completeSource).assistant.token).toBeNull();
   });

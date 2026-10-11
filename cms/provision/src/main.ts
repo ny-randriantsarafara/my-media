@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { isDirectusError } from '@directus/sdk';
 import { ensureAccess } from './access/ensure-access.ts';
 import { createAdminClient } from './directus-client.ts';
+import { seedDemoContent } from './demo/seed-demo.ts';
 import { readProvisionEnvironment } from './environment.ts';
 import { ensurePublicationFlow } from './flows/ensure-publication-flow.ts';
 import { editorialCollections } from './schema/collections.ts';
@@ -23,6 +24,9 @@ async function provision(): Promise<void> {
   await ensurePublicationFlow(client, log);
   await ensureSettings(client, environment, assistantProtocol, log);
   log('Provisionnement terminé.');
+  if (environment.demoContent) {
+    await seedDemoContent({ directusUrl: environment.directusUrl, email: environment.editor.email, password: environment.editor.password }, log);
+  }
 }
 
 function describeFailure(error: unknown): string {
