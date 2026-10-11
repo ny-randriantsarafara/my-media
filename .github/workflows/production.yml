@@ -1,0 +1,75 @@
+name: Deploy production
+
+# Promotes the images of a successful CI run on main, already delivered to staging. Never rebuilds.
+# Rollback: run again with the run_id of an older successful CI run on main.
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: CI run on main to promote (empty = the latest successful one)
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Find the staging release
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      release: ${{ steps.release.outputs.release }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REQUESTED_RUN: ${{ inputs.run_id }}
+    steps:
+      - name: Choose the CI run
+        id: run
+        run: |
+          run_id="$REQUESTED_RUN"
+          if [[ -z "$run_id" ]]; then
+            run_id="$(gh run list -R "$GITHUB_REPOSITORY" --workflow ci.yml --branch main --event push \
+              --status success --limit 1 --json databaseId --jq '.[0].databaseId // empty')"
+          fi
+          if [[ ! "$run_id" =~ ^[0-9]+$ ]]; then
+            echo "Aucun run de CI réussi sur main à promouvoir." >&2
+            exit 1
+          fi
+          run="$(gh run view "$run_id" -R "$GITHUB_REPOSITORY" --json workflowName,headBranch,event,conclusion,headSha \
+            --jq '[.workflowName, .headBranch, .event, .conclusion, .headSha] | join(" ")')"
+          read -r workflow branch event conclusion sha <<< "$run"
+          if [[ "$workflow $branch $event $conclusion" != "CI main push success" ]]; then
+            echo "Le run $run_id n'est pas un run de CI réussi sur main ($workflow, $branch, $event, $conclusion)." >&2
+            exit 1
+          fi
+          echo "id=$run_id" >> "$GITHUB_OUTPUT"
+          echo "Promotion du run $run_id (commit $sha)." >> "$GITHUB_STEP_SUMMARY"
+      - name: Download its release
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release
+          run-id: ${{ steps.run.outputs.id }}
+          github-token: ${{ github.token }}
+      - name: Release
+        id: release
+        run: |
+          echo "release=$(jq -c . release.json)" >> "$GITHUB_OUTPUT"
+          { echo '```json'; jq . release.json; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+
+  deploy:
+    needs: release
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: prod
+      github-environment: production
+      release: ${{ needs.release.outputs.release }}
+    secrets: inherit
