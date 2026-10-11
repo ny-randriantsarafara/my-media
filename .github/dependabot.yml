@@ -14,6 +14,10 @@ updates:
     directory: /
     schedule:
       interval: monthly
+    ignore:
+      # Node follows .nvmrc and the LTS line; a major version is a deliberate change (Node 25 drops corepack).
+      - dependency-name: node
+        update-types: [version-update:semver-major]
     groups:
       base-images:
         patterns: ['*']
