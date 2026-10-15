@@ -1,7 +1,7 @@
 ---
 deploy_account: my-media-nonprod
-# Plafond d'une preview sur le socle : 1 vCPU / 1024 MiB, job d'initialisation compris.
-# Directus démarre en plus de 120 s sous 0,2 vCPU, en 21 s sous 0,7 vCPU (mesuré le 11/10/2026).
+# Platform cap for one preview: 1 vCPU / 1024 MiB, init job included.
+# Directus takes more than 120 s to start at 0.2 vCPU, 21 s at 0.7 vCPU (measured 11/10/2026).
 instance_limits:
   database: {cpus: 0.1, memory_mib: 192, pids: 128, shared_buffers: 32MB}
   directus: {cpus: 0.7, memory_mib: 448, pids: 256}

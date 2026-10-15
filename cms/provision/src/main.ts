@@ -23,7 +23,7 @@ async function provision(): Promise<void> {
   await ensureAccess(client, environment, log);
   await ensurePublicationFlow(client, log);
   await ensureSettings(client, environment, assistantProtocol, log);
-  log('Provisionnement terminé.');
+  log('Provision finished.');
   if (environment.demoContent) {
     await seedDemoContent({ directusUrl: environment.directusUrl, email: environment.editor.email, password: environment.editor.password }, log);
   }
@@ -42,6 +42,6 @@ function describeFailure(error: unknown): string {
 try {
   await provision();
 } catch (error) {
-  console.error(`Échec du provisionnement :\n${describeFailure(error)}`);
+  console.error(`Provision failed:\n${describeFailure(error)}`);
   process.exitCode = 1;
 }

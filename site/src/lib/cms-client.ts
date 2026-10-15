@@ -12,7 +12,7 @@ export class CmsRequestError extends Error {
   readonly status: number;
 
   constructor(path: string, status: number) {
-    super(`Le CMS a répondu HTTP ${status} pour ${path}.`);
+    super(`CMS returned HTTP ${status} for ${path}.`);
     this.name = 'CmsRequestError';
     this.status = status;
   }

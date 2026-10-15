@@ -8,7 +8,7 @@ const collectionNames = new Set<string>(collections.map((definition) => definiti
 function fieldsOf(collection: string): string[] {
   const definition = collections.find((candidate) => candidate.collection === collection);
   if (definition === undefined) {
-    throw new Error(`Collection ${collection} absente`);
+    throw new Error(`Collection ${collection} is missing`);
   }
   return definition.fields.map((field) => field.field);
 }

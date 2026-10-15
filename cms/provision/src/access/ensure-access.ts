@@ -54,7 +54,7 @@ async function ensurePolicy(client: AdminClient, definition: PolicyDefinition, l
   const [existing] = await client.request(readPolicies({ filter: { name: { _eq: definition.name } }, fields: ['id'], limit: 1 }));
   if (existing === undefined) {
     const created = await client.request(createPolicy(values, { fields: ['id'] }));
-    log(`Politique créée : ${definition.name}`);
+    log(`Policy created: ${definition.name}`);
     return created.id;
   }
   await client.request(updatePolicy(existing.id, values));
@@ -64,7 +64,7 @@ async function ensurePolicy(client: AdminClient, definition: PolicyDefinition, l
 async function assertPublicPolicyExists(client: AdminClient, policyId: string): Promise<void> {
   const [existing] = await client.request(readPolicies({ filter: { id: { _eq: policyId } }, fields: ['id'], limit: 1 }));
   if (existing === undefined) {
-    throw new Error(`La politique publique ${policyId} est introuvable.`);
+    throw new Error(`Public policy ${policyId} was not found.`);
   }
 }
 
@@ -76,7 +76,7 @@ async function replacePermissions(client: AdminClient, policyId: string, grants:
     await client.request(deletePermissions(storedIds));
   }
   await client.request(createPermissions(toPermissionRows(policyId, grants)));
-  log(`Permissions appliquées à la politique ${policyId}`);
+  log(`Permissions applied to policy ${policyId}`);
 }
 
 async function ensureRole(client: AdminClient, systemClient: SystemAdminClient, definition: RoleDefinition, log: Log): Promise<void> {
@@ -85,14 +85,14 @@ async function ensureRole(client: AdminClient, systemClient: SystemAdminClient, 
     const policyIds = await readRolePolicyIds(systemClient, definition.id);
     if (!rolePolicyIdsMatchExpected(policyIds, definition.policyId)) {
       await client.request(updateRole(definition.id, { policies: [{ policy: definition.policyId }] }));
-      log(`Rôle mis à jour : ${definition.name}`);
+      log(`Role updated: ${definition.name}`);
     }
     return;
   }
   await client.request(
     createRole({ id: definition.id, name: definition.name, icon: definition.icon, policies: [{ policy: definition.policyId }] }),
   );
-  log(`Rôle créé : ${definition.name}`);
+  log(`Role created: ${definition.name}`);
 }
 
 async function readRolePolicyIds(client: SystemAdminClient, roleId: string): Promise<string[]> {
@@ -145,7 +145,7 @@ async function ensureUser(client: AdminClient, definition: UserDefinition, log: 
         token: account.token,
       }),
     );
-    log(`Utilisateur créé : ${account.email}`);
+    log(`User created: ${account.email}`);
     return;
   }
   await client.request(updateUser(existing.id, { role: account.roleId, status: 'active', token: account.token }));

@@ -23,7 +23,7 @@ export type SeedData = z.infer<typeof seedData>;
 export function readSeedData(): SeedData {
   const serialized = process.env[SEED_VARIABLE];
   if (serialized === undefined) {
-    throw new Error(`${SEED_VARIABLE} est absent : la préparation globale Playwright n’a pas tourné.`);
+    throw new Error(`${SEED_VARIABLE} is missing: Playwright global setup did not run.`);
   }
   const parsed: unknown = JSON.parse(serialized);
   return seedData.parse(parsed);

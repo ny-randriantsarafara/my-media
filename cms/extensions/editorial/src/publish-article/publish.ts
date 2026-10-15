@@ -94,7 +94,7 @@ async function writePublicationOrRollBack(dependencies: PublishDependencies, pla
   try {
     return await dependencies.database.transaction((transaction) => writePublication(dependencies, transaction, plan, publishedAt));
   } catch (error) {
-    dependencies.logger.error({ err: error }, `Publication annulée pour l’article ${plan.article.article}`);
+    dependencies.logger.error({ err: error }, `Publication rolled back for article ${plan.article.article}`);
     await removePublicFiles(dependencies, plan.images.map((image) => image.values.public_file_name));
     throw toPublicationFailure(error);
   }
@@ -169,7 +169,7 @@ async function removePublicFiles(dependencies: PublishDependencies, fileNames: s
   const results = await Promise.allSettled(fileNames.map((fileName) => dependencies.mediaStore.remove(fileName)));
   results.forEach((result, index) => {
     if (result.status === 'rejected') {
-      dependencies.logger.warn({ err: result.reason }, `Fichier public non supprimé : ${fileNames[index] ?? ''}`);
+      dependencies.logger.warn({ err: result.reason }, `Public file not removed: ${fileNames[index] ?? ''}`);
     }
   });
 }

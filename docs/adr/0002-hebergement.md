@@ -2,63 +2,63 @@
 status: proposed
 ---
 
-# Hébergement de la V1
+# V1 hosting
 
-À valider par la personne qui commande.
-Date : 2026-10-10.
+To be validated by whoever orders.
+Date: 2026-10-10.
 
-## Contexte
+## Context
 
-Le média tourne sur un petit serveur maintenu par l’utilisateur (spec §11) : Directus 12.5.0 et son extension, Postgres, le site Astro et les fichiers. Le plafond est de 30 €/mois de dépenses nouvelles, domaine et sauvegardes compris. Les photos de téléphone (jusqu’à 50 Mpx) sont converties à la publication ; le décodage d’une telle image demande plusieurs centaines de Mo de mémoire. Les images Docker sont construites sur le serveur.
+The site runs on a small server maintained by the owner (spec §11): Directus 12.5.0 and its extension, Postgres, the Astro site, and files. The cap is €30/month new spend, including domain and backups. Phone photos (up to 50 Mpx) are converted on publish; decoding one can need hundreds of MB of RAM. Docker images are built on the server.
 
-## Décision
+## Decision
 
-- Serveur : OVHcloud VPS-2 (4 vCores, 8 Go de RAM, 75 Go de stockage), Debian 13, datacenter en France, sans engagement.
-- Sauvegardes hors serveur : restic vers OVHcloud Object Storage (API S3), dans une autre région que le VPS.
-- HTTPS : Caddy avec certificats Let’s Encrypt.
-- Surveillance : UptimeRobot (disponibilité) et Healthchecks.io (sauvegarde nocturne), offres gratuites.
-- Domaine : un `.fr` ; le site sur le domaine nu, le CMS sur `cms.` du même domaine (nécessaire au cookie de prévisualisation partagé).
+- Server: OVHcloud VPS-2 (4 vCores, 8 GB RAM, 75 GB storage), Debian 13, datacenter in France, no commitment.
+- Off-server backups: restic to OVHcloud Object Storage (S3 API), in a different region than the VPS.
+- HTTPS: Caddy with Let’s Encrypt certificates.
+- Monitoring: UptimeRobot (uptime) and Healthchecks.io (nightly backup), free tiers.
+- Domain: a `.fr`; site on the apex, CMS on `cms.` of the same domain (needed for shared preview cookie).
 
-Le VPS-1 (2 vCores, 4 Go, 4,57 € TTC) suffirait au fonctionnement courant mais laisse peu de marge pour la construction des images et la conversion de grandes photos. Il reste l’option de repli si le budget l’exige ; le passage de l’un à l’autre se fait sans changer l’installation.
+VPS-1 (2 vCores, 4 GB, €4.57 incl. VAT) would run day to day but leaves little headroom for image builds and large photo conversion. It remains fallback if budget forces it; switching does not change the install layout.
 
-## Coût mensuel estimé
+## Estimated monthly cost
 
-| Poste | Offre | € TTC/mois |
+| Item | Offer | € incl. VAT/month |
 | --- | --- | --- |
-| Serveur | OVHcloud VPS-2, mensuel | 8,65 (tarif d’appel relevé le 10/10/2026) |
-| Domaine | `.fr`, prix annuel de renouvellement / 12 | à relever à la commande (ordre de grandeur : 1) |
-| Stockage des sauvegardes | Object Storage, environ 20 Go | moins de 1 |
-| Certificats, surveillance | Let’s Encrypt, UptimeRobot, Healthchecks.io | 0 |
-| **Total estimé** | | **environ 11 (plafond 30)** |
+| Server | OVHcloud VPS-2, monthly | 8.65 (list price on 10/10/2026) |
+| Domain | `.fr`, annual renewal / 12 | to record at order (order of magnitude: 1) |
+| Backup storage | Object Storage, ~20 GB | under 1 |
+| Certificates, monitoring | Let’s Encrypt, UptimeRobot, Healthchecks.io | 0 |
+| **Estimated total** | | **about 11 (cap 30)** |
 
-La sauvegarde quotidienne incluse dans le VPS (dernières 24 h) est un complément, pas la sauvegarde du média : elle disparaît avec le serveur et ne permet pas de revenir plusieurs jours en arrière.
+Daily backup included with the VPS (last 24 h) is a supplement, not the media backup: it goes away with the server and does not allow going back several days.
 
-## Conditions à vérifier avant la commande
+## Checks before ordering
 
-- Prix de renouvellement après la période promotionnelle, durée d’engagement et frais d’installation.
-- Région du VPS et région du bucket (différentes).
-- Prix de renouvellement du domaine (pas seulement la première année).
-- Facturation de la sortie de données de l’Object Storage en cas de restauration.
+- Renewal price after promo, commitment length, setup fees.
+- VPS region and bucket region (different).
+- Domain renewal price (not just first year).
+- Object Storage egress billing if restoring.
 
-## Relevé à la commande
+## Record at order
 
-| Poste | Prix TTC/mois réellement payé | Engagement | Renouvellement | Date |
+| Item | Actual € incl. VAT/month paid | Commitment | Renewal | Date |
 | --- | --- | --- | --- | --- |
-| Serveur | | | | |
-| Domaine | | | | |
-| Stockage | | | | |
+| Server | | | | |
+| Domain | | | | |
+| Storage | | | | |
 
-## Alternatives écartées
+## Rejected alternatives
 
-- Hetzner CX23/CX33 : tarifs comparables mais offres indiquées indisponibles lors de la consultation, IPv4 et TVA en sus.
-- Directus Cloud ou un hébergement géré : au-dessus du plafond pour ce niveau d’usage, et le MCP OAuth y dépend de l’offre.
-- Site statique séparé (CDN) : inutile au lancement, le site est rendu par le même serveur.
+- Hetzner CX23/CX33: similar prices but offers marked unavailable when checked, IPv4 and VAT extra.
+- Directus Cloud or managed hosting: above the cap at this usage level, and MCP OAuth depends on the plan.
+- Separate static site (CDN): unnecessary at launch; the site is served from the same server.
 
-## Conséquences
+## Consequences
 
-- La maintenance (mises à jour, surveillance, restauration) est documentée dans `docs/exploitation/`.
-- Les secrets de production et le mot de passe restic sont aussi conservés hors du serveur (gestionnaire de mots de passe de l’utilisateur).
+- Maintenance (updates, monitoring, restore) is documented in `docs/exploitation/`.
+- Production secrets and the restic password are also kept off the server (owner password manager).
 
-## Mise à jour du 11/10/2026
+## Update of 11/10/2026
 
-Le VPS est désormais géré par le socle [vps-services](https://github.com/ny-randriantsarafara/vps-services) : Caddy partagé, admission par `vpsctl`, images construites en CI. Le Compose de production, le Caddyfile et les scripts de déploiement, de sauvegarde et de restauration de ce dépôt sont retirés (spec `docs/superpowers/specs/2026-10-11-cicd-design.md`). Les sauvegardes hors serveur restent à reconstruire sur ce modèle avant l'ouverture publique de la production.
+The VPS is now managed by the [vps-services](https://github.com/ny-randriantsarafara/vps-services) platform: shared Caddy, admission via `vpsctl`, images built in CI. This repo’s production Compose, Caddyfile, and deploy/backup/restore scripts are removed (spec `docs/superpowers/specs/2026-10-11-cicd-design.md`). Off-server backups still need rebuilding on that model before public production opening.

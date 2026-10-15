@@ -20,7 +20,7 @@ async function postMcp(token: string, method: string, params: Record<string, unk
     body: JSON.stringify({ jsonrpc: '2.0', id: randomUUID(), method, params }),
   });
   if (!response.ok) {
-    throw new Error(`MCP a répondu HTTP ${response.status} : ${await response.text()}`);
+    throw new Error(`MCP returned HTTP ${response.status}: ${await response.text()}`);
   }
   return response.json();
 }

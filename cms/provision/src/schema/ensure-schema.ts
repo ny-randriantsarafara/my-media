@@ -25,7 +25,7 @@ export async function ensureSchema(
 async function ensureCollection(client: AdminClient, definition: CollectionDefinition, exists: boolean, log: Log): Promise<void> {
   if (!exists) {
     await client.request(createCollection(toCollectionPayload(definition)));
-    log(`Collection créée : ${definition.collection}`);
+    log(`Collection created: ${definition.collection}`);
     return;
   }
   await ensureMissingFields(client, definition, log);
@@ -37,7 +37,7 @@ async function ensureMissingFields(client: AdminClient, definition: CollectionDe
   const missingFields = definition.fields.filter((field) => !existingFieldNames.has(field.field));
   for (const field of missingFields) {
     await client.request(createField(definition.collection, field));
-    log(`Champ créé : ${definition.collection}.${field.field}`);
+    log(`Field created: ${definition.collection}.${field.field}`);
   }
 }
 
@@ -46,7 +46,7 @@ async function ensureRelation(client: AdminClient, definition: RelationDefinitio
     return;
   }
   await client.request(createRelation(definition));
-  log(`Relation créée : ${definition.collection}.${definition.field}`);
+  log(`Relation created: ${definition.collection}.${definition.field}`);
 }
 
 function relationKey(collection: string, field: string): string {

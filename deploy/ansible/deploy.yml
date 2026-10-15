@@ -29,7 +29,7 @@
           - media_release.directus is ansible.builtin.match('^[^@\s]+@sha256:[a-f0-9]{64}$')
           - media_release.site is ansible.builtin.match('^[^@\s]+@sha256:[a-f0-9]{64}$')
           - media_release.provision is ansible.builtin.match('^[^@\s]+@sha256:[a-f0-9]{64}$')
-        fail_msg: Fournir release_generation et media_release (images publiées, par digest).
+        fail_msg: Provide release_generation and media_release (published images, by digest).
       when: delivery_operation in ['apply', 'plan']
       tags: [always]
 
@@ -45,7 +45,7 @@
           - media_secrets.admin_email | default('') is ansible.builtin.match('^[^@\s]+@[^@\s]+$')
           - media_secrets.editor_email | default('') is ansible.builtin.match('^[^@\s]+@[^@\s]+$')
           - media_secrets.ai_email | default('') is ansible.builtin.match('^[^@\s]+@[^@\s]+$')
-        fail_msg: Fournir media_secrets depuis un fichier privé (-e @/chemin/prive.json).
+        fail_msg: Provide media_secrets from a private file (-e @/private/path.json).
         quiet: true
       no_log: true
       when: delivery_operation in ['apply', 'plan']

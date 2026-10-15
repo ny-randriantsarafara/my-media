@@ -1,18 +1,18 @@
-# Développement local
+# Local development
 
-Prérequis : Node 24, pnpm 10 (`corepack enable`), Docker.
+Requirements: Node 24, pnpm 10 (`corepack enable`), Docker.
 
-1. `cp .env.example .env`, puis remplacer chaque valeur `change-me…` par `openssl rand -hex 32`.
+1. `cp .env.example .env`, then replace each `change-me…` value with `openssl rand -hex 32`.
 2. `pnpm install`
-3. `pnpm build:extension` — construit l’extension `editorial` (clé de création, publication). Obligatoire avant `pnpm test:cms` ; `pnpm cms:up` l’exécute aussi automatiquement. Directus charge le hook et l’opération depuis `cms/extensions/editorial/dist/`.
-4. `pnpm cms:up` — construit l’extension, puis Postgres et Directus sur http://localhost:8055.
-5. `pnpm provision` — collections, accès, flow « Publier », réglages MCP. Relançable sans risque.
-6. `pnpm test` (tests unitaires) et `pnpm test:cms` (tests d’intégration contre le Directus local).
+3. `pnpm build:extension` — builds the `editorial` extension (creation key, publication). Required before `pnpm test:cms`; `pnpm cms:up` runs this too. Directus loads the hook and operation from `cms/extensions/editorial/dist/`.
+4. `pnpm cms:up` — builds the extension, then Postgres and Directus at http://localhost:8055.
+5. `pnpm provision` — collections, access, “Publier” flow, MCP settings. Safe to run again.
+6. `pnpm test` (unit tests) and `pnpm test:cms` (integration tests against local Directus).
 
-Pendant le développement de l’extension : `pnpm --filter directus-extension-editorial dev`. Directus recharge l’extension à chaque construction.
+While working on the extension: `pnpm --filter directus-extension-editorial dev`. Directus reloads the extension on each build.
 
-Repartir de zéro : `docker compose down -v && rm -rf .data`, puis les étapes 3 à 5.
+Start fresh: `docker compose down -v && rm -rf .data`, then steps 3 through 5.
 
-Comptes locaux : administrateur, « Rédaction » et « Assistant IA », définis dans `.env`. Les jetons `EDITOR_TOKEN` et `AI_TOKEN` n’existent qu’en local pour les tests ; en production l’assistant se connecte uniquement par OAuth MCP.
+Local accounts: administrator, “Rédaction”, and “Assistant IA”, defined in `.env`. `EDITOR_TOKEN` and `AI_TOKEN` exist only locally for tests; in production the assistant connects only via MCP OAuth.
 
-Tester avec Claude ou ChatGPT : voir `docs/validation/2026-10-mcp-clients.md` (créé lors de l’essai des clients réels ; tunnel HTTPS et réglages OAuth).
+Testing with Claude or ChatGPT: see `docs/validation/2026-10-mcp-clients.md` (created when real clients were tried; HTTPS tunnel and OAuth settings).

@@ -1,9 +1,9 @@
-# Licence et version Directus — 2026-10-10
+# Directus license and version — 2026-10-10
 
-- Version installée : 12.5.0 (`directus/directus:12.5.0`). Dernière version publiée à cette date : 12.5.0 (publiée le 2026-10-07 sur GitHub).
-- Correctifs de sécurité publiés depuis 12.5.0 : aucun avis GitHub Security publié après le 2026-10-07 (consultation le 2026-10-10). Les dix avis listés sur la page des advisories datent du 2026-08-05 au 2026-09-02 et concernent des versions antérieures à 12.5.0.
-- Licence : Monospace Sustainable Core License 1.0 (MSCL-1.0-GPL), texte livré dans l’image 12.5.0 (`/directus/node_modules/@directus/api/license`) et publié sur `https://directus.io/bsl`. Tout usage est permis sauf un « Competing Use » (proposer Directus à des tiers en concurrence avec l’offre payante de Monospace) ; l’usage interne, dont l’auto-hébergement pour notre propre média, est permis sans seuil de chiffre d’affaires. Interdiction de contourner ou modifier les fonctions protégées par la clé de licence (les limites Core). Passage sous GPL-3.0 quatre ans après la publication de chaque version. La mention « BSL 1.1, gratuite sous 5 M$ » des documents de cadrage ne s’applique plus à cette version.
-- Limites Core relevées dans le code 12.5.0 : 3 sièges, 25 collections, 5 flows, règles de permission personnalisées interdites.
-- Utilisation actuelle : 14 collections personnalisées sur 25, 1 flow actif sur 5, 2 utilisateurs consommant un siège sur 3 (3 comptes actifs ; l’assistant n’a pas d’accès application, `AI_APP_ACCESS=false`).
-- Conséquence de conception : permissions par collection uniquement ; protections fines dans l’extension `editorial` (clé de création, publication) et copies publiques séparées.
-- Option : une clé gratuite (programme Open Innovation cité dans `docs/recherche-cms.md`) lèverait ces limites ; conditions actuelles non vérifiées le 2026-10-10. La V1 n’en dépend pas.
+- Installed version: 12.5.0 (`directus/directus:12.5.0`). Latest published on that date: 12.5.0 (released 2026-10-07 on GitHub).
+- Security fixes since 12.5.0: none on GitHub Security after 2026-10-07 (checked 2026-10-10). Ten advisories on the advisories page date from 2026-08-05 to 2026-09-02 and affect versions before 12.5.0.
+- License: Monospace Sustainable Core License 1.0 (MSCL-1.0-GPL), text in image 12.5.0 (`/directus/node_modules/@directus/api/license`) and at `https://directus.io/bsl`. All use is allowed except “Competing Use” (offering Directus to third parties in competition with Monospace’s paid offer); internal use, including self-hosting for our own media, is allowed with no revenue threshold. Bypassing or changing license-key-protected functions (Core limits) is forbidden. Each version moves to GPL-3.0 four years after release. The “BSL 1.1, free under $5M” note in scope docs no longer applies to this version.
+- Core limits in 12.5.0 code: 3 seats, 25 collections, 5 flows, custom permission rules forbidden.
+- Current use: 14 custom collections of 25, 1 active flow of 5, 2 users consuming a seat of 3 (3 active accounts; assistant has no app access, `AI_APP_ACCESS=false`).
+- Design consequence: collection-level permissions only; finer guards in the `editorial` extension (creation key, publication) and separate public copies.
+- Option: a free key (Open Innovation program in `docs/recherche-cms.md`) would lift these limits; current conditions not verified 2026-10-10. V1 does not depend on it.

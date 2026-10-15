@@ -192,7 +192,7 @@ async function publish(client: EditorClient, articleId: string): Promise<void> {
     body: JSON.stringify({ collection: 'articles', keys: [articleId] }),
   });
   if (!response.ok) {
-    throw new Error(`Publication de test refusée (HTTP ${response.status}) : ${await response.text()}`);
+    throw new Error(`Test publication refused (HTTP ${response.status}): ${await response.text()}`);
   }
 }
 
@@ -201,7 +201,7 @@ async function featureAsLead(client: EditorClient, articleId: string): Promise<v
     readItems('published_articles', { filter: { article: { _eq: articleId } }, fields: ['id'], limit: 1 }),
   );
   if (publication === undefined) {
-    throw new Error('Article publié introuvable après publication.');
+    throw new Error('Published article not found after publication.');
   }
   const features = await client.request(readItems('home_features', { fields: ['id'], limit: -1 }));
   if (features.length > 0) {

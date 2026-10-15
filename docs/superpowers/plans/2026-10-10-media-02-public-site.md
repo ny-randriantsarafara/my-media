@@ -1,4 +1,4 @@
-# Média indépendant — Plan 2 : site public
+# Independent media — Plan 2: public site
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -14,11 +14,11 @@
 
 ## Global Constraints
 
-- "Le site public n'affiche que la version publiée." The site never reads `articles`, `article_*`, `verification_points`, `review_remarks`, `materials`, `watch_sources` or `editorial_line`, except the authenticated preview, which uses the visitor's own Directus session.
-- Pages: "Accueil, rubriques, recherche, article et à propos/contact." "La recherche porte uniquement sur les contenus publiés."
-- Article: "titre, chapô, texte, images, signature, dates, sources." "Les sources sont publiques" in a "Sources et documents" block.
-- Copy: "Aucune mention publique de l'usage d'une IA." and "Aucune signature ou référence n'est inventée": an empty byline stays empty; a source call that points to no source is not rendered.
-- Preview: "La prévisualisation d'un brouillon est authentifiée." Anonymous visitors get a 404.
+- "The public site shows only the published version." The site never reads `articles`, `article_*`, `verification_points`, `review_remarks`, `materials`, `watch_sources` or `editorial_line`, except the authenticated preview, which uses the visitor's own Directus session.
+- Pages: "Home, sections, search, article and about/contact." "Search covers only published content."
+- Article: "title, lead, body, images, byline, dates, sources." "Sources are public" in a "Sources et documents" block.
+- Copy: "No public mention of AI use." and "No byline or reference is invented": an empty byline stays empty; a source call that points to no source is not rendered.
+- Preview: "Draft preview requires authentication." Anonymous visitors get a 404.
 - Presentation: mockup "proposition 2" (sober editorial layout, serif headlines, accent `#7a3d32`), readable on mobile (390 px) and usable with the keyboard.
 - Anonymous Directus access is read-only on public collections (plan 1); the site holds no Directus token.
 - Toolchain: Node 24, pnpm 10.32.1, TypeScript `~6.0.3` (TypeScript 7 is not accepted by `@astrojs/check`).
@@ -684,7 +684,7 @@ export class CmsRequestError extends Error {
   readonly status: number;
 
   constructor(path: string, status: number) {
-    super(`Le CMS a répondu HTTP ${status} pour ${path}.`);
+    super(`CMS returned HTTP ${status} for ${path}.`);
     this.name = 'CmsRequestError';
     this.status = status;
   }
@@ -1494,7 +1494,7 @@ const values = parseEnv(readFileSync(new URL('.env', repositoryRoot), 'utf8'));
 function requireValue(name: string): string {
   const value = values[name];
   if (value === undefined || value === '') {
-    throw new Error(`${name} manque dans le fichier .env à la racine du dépôt.`);
+    throw new Error(`${name} is missing from the .env file at the repository root.`);
   }
   return value;
 }
@@ -1545,7 +1545,7 @@ export type SeedData = z.infer<typeof seedData>;
 export function readSeedData(): SeedData {
   const serialized = process.env[SEED_VARIABLE];
   if (serialized === undefined) {
-    throw new Error(`${SEED_VARIABLE} est absent : la préparation globale Playwright n’a pas tourné.`);
+    throw new Error(`${SEED_VARIABLE} is missing: Playwright global setup did not run.`);
   }
   const parsed: unknown = JSON.parse(serialized);
   return seedData.parse(parsed);
@@ -1767,7 +1767,7 @@ async function publish(client: EditorClient, articleId: string): Promise<void> {
     body: JSON.stringify({ collection: 'articles', keys: [articleId] }),
   });
   if (!response.ok) {
-    throw new Error(`Publication de test refusée (HTTP ${response.status}) : ${await response.text()}`);
+    throw new Error(`Test publication refused (HTTP ${response.status}): ${await response.text()}`);
   }
 }
 
@@ -1776,7 +1776,7 @@ async function featureAsLead(client: EditorClient, articleId: string): Promise<v
     readItems('published_articles', { filter: { article: { _eq: articleId } }, fields: ['id'], limit: 1 }),
   );
   if (publication === undefined) {
-    throw new Error('Article publié introuvable après publication.');
+    throw new Error('Published article not found after publication.');
   }
   const features = await client.request(readItems('home_features', { fields: ['id'], limit: -1 }));
   if (features.length > 0) {
@@ -3745,25 +3745,25 @@ Expected: PASS, 26 end-to-end tests. These tests guard properties already built 
 Record in `docs/validation/2026-10-site-public.md`:
 
 ```markdown
-# Validation du site public — octobre 2026
+# Public site validation — October 2026
 
-| Vérification | Résultat | Remarques |
+| Check | Result | Notes |
 | --- | --- | --- |
-| Accueil conforme à la proposition 2 (1280 px) | ✅ / ❌ | |
-| Article conforme à la proposition 2 (1280 px) | ✅ / ❌ | |
-| Lecture à 800 px | ✅ / ❌ | |
-| Lecture à 390 px, photos portrait et paysage | ✅ / ❌ | |
-| Titre long sans débordement | ✅ / ❌ | |
-| Navigation au clavier, focus visible | ✅ / ❌ | |
-| VoiceOver : titre, chapô, renvois aux sources, légendes | ✅ / ❌ | |
-| Lighthouse accessibilité accueil / article | score / score | |
-| Aucune mention de l’IA dans les pages publiques | ✅ / ❌ | |
+| Home matches mockup “proposition 2” (1280 px) | ✅ / ❌ | |
+| Article matches mockup “proposition 2” (1280 px) | ✅ / ❌ | |
+| Reading at 800 px | ✅ / ❌ | |
+| Reading at 390 px, portrait and landscape photos | ✅ / ❌ | |
+| Long title without overflow | ✅ / ❌ | |
+| Keyboard navigation, visible focus | ✅ / ❌ | |
+| VoiceOver: title, lead, source links, captions | ✅ / ❌ | |
+| Lighthouse accessibility home / article | score / score | |
+| No mention of AI on public pages | ✅ / ❌ | |
 
-Écarts acceptés : …
-Vérifié par : … le …
+Accepted gaps: …
+Checked by: … on …
 ```
 
-Expected: every line filled in; any ❌ is fixed in the site before Step 4, or written under "Écarts acceptés" with the reason.
+Expected: every line filled in; any ❌ is fixed in the site before Step 4, or written under “Accepted gaps” with the reason.
 
 - [ ] **Step 4: Run the complete site verification**
 

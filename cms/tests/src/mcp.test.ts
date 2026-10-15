@@ -14,7 +14,7 @@ const editorArticleId = await createArticle(editorClient, draftArticleValues(uni
 await triggerPublication(testEnvironment.editorToken, flowId, [editorArticleId]);
 const publication = await readPublicationOf(editorArticleId);
 if (publication === null) {
-  throw new Error('Publication de préparation absente.');
+  throw new Error('Setup publication is missing.');
 }
 
 describe('MCP for the assistant', () => {

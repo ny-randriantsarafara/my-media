@@ -1,18 +1,18 @@
-# Hébergement : vérifications initiales
+# Hosting: initial checks
 
-Vérifications documentaires du 10 octobre 2026. Aucun hébergeur choisi, aucun serveur commandé ou déployé.
+Document checks on 10 October 2026. No host chosen, no server ordered or deployed.
 
-## Contrainte
+## Constraint
 
-Budget annoncé inférieur à 30 €/mois. L’utilisation des abonnements IA existants est prévue ; leur inclusion dans ce plafond n’a pas été explicitement confirmée.
+Stated budget under €30/month. Existing AI subscriptions are planned for use; whether they count toward that cap was not explicitly confirmed.
 
-## Tarifs observés
+## Observed prices
 
-- [OVHcloud, VPS](https://www.ovhcloud.com/fr/vps/) : la page affiche le VPS-1 à partir de 4,57 € TTC/mois (2 vCores, 4 Go de RAM, 40 Go de stockage), et le VPS-2 à partir de 8,65 € TTC/mois (4 vCores, 8 Go de RAM, 75 Go de stockage). Une sauvegarde quotidienne des dernières 24 heures est indiquée. Ce sont des tarifs d’appel ; conditions, durée d’engagement, région et montant de renouvellement restent à vérifier avant commande.
-- [Hetzner, ajustement des tarifs](https://docs.hetzner.com/general/infrastructure-and-availability/price-adjustment/) : prix mensuels indiqués en Europe pour CX23 à 5,49 € et CX33 à 8,49 €, hors TVA et IPv4. La [page des offres économiques](https://www.hetzner.com/cloud/cost-optimized/) les présente comme indisponibles lors de la consultation ; ces tarifs ne suffisent donc pas à recommander une commande.
+- [OVHcloud VPS](https://www.ovhcloud.com/fr/vps/): page shows VPS-1 from €4.57/month incl. VAT (2 vCores, 4 GB RAM, 40 GB storage), and VPS-2 from €8.65/month incl. VAT (4 vCores, 8 GB RAM, 75 GB storage). Daily backup of the last 24 hours is listed. These are list prices; terms, commitment, region, and renewal amount need checking before order.
+- [Hetzner price adjustment](https://docs.hetzner.com/general/infrastructure-and-availability/price-adjustment/): monthly prices in Europe listed for CX23 at €5.49 and CX33 at €8.49, excl. VAT and IPv4. The [cost-optimized offers page](https://www.hetzner.com/cloud/cost-optimized/) showed them unavailable when checked; those prices alone are not enough to recommend ordering.
 
-## Conséquences pour le choix d’architecture
+## Architecture implications
 
-Un petit VPS constitue une piste compatible avec le plafond pour le coût du serveur seul. La taille nécessaire dépendra du CMS, de la compilation du site, du volume d’images et du trafic ; aucun dimensionnement n’est encore validé.
+A small VPS fits the cap for server cost alone. Required size depends on CMS, site build, image volume, and traffic; no sizing validated yet.
 
-Le coût total doit aussi inclure le domaine, les sauvegardes et le stockage éventuellement supplémentaires. L’utilisateur a choisi un petit serveur à maintenir pour garder davantage de contrôle ; la gestion des mises à jour, de la surveillance et de la restauration reste à organiser.
+Total cost must include domain, backups, and extra storage if any. The owner chose a small self-managed server for control; updates, monitoring, and restore still need a plan.

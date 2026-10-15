@@ -47,7 +47,7 @@ export function readProvisionEnvironment(source: EnvironmentSource): ProvisionEn
 function requireValue(source: EnvironmentSource, name: string): string {
   const value = optionalValue(source, name);
   if (value === null) {
-    throw new Error(`La variable d’environnement ${name} est obligatoire.`);
+    throw new Error(`Required environment variable ${name} is missing.`);
   }
   return value;
 }

@@ -56,7 +56,7 @@ def main(directory):
         secrets = {key: os.environ[name] for key, name in SECRETS.items()}
         release = json.loads(os.environ.get("RELEASE") or "{}")
         if not all(isinstance(release.get(key), str) for key in RELEASE_KEYS):
-            fail("Entrée release incomplète : images directus, site et provision attendues.")
+            fail("Incomplete release input: directus, site, and provision images are required.")
         delivery["media_release"] = {key: release[key] for key in RELEASE_KEYS}
 
     write_private(Path(directory) / "secrets.json", {"media_secrets": secrets})

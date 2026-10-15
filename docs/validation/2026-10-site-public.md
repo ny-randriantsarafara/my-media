@@ -1,16 +1,16 @@
-# Validation du site public — octobre 2026
+# Public site validation — October 2026
 
-| Vérification | Résultat | Remarques |
+| Check | Result | Notes |
 | --- | --- | --- |
-| Accueil conforme à la proposition 2 (1280 px) | À vérifier | |
-| Article conforme à la proposition 2 (1280 px) | À vérifier | |
-| Lecture à 800 px | À vérifier | |
-| Lecture à 390 px, photos portrait et paysage | À vérifier | `quality.spec.ts` : débordement horizontal et taille de texte article |
-| Titre long sans débordement | À vérifier | |
-| Navigation au clavier, focus visible | À vérifier | `quality.spec.ts` : lien d’évitement, focus visible |
-| VoiceOver : titre, chapô, renvois aux sources, légendes | À vérifier | |
-| Lighthouse accessibilité accueil / article | À vérifier | |
-| Aucune mention de l’IA dans les pages publiques | À vérifier | `quality.spec.ts` : pages publiques sans mention IA |
+| Home matches proposal 2 (1280 px) | To verify | |
+| Article page matches proposal 2 (1280 px) | To verify | |
+| Reading at 800 px | To verify | |
+| Reading at 390 px, portrait and landscape photos | To verify | `quality.spec.ts`: horizontal overflow and article text size |
+| Long title without overflow | To verify | |
+| Keyboard navigation, visible focus | To verify | `quality.spec.ts`: skip link, visible focus |
+| VoiceOver: title, summary, source refs, captions | To verify | |
+| Lighthouse accessibility home / article | To verify | |
+| No AI mention on public pages | To verify | `quality.spec.ts`: public pages without AI mention |
 
-Écarts acceptés : …
-Vérifié par : … le …
+Accepted gaps: …
+Verified by: … on …

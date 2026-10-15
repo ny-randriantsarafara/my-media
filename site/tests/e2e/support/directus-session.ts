@@ -8,7 +8,7 @@ export async function signInToDirectus(request: APIRequestContext): Promise<stri
     data: { email: e2eEnvironment.editorEmail, password: e2eEnvironment.editorPassword, mode: 'session' },
   });
   if (!response.ok()) {
-    throw new Error(`Connexion à Directus refusée (HTTP ${response.status()}).`);
+    throw new Error(`Directus login refused (HTTP ${response.status()}).`);
   }
   const token = response
     .headersArray()
@@ -16,7 +16,7 @@ export async function signInToDirectus(request: APIRequestContext): Promise<stri
     .map((header) => SESSION_COOKIE.exec(header.value)?.[1])
     .find((value) => value !== undefined);
   if (token === undefined) {
-    throw new Error('Directus n’a pas renvoyé de cookie de session.');
+    throw new Error('Directus did not return a session cookie.');
   }
   return token;
 }

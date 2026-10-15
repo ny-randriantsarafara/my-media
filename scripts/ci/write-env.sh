@@ -8,7 +8,7 @@ cd "$(dirname "$0")/../.."
 readonly OUTPUT="${1:-.env}"
 
 if [[ -e "$OUTPUT" ]]; then
-  echo "$OUTPUT existe déjà : rien n'est écrasé." >&2
+  echo "$OUTPUT already exists; nothing was overwritten." >&2
   exit 1
 fi
 
@@ -21,4 +21,4 @@ while IFS= read -r line; do
   fi
 done < .env.example > "$OUTPUT"
 
-echo "$OUTPUT écrit à partir de .env.example."
+echo "$OUTPUT written from .env.example."

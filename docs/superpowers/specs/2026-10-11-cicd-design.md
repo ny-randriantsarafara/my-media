@@ -1,162 +1,162 @@
-# CI/CD de The Media sur le socle `vps-services`
+# The Media CI/CD on the `vps-services` platform
 
-Date : 11 octobre 2026. Statut : décisions validées par l'utilisateur (séance de questions du 11/10/2026) ; implémenté le 11/10/2026 (plan `docs/superpowers/plans/2026-10-11-cicd.md`).
+Date: 11 October 2026. Status: decisions validated by the owner (Q&A session 11/10/2026); implemented 11/10/2026 (plan `docs/superpowers/plans/2026-10-11-cicd.md`).
 
-## 1. Résultat attendu
+## 1. Expected outcome
 
-Chaque changement proposé, en particulier par un agent, est testé automatiquement puis visible sur une preview publique avant d'être fusionné. `main` est toujours vert et tourne en staging. La production reçoit, sur décision humaine, exactement les images déjà validées en staging.
+Every proposed change, especially from an agent, is tested automatically then visible on a public preview before merge. `main` stays green and runs in staging. Production receives, by human decision, exactly the images already validated in staging.
 
-Le dispositif reste simple : GitHub Actions, GHCR et le rôle `ny.vps.app` du socle. Pas de service tiers, pas de daemon de déploiement. Un humain seul doit pouvoir le comprendre et le maintenir.
+The setup stays simple: GitHub Actions, GHCR, and the `ny.vps.app` role on the platform. No third-party service, no deploy daemon. One person must be able to understand and maintain it.
 
-## 2. Décisions
+## 2. Decisions
 
-| # | Sujet | Décision |
+| # | Topic | Decision |
 | --- | --- | --- |
-| 1 | Modèle de déploiement | The Media adopte le contrat de `vps-services` : images construites en CI, publiées sur GHCR, transmises par digest à `vpsctl`. Aucun build sur le VPS, pas de Caddy applicatif. |
-| 2 | Environnements | CI sur chaque PR et sur `main`, preview par PR, staging automatique sur `main`, production manuelle. |
-| 3 | Visibilité | `my-media` devient public (historique scanné : aucun secret). Images GHCR publiques, tirées sans authentification. |
-| 4 | Domaine | `apps.nyhasinavalona.com`, wildcard DNS `*.apps` vers le VPS, sans proxy Cloudflare. |
-| 5 | Tests en CI | Deux checks requis : « Checks » (types, unitaires, builds, ShellCheck) et « Integration » (Postgres + Directus réels, provisionnement, tests CMS, Playwright). |
-| 6 | Deux hostnames | Le socle accepte plusieurs routes par instance : `<instance>.<domaine>` et `<préfixe>.<instance>.<domaine>` (§4). |
-| 7 | Promotion | Staging après CI verte sur `main`. Production : workflow manuel, approbation obligatoire, mêmes digests que le staging. |
-| 8 | Previews | Automatiques pour chaque PR non-draft du dépôt ; détruites à la fermeture. Une place refusée fait échouer un check non requis. |
-| 9 | Données | Previews et staging : schéma + jeu de démo chargé seulement si la base est vide. Production : jamais de démo. |
-| 10 | Secrets | Environnements GitHub `nonprod` (staging et previews) et `production` (approbation, branche `main`). |
-| 11 | Données existantes | Aucune : le média n'a jamais été en ligne. |
-| 12 | Sauvegardes | Chantier séparé, **bloquant avant d'ouvrir la production au public**. |
-| 13 | Protection de `main` | Ruleset : PR obligatoire, les deux checks requis, pas de force push, aucun contournement. |
-| 14 | Ressources | Plafonds du socle conservés ; mesurés à la première livraison, ajustés par PR du socle si nécessaire. |
-| 15 | Domaine de prod | `my-media.apps.nyhasinavalona.com` et `cms.my-media.apps.nyhasinavalona.com`. Domaine de marque plus tard. |
-| 16 | Ancien outillage | Supprimé : scripts de déploiement, bootstrap, Caddyfile, Compose de production, sauvegarde/restauration restic (historique Git). |
-| 17 | Rollback | Relancer « Deploy production » avec l'identifiant d'un ancien run de `main`. |
-| 18 | Maintenance | Dependabot mensuel groupé (Actions, images Docker, npm) ; correctifs de sécurité immédiats. Collection `ny.vps` montée à la main. |
+| 1 | Deployment model | The Media adopts the `vps-services` contract: images built in CI, published to GHCR, passed by digest to `vpsctl`. No build on the VPS, no app-level Caddy. |
+| 2 | Environments | CI on each PR and on `main`, preview per PR, automatic staging on `main`, manual production. |
+| 3 | Visibility | `my-media` becomes public (history scanned: no secrets). GHCR images public, pulled without auth. |
+| 4 | Domain | `apps.nyhasinavalona.com`, wildcard DNS `*.apps` to the VPS, no Cloudflare proxy. |
+| 5 | CI tests | Two required checks: “Checks” (types, unit, builds, ShellCheck) and “Integration” (real Postgres + Directus, provision, CMS tests, Playwright). |
+| 6 | Two hostnames | The platform accepts multiple routes per instance: `<instance>.<domain>` and `<prefix>.<instance>.<domain>` (§4). |
+| 7 | Promotion | Staging after green CI on `main`. Production: manual workflow, required approval, same digests as staging. |
+| 8 | Previews | Automatic for each non-draft PR on this repo; destroyed on close. A refused slot fails a non-required check. |
+| 9 | Data | Previews and staging: schema + demo loaded only if database is empty. Production: never demo. |
+| 10 | Secrets | GitHub environments `nonprod` (staging and previews) and `production` (approval, branch `main`). |
+| 11 | Existing data | None: the media was never live. |
+| 12 | Backups | Separate work, **blocking before opening production to the public**. |
+| 13 | `main` protection | Ruleset: PR required, both checks required, no force push, no bypass. |
+| 14 | Resources | Platform caps kept; measured on first delivery, adjusted via platform PR if needed. |
+| 15 | Prod domain | `my-media.apps.nyhasinavalona.com` and `cms.my-media.apps.nyhasinavalona.com`. Brand domain later. |
+| 16 | Old tooling | Removed: deploy scripts, bootstrap, Caddyfile, production Compose, restic backup/restore (Git history). |
+| 17 | Rollback | Re-run “Deploy production” with an older `main` run id. |
+| 18 | Maintenance | Dependabot monthly groups (Actions, Docker images, npm); immediate security fixes. Collection `ny.vps` bumped manually. |
 
-### Écart assumé par rapport à la séance
+### Assumed gap vs session
 
-La séance avait retenu des noms `<instance>-<suffixe>` (`my-media-pr-42-cms`). En lisant le site, on constate que l'aperçu des brouillons lit le cookie de session Directus sur le domaine du site, donc ce cookie doit couvrir le site **et** le CMS. Avec des noms côte à côte, le seul parent commun est `apps.nyhasinavalona.com` : le cookie de session de la production serait envoyé à toutes les previews, dont le code n'est pas encore relu. Le schéma imbriqué `cms.my-media-pr-42.apps…` reproduit l'ancien couple `example.fr` / `cms.example.fr` : le cookie est posé sur le domaine du site de l'instance et ne sort pas de cette instance. Il est aussi sans collision par construction. Le wildcard Cloudflare `*.apps` couvre plusieurs niveaux, donc un seul enregistrement DNS suffit.
+The session had chosen names `<instance>-<suffix>` (`my-media-pr-42-cms`). Reading the site shows draft preview reads the Directus session cookie on the site domain, so that cookie must cover site **and** CMS. With side-by-side names, the only shared parent is `apps.nyhasinavalona.com`: production’s session cookie would be sent to all previews, whose code is not reviewed yet. Nested `cms.my-media-pr-42.apps…` mirrors the old `example.fr` / `cms.example.fr` pair: the cookie is set on the instance site domain and does not leave that instance. It is also collision-free by construction. Cloudflare wildcard `*.apps` covers multiple levels, so one DNS record suffices.
 
-## 3. Vue d'ensemble
+## 3. Overview
 
 ```text
-PR (non-draft, même dépôt)
-  ├─ ci.yml        Checks + Integration                      (requis pour fusionner)
-  └─ preview.yml   images → apply my-media-pr-<n> → smoke    (non requis)
-                   fermeture → destroy
+PR (non-draft, same repo)
+  ├─ ci.yml        Checks + Integration                      (required to merge)
+  └─ preview.yml   images → apply my-media-pr-<n> → smoke    (not required)
+                   close → destroy
 
 push main
   └─ ci.yml        Checks + Integration → images → apply my-media-staging → smoke
-                   → artefact « release » (digests)
+                   → “release” artifact (digests)
 
-manuel
-  └─ production.yml  approbation → artefact « release » d'un run de main
+manual
+  └─ production.yml  approval → “release” artifact from a main run
                      → apply my-media-prod → smoke
 ```
 
-| Instance | Site | CMS (Directus) | Compte SSH |
+| Instance | Site | CMS (Directus) | SSH account |
 | --- | --- | --- | --- |
 | `my-media-pr-<n>` | `my-media-pr-<n>.apps.nyhasinavalona.com` | `cms.my-media-pr-<n>.apps.nyhasinavalona.com` | `my-media-nonprod` |
 | `my-media-staging` | `my-media-staging.apps.nyhasinavalona.com` | `cms.my-media-staging.apps.nyhasinavalona.com` | `my-media-nonprod` |
 | `my-media-prod` | `my-media.apps.nyhasinavalona.com` | `cms.my-media.apps.nyhasinavalona.com` | `my-media-prod` |
 
-## 4. Évolution du socle (`vps-services`)
+## 4. Platform evolution (`vps-services`)
 
-Porté par une PR du dépôt `vps-services` et décrit dans sa propre spec.
+Delivered by a PR on `vps-services` and described in its own spec.
 
-- **Routes multiples.** Une instance garde son hostname principal `<label>.<domaine>` (`label` = nom de l'instance, sans `-prod` en production). Elle peut aussi publier `<préfixe>.<label>.<domaine>`, où `préfixe` est un mot DNS simple (`[a-z][a-z0-9]*`, 32 caractères au plus). Chaque hostname apparaît au plus une fois par instance. Deux instances distinctes ont des labels distincts : leurs hostnames ne peuvent pas se recouvrir.
-- **Readiness.** La sonde loopback et la sonde publique couvrent toutes les routes de l'instance, pas seulement la principale.
-- **Domaine.** `vps_domain: apps.nyhasinavalona.com`.
-- **Comptes.** `my-media-nonprod` (`staging`, `preview`) et `my-media-prod` (`prod`), avec une clé publique dédiée chacun.
-- **DNS.** `*.apps.nyhasinavalona.com` en A et AAAA vers le VPS, `proxied: false` : Caddy obtient lui-même les certificats.
-- **CICD.md.** L'automatisation décrite ici devient la règle approuvée pour cette application.
+- **Multiple routes.** An instance keeps primary hostname `<label>.<domain>` (`label` = instance name, no `-prod` in production). It may also publish `<prefix>.<label>.<domain>`, where `prefix` is a simple DNS word (`[a-z][a-z0-9]*`, at most 32 characters). Each hostname appears at most once per instance. Two instances have distinct labels: hostnames cannot overlap.
+- **Readiness.** Loopback and public probes cover all instance routes, not only the primary.
+- **Domain.** `vps_domain: apps.nyhasinavalona.com`.
+- **Accounts.** `my-media-nonprod` (`staging`, `preview`) and `my-media-prod` (`prod`), each with a dedicated public key.
+- **DNS.** `*.apps.nyhasinavalona.com` A and AAAA to the VPS, `proxied: false`: Caddy obtains certificates itself.
+- **CICD.md.** Automation described here becomes the approved rule for this application.
 
 ## 5. Images
 
-Un seul package GHCR public, `ghcr.io/ny-randriantsarafara/my-media`, avec les trois cibles du `Dockerfile` en tags : `directus-<sha>`, `site-<sha>` et `provision-<sha>`. Un seul package : un seul réglage de visibilité à faire. Le build utilise Buildx et le cache GitHub Actions. Le label `org.opencontainers.image.source` lie le package au dépôt. Les déploiements n'utilisent que les digests ; les tags servent à la lecture humaine.
+One public GHCR package, `ghcr.io/ny-randriantsarafara/my-media`, with the three `Dockerfile` targets tagged `directus-<sha>`, `site-<sha>`, and `provision-<sha>`. One package: one visibility setting. Build uses Buildx and GitHub Actions cache. Label `org.opencontainers.image.source` links the package to the repo. Deployments use digests only; tags are for humans.
 
-`images.yml` (workflow réutilisable) construit et pousse les trois images. Il produit `release.json` :
+`images.yml` (reusable workflow) builds and pushes the three images. It outputs `release.json`:
 
 ```json
 {"commit": "<sha>", "directus": "ghcr.io/…@sha256:…", "site": "ghcr.io/…@sha256:…", "provision": "ghcr.io/…@sha256:…"}
 ```
 
-## 6. Livraison sur le socle
+## 6. Delivery on the platform
 
-Fichiers dans `deploy/` :
+Files in `deploy/`:
 
-- `compose.yml.j2` : rendu sur le runner par `ny.vps.app`, dans le sous-ensemble Compose accepté par le socle :
-  - `database` : Postgres 17 par digest, `user: "70:70"`, sonde TCP ;
-  - `directus` : image `directus` ;
-  - `provision` : image `provision`, job `x-vps-init`, relancé à chaque livraison et idempotent ; il crée la démo si `DEMO_CONTENT=true` ;
-  - `site` : image `site`, volume `public-media` en lecture seule.
-- `ansible/deploy.yml` : vérifie les entrées, puis appelle `ny.vps.app`.
-- `ansible/environments/{preview,staging,prod}.yml` : compte SSH, budgets, routes, démo.
-- `ansible/requirements.yml` : collection `ny.vps` épinglée au SHA complet d'un commit revu de `vps-services`.
-- `ansible/inventory.yml` et `ansible/known_hosts` : hôte et empreinte publique du VPS. La connexion échoue si l'empreinte change.
-- `requirements.txt` : `ansible-core` épinglé, installé avec `--require-hashes`.
-- `smoke.sh` : contrôles HTTP publics (ancien `ops/scripts/smoke.sh`), avec une attente initiale pour les certificats.
+- `compose.yml.j2`: rendered on the runner by `ny.vps.app`, within the Compose subset the platform accepts:
+  - `database`: Postgres 17 by digest, `user: "70:70"`, TCP probe;
+  - `directus`: `directus` image;
+  - `provision`: `provision` image, `x-vps-init` job, re-run on every delivery, idempotent; creates demo if `DEMO_CONTENT=true`;
+  - `site`: `site` image, `public-media` volume read-only.
+- `ansible/deploy.yml`: validates inputs, then calls `ny.vps.app`.
+- `ansible/environments/{preview,staging,prod}.yml`: SSH account, budgets, routes, demo.
+- `ansible/requirements.yml`: collection `ny.vps` pinned to full SHA of a reviewed `vps-services` commit.
+- `ansible/inventory.yml` and `ansible/known_hosts`: host and VPS public fingerprint. Connection fails if fingerprint changes.
+- `requirements.txt`: pinned `ansible-core`, installed with `--require-hashes`.
+- `smoke.sh`: public HTTP checks (former `ops/scripts/smoke.sh`), with initial wait for certificates.
 
-Budgets initiaux, job d'init compris :
+Initial budgets, init job included:
 
 | Service | Preview / staging | Production |
 | --- | --- | --- |
-| database | 0,1 vCPU / 192 Mo | 0,4 vCPU / 768 Mo |
-| directus | 0,7 vCPU / 448 Mo | 0,6 vCPU / 1280 Mo |
-| site | 0,1 vCPU / 192 Mo | 0,3 vCPU / 512 Mo |
-| provision | 0,1 vCPU / 192 Mo | 0,2 vCPU / 256 Mo |
-| **Total** | **1 vCPU / 1024 Mo** | **1,5 vCPU / 2816 Mo** |
+| database | 0.1 vCPU / 192 MiB | 0.4 vCPU / 768 MiB |
+| directus | 0.7 vCPU / 448 MiB | 0.6 vCPU / 1280 MiB |
+| site | 0.1 vCPU / 192 MiB | 0.3 vCPU / 512 MiB |
+| provision | 0.1 vCPU / 192 MiB | 0.2 vCPU / 256 MiB |
+| **Total** | **1 vCPU / 1024 MiB** | **1.5 vCPU / 2816 MiB** |
 
-Mesure du 11/10/2026, avec le Compose normalisé par le contrôleur et les mêmes limites : Directus met plus de 120 s à démarrer sous 0,2 vCPU, ce qui dépasse le délai du socle, et 21 s sous 0,7 vCPU. Sa mémoire reste vers 205 Mo. Comme prévu par la décision 14, une PR du socle passe les previews et le staging à 1 vCPU, sans toucher à la mémoire.
+Measurement 11/10/2026, with controller-normalized Compose and same limits: Directus takes more than 120 s to start at 0.2 vCPU, exceeding platform timeout, and 21 s at 0.7 vCPU. Memory stays around 205 MiB. As planned in decision 14, a platform PR moves previews and staging to 1 vCPU without changing memory.
 
-Génération de livraison : `run_id × 100 + run_attempt`, croissante entre les runs et entre les relances. Les livraisons de preview passent `app_reopen: true` : une preview expirée ou fermée puis rouverte renaît. Une livraison en retard reste refusée, puisque sa génération est inférieure au tombstone.
+Delivery generation: `run_id × 100 + run_attempt`, increasing across runs and retries. Preview deliveries pass `app_reopen: true`: an expired or closed then reopened preview is recreated. A stale delivery is still refused when its generation is below the tombstone.
 
-### Effets de la suppression du Caddy applicatif
+### Effects of removing app Caddy
 
-Le Caddy du socle ne fait que du reverse proxy. Les en-têtes de sécurité passent dans les applications :
+Platform Caddy is reverse proxy only. Security headers move into applications:
 
-- le site ajoute HSTS, `X-Content-Type-Options`, `Referrer-Policy` et `Content-Security-Policy: frame-ancestors 'self' <CMS>` (middleware Astro) ;
-- Directus active `HSTS_ENABLED`. `SESSION_COOKIE_DOMAIN` vaut le hostname du site de l'instance.
+- the site adds HSTS, `X-Content-Type-Options`, `Referrer-Policy`, and `Content-Security-Policy: frame-ancestors 'self' <CMS>` (Astro middleware);
+- Directus enables `HSTS_ENABLED`. `SESSION_COOKIE_DOMAIN` is the instance site hostname.
 
 ## 7. Workflows
 
-Toutes les actions sont épinglées par SHA complet. Les permissions sont minimales et `persist-credentials: false` est appliqué.
+All actions pinned by full SHA. Permissions are minimal and `persist-credentials: false` is set.
 
-- **`ci.yml`** (`pull_request`, `push` sur `main`, manuel)
-  - `Checks` : `pnpm install --frozen-lockfile`, `typecheck`, `test`, build de l'extension et du site, ShellCheck.
-  - `Integration` : `.env` aux secrets aléatoires (`scripts/ci/write-env.sh`), `pnpm cms:up`, `pnpm provision`, `pnpm test:cms`, Chromium Playwright, `pnpm test:e2e`.
-  - Sur `push` `main` seulement : `images`, puis `staging` (`deploy.yml`, environnement `nonprod`), puis l'artefact `release`.
-- **`preview.yml`** (`pull_request` : `opened`, `reopened`, `synchronize`, `ready_for_review`, `closed`)
-  - Ignoré pour les drafts et les forks.
-  - Sinon : `images`, `apply` de `my-media-pr-<n>`, smoke, commentaire unique sur la PR avec les URL.
-  - À la fermeture : `destroy`.
-  - Concurrence par PR, sans annuler une livraison en cours.
-- **`production.yml`** (manuel, entrée facultative `run_id`)
-  - Retrouve le dernier run réussi de `ci.yml` sur `main`, ou celui demandé, et télécharge son artefact `release`.
-  - `apply` de `my-media-prod` dans l'environnement `production` (approbation), puis smoke.
-- **`deploy.yml`** (réutilisable) : Python, `ansible-core`, collection, clé SSH en fichier `0600` dans `RUNNER_TEMP`, fichier de secrets JSON `0600`, playbook, smoke, nettoyage.
+- **`ci.yml`** (`pull_request`, `push` on `main`, manual)
+  - `Checks`: `pnpm install --frozen-lockfile`, `typecheck`, `test`, extension and site build, ShellCheck.
+  - `Integration`: `.env` with random secrets (`scripts/ci/write-env.sh`), `pnpm cms:up`, `pnpm provision`, `pnpm test:cms`, Playwright Chromium, `pnpm test:e2e`.
+  - On `push` `main` only: `images`, then `staging` (`deploy.yml`, environment `nonprod`), then `release` artifact.
+- **`preview.yml`** (`pull_request`: `opened`, `reopened`, `synchronize`, `ready_for_review`, `closed`)
+  - Skipped for drafts and forks.
+  - Otherwise: `images`, `apply` `my-media-pr-<n>`, smoke, single PR comment with URLs.
+  - On close: `destroy`.
+  - Concurrency per PR, without canceling an in-flight delivery.
+- **`production.yml`** (manual, optional `run_id` input)
+  - Finds latest successful `ci.yml` run on `main`, or the requested one, and downloads its `release` artifact.
+  - `apply` `my-media-prod` in `production` environment (approval), then smoke.
+- **`deploy.yml`** (reusable): Python, `ansible-core`, collection, SSH key in `0600` file under `RUNNER_TEMP`, secrets JSON `0600`, playbook, smoke, cleanup.
 
 ## 8. Secrets
 
-| Environnement GitHub | Secrets | Variables |
+| GitHub environment | Secrets | Variables |
 | --- | --- | --- |
-| `nonprod` (toutes branches) | `VPS_SSH_PRIVATE_KEY`, `POSTGRES_PASSWORD`, `DIRECTUS_SECRET`, `ADMIN_PASSWORD`, `ADMIN_TOKEN`, `EDITOR_PASSWORD`, `AI_PASSWORD` | `ADMIN_EMAIL`, `EDITOR_EMAIL`, `AI_EMAIL` |
-| `production` (`main`, reviewer requis) | mêmes noms, valeurs distinctes | mêmes noms |
+| `nonprod` (all branches) | `VPS_SSH_PRIVATE_KEY`, `POSTGRES_PASSWORD`, `DIRECTUS_SECRET`, `ADMIN_PASSWORD`, `ADMIN_TOKEN`, `EDITOR_PASSWORD`, `AI_PASSWORD` | `ADMIN_EMAIL`, `EDITOR_EMAIL`, `AI_EMAIL` |
+| `production` (`main`, reviewer required) | same names, different values | same names |
 
-Les mêmes secrets `nonprod` existent comme secrets Dependabot : les PR Dependabot n'ont pas accès aux secrets d'environnement. Les valeurs sont générées une fois (`openssl rand -hex 32`). Leur copie lisible pour la connexion humaine reste sur le poste du propriétaire, hors Git, en `0600`. Les jetons `EDITOR_TOKEN` et `AI_TOKEN` ne sont jamais définis sur le VPS.
+The same `nonprod` secrets exist as Dependabot secrets: Dependabot PRs do not get environment secrets. Values generated once (`openssl rand -hex 32`). Readable copy for human login stays on the owner machine, outside Git, at `0600`. `EDITOR_TOKEN` and `AI_TOKEN` are never set on the VPS.
 
-## 9. Garanties et limites
+## 9. Guarantees and limits
 
-- `main` ne reçoit que des PR aux deux checks verts.
-- Une PR non relue n'atteint jamais la production : le workflow de prod ne s'exécute que depuis `main`, avec approbation.
-- Le code d'une PR du dépôt s'exécute avec les secrets `nonprod`. C'est accepté : ces secrets ne protègent que des données de démo.
-- Un agent qui utilise le jeton GitHub du propriétaire peut, techniquement, approuver un déploiement. Le ruleset et l'environnement protègent des erreurs, pas d'un jeton compromis.
-- Sans sauvegardes (décision 12), la production ne doit héberger que du contenu jetable.
-- Deux previews au plus sur tout le VPS. Une troisième PR obtient un check preview rouge : il suffit de fermer ou de passer en draft une autre PR, puis de relancer.
+- `main` only receives PRs with both checks green.
+- An unreviewed PR never reaches production: prod workflow runs only from `main`, with approval.
+- Code from a repo PR runs with `nonprod` secrets. Accepted: those secrets protect demo data only.
+- An agent with the owner’s GitHub token could technically approve a deploy. Ruleset and environment protect mistakes, not a compromised token.
+- Without backups (decision 12), production must host only disposable content.
+- At most two previews on the whole VPS. A third PR gets a red preview check: close or draft another PR, then re-run.
 
-## 10. Livraisons
+## 10. Delivery phases
 
-1. `my-media` : spec, plan, CI, `AGENTS.md`. Fusion, passage en public, ruleset.
-2. `vps-services` : routes multiples, domaine, comptes. Fusion, DNS wildcard, `make platform`.
-3. `my-media` : images, `deploy/`, démo, en-têtes, previews et staging ; suppression de l'ancien outillage.
-4. `my-media` : workflow de production et première mise en production.
+1. `my-media`: spec, plan, CI, `AGENTS.md`. Merge, go public, ruleset.
+2. `vps-services`: multiple routes, domain, accounts. Merge, wildcard DNS, `make platform`.
+3. `my-media`: images, `deploy/`, demo, headers, previews and staging; remove old tooling.
+4. `my-media`: production workflow and first production deploy.
 
-Chaque étape est vérifiée sur les vrais services : run GitHub, `vpsctl status`, HTTP public.
+Each step is verified on real services: GitHub run, `vpsctl status`, public HTTP.
