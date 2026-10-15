@@ -1,32 +1,32 @@
-# Mise en service — <date>
+# Go-live — <date>
 
-Version déployée : <commit>. Domaine : <domaine>.
+Deployed version: <commit>. Domain: <domain>.
 
-| Critère (spec §12) | Résultat | Preuve |
+| Criterion (spec §12) | Result | Evidence |
 | --- | --- | --- |
-| Parcours manuel | | `docs/validation/2026-10-parcours-manuel.md` |
-| Parcours MCP | | `docs/validation/2026-10-mcp-clients.md` ; connexion production (étape 4) |
-| Images par assistant | | `docs/validation/2026-10-mcp-clients.md` |
-| Refus de publication IA | | tests `cms/tests` (`access`, `publication`, `mcp`) ; refus en production (étape 4) |
-| Liberté du publieur humain | | test « publie malgré des points ouverts » ; parcours manuel |
-| Confidentialité | | tests `access` et site (`article`, `navigation`, `preview`) ; `smoke.sh` en production |
-| Correction | | tests « brouillon de révision isolé » et « republication » |
-| Reprise | | tests de clé de création ; scénario de reprise des clients |
-| Erreur de publication | | test de retour arrière ; parcours manuel, étape 5 |
-| Sources publiques | | test site `article` ; vérification sur téléphone (étape 5) |
-| Présentation | | `docs/validation/2026-10-site-public.md` ; vérification sur téléphone (étape 5) |
-| Exploitation | | `docs/adr/0002-hebergement.md` (relevé réel) ; `docs/validation/restauration.md` |
+| Manual path | | `docs/validation/2026-10-parcours-manuel.md` |
+| MCP path | | `docs/validation/2026-10-mcp-clients.md`; production connection (step 4) |
+| Images via assistant | | `docs/validation/2026-10-mcp-clients.md` |
+| AI publish refused | | tests `cms/tests` (`access`, `publication`, `mcp`); refusal in production (step 4) |
+| Human publisher freedom | | test “publishes despite open points”; manual path |
+| Confidentiality | | tests `access` and site (`article`, `navigation`, `preview`); `smoke.sh` in production |
+| Correction | | tests “isolated revision draft” and “republication” |
+| Resume | | creation-key tests; client resume scenario |
+| Publish error | | rollback test; manual path, step 5 |
+| Public sources | | site test `article`; check on phone (step 5) |
+| Presentation | | `docs/validation/2026-10-site-public.md`; check on phone (step 5) |
+| Operations | | `docs/adr/0002-hebergement.md` (actual spend); `docs/validation/restauration.md` |
 
-## Coût mensuel réel
+## Actual monthly cost
 
-Total TTC : … € (plafond 30 €).
+Total incl. VAT: … € (cap €30).
 
-## Licence et version
+## License and version
 
-Vérifiées le … : …
+Checked on …: …
 
-## Réserves
+## Reservations
 
 - …
 
-Décision de mise en ligne : prise par … le …
+Go-live decision: made by … on …

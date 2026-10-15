@@ -1,4 +1,4 @@
-# Média indépendant — Plan 3 : hébergement et exploitation
+# Independent media — Plan 3: hosting and operations
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -14,17 +14,17 @@
 
 ## Global Constraints
 
-- "L'utilisateur a choisi un petit serveur à maintenir. Directus, la base, le site et le stockage des fichiers doivent tenir dans une installation proportionnée au lancement."
-- "HTTPS, sauvegarde de la base et des médias, procédure de restauration et surveillance de disponibilité font partie de l'exploitation."
-- Budget: "moins de 30 €/mois de dépenses supplémentaires, hors abonnements IA déjà possédés", including "serveur, sauvegardes et stockage supplémentaires éventuels, ainsi que le domaine réparti sur l'année".
-- "L'hébergeur sera sélectionné à partir du coût total et des conditions de renouvellement, sans se limiter à un tarif d'appel."
-- "La licence et la version Directus compatibles avec le MCP OAuth seront recontrôlées avant installation."
-- Acceptance (§12, "Exploitation"): "Coût total conforme au plafond retenu et restauration fonctionnelle", proved by "Chiffrage des conditions réelles et essai de restauration".
-- "Les essais locaux sur des comptes de test ne valent pas preuve de connexion des abonnements réels." The production MCP connection is tested with the real Claude and ChatGPT accounts.
-- "Les données de démonstration ne sont pas automatiquement publiées sur le futur média."
+- "The user chose a small server to maintain. Directus, the database, the site and file storage must fit in a setup sized for launch."
+- "HTTPS, backup of the database and media, a restore procedure and uptime monitoring are part of operations."
+- Budget: "under 30 €/month in extra spending, not counting AI subscriptions already owned", including "server, backups and any extra storage, plus the domain spread over the year".
+- "The host will be picked from total cost and renewal terms, not just a headline price."
+- "The Directus licence and version compatible with MCP OAuth will be checked again before install."
+- Acceptance (§12, "Operations"): "Total cost within the chosen cap and restore works", proved by "Pricing the real terms and a restore drill".
+- "Local trials on test accounts do not prove real subscription connections." The production MCP connection is tested with the real Claude and ChatGPT accounts.
+- "Demo data is not published automatically on the future media site."
 - Production never sets `EDITOR_TOKEN` or `AI_TOKEN`: the assistant connects through MCP OAuth only (plan 1 provisioning removes absent tokens).
 - Anything that spends money (ordering the VPS, the domain, the bucket) or publishes (pushing to a remote, pointing DNS) is done by the project owner or with their explicit approval at that step.
-- Scripts: Bash with `set -euo pipefail`, French operator messages, ShellCheck clean, no secret printed to the terminal or committed.
+- Scripts: Bash with `set -euo pipefail`, plain English operator messages, ShellCheck clean, no secret printed to the terminal or committed.
 
 ---
 
@@ -87,65 +87,65 @@ Open `https://www.ovhcloud.com/fr/vps/` and the Object Storage price page (`http
 status: proposed
 ---
 
-# Hébergement de la V1
+# V1 hosting
 
-À valider par la personne qui commande.
-Date : 2026-10-10.
+To be approved by whoever orders the server.
+Date: 2026-10-10.
 
-## Contexte
+## Context
 
-Le média tourne sur un petit serveur maintenu par l’utilisateur (spec §11) : Directus 12.5.0 et son extension, Postgres, le site Astro et les fichiers. Le plafond est de 30 €/mois de dépenses nouvelles, domaine et sauvegardes compris. Les photos de téléphone (jusqu’à 50 Mpx) sont converties à la publication ; le décodage d’une telle image demande plusieurs centaines de Mo de mémoire. Les images Docker sont construites sur le serveur.
+The media site runs on a small server maintained by the user (spec §11): Directus 12.5.0 and its extension, Postgres, the Astro site and files. The cap is 30 €/month in new spending, including domain and backups. Phone photos (up to 50 Mpx) are converted on publish; decoding one can need several hundred MB of memory. Docker images are built on the server.
 
-## Décision
+## Decision
 
-- Serveur : OVHcloud VPS-2 (4 vCores, 8 Go de RAM, 75 Go de stockage), Debian 13, datacenter en France, sans engagement.
-- Sauvegardes hors serveur : restic vers OVHcloud Object Storage (API S3), dans une autre région que le VPS.
-- HTTPS : Caddy avec certificats Let’s Encrypt.
-- Surveillance : UptimeRobot (disponibilité) et Healthchecks.io (sauvegarde nocturne), offres gratuites.
-- Domaine : un `.fr` ; le site sur le domaine nu, le CMS sur `cms.` du même domaine (nécessaire au cookie de prévisualisation partagé).
+- Server: OVHcloud VPS-2 (4 vCores, 8 GB RAM, 75 GB storage), Debian 13, datacenter in France, no commitment.
+- Off-server backups: restic to OVHcloud Object Storage (S3 API), in a different region from the VPS.
+- HTTPS: Caddy with Let’s Encrypt certificates.
+- Monitoring: UptimeRobot (uptime) and Healthchecks.io (nightly backup), free plans.
+- Domain: one `.fr`; the site on the bare domain, the CMS on `cms.` on the same domain (needed for the shared preview cookie).
 
-Le VPS-1 (2 vCores, 4 Go, 4,57 € TTC) suffirait au fonctionnement courant mais laisse peu de marge pour la construction des images et la conversion de grandes photos. Il reste l’option de repli si le budget l’exige ; le passage de l’un à l’autre se fait sans changer l’installation.
+VPS-1 (2 vCores, 4 GB, 4.57 € incl. tax) would run day to day but leaves little headroom for image builds and large photo conversion. It stays the fallback if budget requires it; switching between them does not change the install layout.
 
-## Coût mensuel estimé
+## Estimated monthly cost
 
-| Poste | Offre | € TTC/mois |
+| Item | Offer | € incl. tax/month |
 | --- | --- | --- |
-| Serveur | OVHcloud VPS-2, mensuel | 8,65 (tarif d’appel relevé le 10/10/2026) |
-| Domaine | `.fr`, prix annuel de renouvellement / 12 | à relever à la commande (ordre de grandeur : 1) |
-| Stockage des sauvegardes | Object Storage, environ 20 Go | moins de 1 |
-| Certificats, surveillance | Let’s Encrypt, UptimeRobot, Healthchecks.io | 0 |
-| **Total estimé** | | **environ 11 (plafond 30)** |
+| Server | OVHcloud VPS-2, monthly | 8.65 (headline price on 10/10/2026) |
+| Domain | `.fr`, annual renewal price / 12 | to record at order time (order of magnitude: 1) |
+| Backup storage | Object Storage, about 20 GB | under 1 |
+| Certificates, monitoring | Let’s Encrypt, UptimeRobot, Healthchecks.io | 0 |
+| **Estimated total** | | **about 11 (cap 30)** |
 
-La sauvegarde quotidienne incluse dans le VPS (dernières 24 h) est un complément, pas la sauvegarde du média : elle disparaît avec le serveur et ne permet pas de revenir plusieurs jours en arrière.
+The VPS daily backup included (last 24 h) is extra, not the media backup: it goes away with the server and cannot roll back several days.
 
-## Conditions à vérifier avant la commande
+## Checks before ordering
 
-- Prix de renouvellement après la période promotionnelle, durée d’engagement et frais d’installation.
-- Région du VPS et région du bucket (différentes).
-- Prix de renouvellement du domaine (pas seulement la première année).
-- Facturation de la sortie de données de l’Object Storage en cas de restauration.
+- Renewal price after any promo period, commitment length and setup fees.
+- VPS region and bucket region (different).
+- Domain renewal price (not just the first year).
+- Object Storage egress billing if you restore.
 
-## Relevé à la commande
+## Record at order time
 
-| Poste | Prix TTC/mois réellement payé | Engagement | Renouvellement | Date |
+| Item | Actual € incl. tax/month paid | Commitment | Renewal | Date |
 | --- | --- | --- | --- | --- |
-| Serveur | | | | |
-| Domaine | | | | |
-| Stockage | | | | |
+| Server | | | | |
+| Domain | | | | |
+| Storage | | | | |
 
-## Alternatives écartées
+## Rejected alternatives
 
-- Hetzner CX23/CX33 : tarifs comparables mais offres indiquées indisponibles lors de la consultation, IPv4 et TVA en sus.
-- Directus Cloud ou un hébergement géré : au-dessus du plafond pour ce niveau d’usage, et le MCP OAuth y dépend de l’offre.
-- Site statique séparé (CDN) : inutile au lancement, le site est rendu par le même serveur.
+- Hetzner CX23/CX33: similar prices but offers marked unavailable when checked, IPv4 and VAT extra.
+- Directus Cloud or managed hosting: above the cap at this usage level, and MCP OAuth depends on the offer.
+- Separate static site (CDN): not needed at launch; the site is served from the same server.
 
-## Conséquences
+## Consequences
 
-- La maintenance (mises à jour, surveillance, restauration) est documentée dans `docs/exploitation/`.
-- Les secrets de production et le mot de passe restic sont aussi conservés hors du serveur (gestionnaire de mots de passe de l’utilisateur).
+- Maintenance (updates, monitoring, restore) is documented in `docs/exploitation/`.
+- Production secrets and the restic password are also kept off the server (user password manager).
 ```
 
-The "Relevé à la commande" table is filled in Task 4 Step 1 with the real invoice values.
+The "Record at order time" table is filled in Task 4 Step 1 with the real invoice values.
 
 - [ ] **Step 3: Commit**
 
@@ -294,7 +294,7 @@ git commit -m "build: add production images for Directus, the site and provision
 set -euo pipefail
 
 if [[ $# -lt 2 ]]; then
-  echo "Usage : $0 <adresse-du-site> <adresse-du-cms> [--insecure]" >&2
+  echo "Usage: $0 <site-url> <cms-url> [--insecure]" >&2
   exit 2
 fi
 
@@ -323,32 +323,32 @@ check_status() {
     echo "ok     $description ($actual)"
     return
   fi
-  echo "ÉCHEC  $description : attendu $expected, reçu $actual" >&2
+  echo "FAIL   $description: expected $expected, got $actual" >&2
   failures=$((failures + 1))
 }
 
-check_status "accueil du site" "200" GET "$SITE_URL/"
-check_status "page inconnue du site" "404" GET "$SITE_URL/page-inexistante-verification"
-check_status "image publique inexistante" "404" GET "$SITE_URL/media/00000000-0000-4000-8000-000000000000.webp"
-check_status "Directus répond" "200" GET "$CMS_URL/server/ping"
-check_status "versions publiées, lecture anonyme" "200" GET "$CMS_URL/items/published_articles?limit=1"
+check_status "site home" "200" GET "$SITE_URL/"
+check_status "unknown site page" "404" GET "$SITE_URL/page-inexistante-verification"
+check_status "missing public image" "404" GET "$SITE_URL/media/00000000-0000-4000-8000-000000000000.webp"
+check_status "Directus ping" "200" GET "$CMS_URL/server/ping"
+check_status "published articles, anonymous read" "200" GET "$CMS_URL/items/published_articles?limit=1"
 for collection in "${PRIVATE_COLLECTIONS[@]}"; do
-  check_status "données privées refusées : $collection" "403" GET "$CMS_URL/items/$collection?limit=1"
+  check_status "private data denied: $collection" "403" GET "$CMS_URL/items/$collection?limit=1"
 done
-check_status "fichiers privés refusés" "403" GET "$CMS_URL/files?limit=1"
-check_status "utilisateurs refusés" "403" GET "$CMS_URL/users?limit=1"
-check_status "flows refusés" "403" GET "$CMS_URL/flows?limit=1"
-check_status "MCP refusé sans authentification" "401 403" POST "$CMS_URL/mcp"
+check_status "private files denied" "403" GET "$CMS_URL/files?limit=1"
+check_status "users denied" "403" GET "$CMS_URL/users?limit=1"
+check_status "flows denied" "403" GET "$CMS_URL/flows?limit=1"
+check_status "MCP denied without auth" "401 403" POST "$CMS_URL/mcp"
 
 if ((failures > 0)); then
-  echo "$failures vérification(s) en échec." >&2
+  echo "$failures check(s) failed." >&2
   exit 1
 fi
-echo "Toutes les vérifications sont passées."
+echo "All checks passed."
 ```
 
 Run: `chmod +x ops/scripts/smoke.sh && ops/scripts/smoke.sh https://site.localhost https://cms.localhost --insecure`
-Expected: FAIL: every check prints `reçu 000` (nothing listens yet) and the script exits 1.
+Expected: FAIL: every check prints `got 000` (nothing listens yet) and the script exits 1.
 
 - [ ] **Step 2: Write the shared helpers and the compose wrapper**
 
@@ -367,7 +367,7 @@ read_env_value() {
   local line
   line="$(grep -E "^${name}=" "$file" | tail -n 1 || true)"
   if [[ -z "$line" ]]; then
-    echo "Réglage $name absent de $file." >&2
+    echo "Setting $name missing from $file." >&2
     return 1
   fi
   echo "${line#*=}"
@@ -398,7 +398,7 @@ readonly SCRIPT_DIR OPS_DIR ENV_FILE
 source "$SCRIPT_DIR/lib.sh"
 
 if [[ ! -f "$ENV_FILE" ]]; then
-  echo "Fichier de configuration introuvable : $ENV_FILE" >&2
+  echo "Configuration file not found: $ENV_FILE" >&2
   exit 1
 fi
 
@@ -705,7 +705,7 @@ ops/scripts/smoke.sh https://site.localhost https://cms.localhost --insecure
 
 Provisioning runs before the site starts: on an empty database the public policy cannot read anything yet, so the site's health check (its home page) fails until provisioning has run. Run these commands from a shell where the development `.env` is not exported: Compose gives shell variables precedence over `--env-file`, so exported development values would silently replace the rehearsal ones.
 
-Expected: all services healthy (Caddy issues local certificates for `*.localhost` from its internal authority); provisioning ends with its final log line; every smoke check prints `ok` and the script ends with `Toutes les vérifications sont passées.`
+Expected: all services healthy (Caddy issues local certificates for `*.localhost` from its internal authority); provisioning ends with its final log line; every smoke check prints `ok` and the script ends with `All checks passed.`
 
 - [ ] **Step 6: Check publication through the production volumes**
 
@@ -736,7 +736,7 @@ git commit -m "feat(ops): add the production stack and smoke checks"
 
 **Files:**
 - Create: `ops/scripts/bootstrap-server.sh`, `ops/scripts/deploy.sh`, `ops/scripts/server-release.sh`
-- Modify: `docs/adr/0002-hebergement.md` ("Relevé à la commande")
+- Modify: `docs/adr/0002-hebergement.md` ("Record at order time")
 
 **Interfaces:**
 - Consumes: Tasks 2–3; a VPS reachable by SSH with the owner's public key on a sudo-capable administration account (OVHcloud Debian images: `debian`); DNS records.
@@ -744,7 +744,7 @@ git commit -m "feat(ops): add the production stack and smoke checks"
 
 - [ ] **Step 1: Order the server and the domain (project owner)**
 
-The project owner orders the VPS chosen in ADR 0002 (Debian 13, French datacenter, their SSH public key installed at creation) and the domain, then fills the "Relevé à la commande" table in `docs/adr/0002-hebergement.md` from the invoices.
+The project owner orders the VPS chosen in ADR 0002 (Debian 13, French datacenter, their SSH public key installed at creation) and the domain, then fills the "Record at order time" table in `docs/adr/0002-hebergement.md` from the invoices.
 
 At the registrar, create `A` records for `example.fr`, `www.example.fr` and `cms.example.fr` (the real domain) pointing to the VPS IPv4 address. Keep the TTL low (300 s) until go-live.
 
@@ -766,7 +766,7 @@ readonly DEPLOY_USER=media
 readonly APP_ROOT=/opt/my-media
 
 if [[ "$(id -u)" -ne 0 || -z "${SUDO_USER:-}" || "${SUDO_USER}" == "root" ]]; then
-  echo "Lancez ce script avec sudo depuis le compte d’administration (pas directement en root)." >&2
+  echo "Run this script with sudo from the admin account (not directly as root)." >&2
   exit 1
 fi
 
@@ -774,7 +774,7 @@ ADMIN_KEYS="$(getent passwd "$SUDO_USER" | cut -d ':' -f 6)/.ssh/authorized_keys
 readonly ADMIN_KEYS
 
 if [[ ! -s "$ADMIN_KEYS" ]]; then
-  echo "Aucune clé SSH dans $ADMIN_KEYS : ajoutez la vôtre avant de durcir SSH." >&2
+  echo "No SSH key in $ADMIN_KEYS: add yours before hardening SSH." >&2
   exit 1
 fi
 
@@ -863,7 +863,7 @@ configure_firewall
 harden_ssh
 
 ufw status verbose
-echo "Serveur prêt. Vérifiez dans un AUTRE terminal : ssh ${DEPLOY_USER}@<serveur> avant de fermer cette session."
+echo "Server ready. In another terminal, verify: ssh ${DEPLOY_USER}@<server> before closing this session."
 ```
 
 Two accounts result: the provider's administration account (`debian`, with sudo) for root tasks such as installing the backup, and `media` (no sudo, member of `docker`) for deployments. Docker publishes container ports through its own firewall rules, which ufw does not filter; the stack publishes only 80 and 443 (Caddy), so the two layers agree. SSH is hardened last, after `media` has received the administrator's key. If the provider only gives `root`, first create the administration account: `adduser debian && usermod -aG sudo debian && install -d -m 700 -o debian -g debian /home/debian/.ssh && install -m 600 -o debian -g debian /root/.ssh/authorized_keys /home/debian/.ssh/`.
@@ -878,13 +878,13 @@ Two accounts result: the provider's administration account (`debian`, with sudo)
 # Usage (from the laptop): ops/scripts/deploy.sh <ssh-destination>, for example media@203.0.113.10
 set -euo pipefail
 
-readonly DESTINATION="${1:?Usage : ops/scripts/deploy.sh <utilisateur@serveur>}"
+readonly DESTINATION="${1:?Usage: ops/scripts/deploy.sh <user@server>}"
 readonly APP_ROOT=/opt/my-media
 
 cd "$(git rev-parse --show-toplevel)"
 
 if [[ -n "$(git status --porcelain)" ]]; then
-  echo "Le dépôt contient des modifications non commitées : commitez-les ou mettez-les de côté avant de déployer." >&2
+  echo "The repo has uncommitted changes: commit or stash them before deploying." >&2
   exit 1
 fi
 
@@ -892,11 +892,11 @@ RELEASE="$(git rev-parse --short=12 HEAD)"
 readonly RELEASE
 readonly RELEASE_DIR="$APP_ROOT/releases/$RELEASE"
 
-echo "Envoi de la version $RELEASE vers ${DESTINATION}…"
+echo "Sending release $RELEASE to ${DESTINATION}…"
 # shellcheck disable=SC2029
 git archive --format=tar HEAD | ssh "$DESTINATION" "mkdir -p '$RELEASE_DIR' && tar -x -C '$RELEASE_DIR'"
 
-echo "Mise en service sur le serveur…"
+echo "Releasing on the server…"
 # shellcheck disable=SC2029
 ssh "$DESTINATION" "RELEASE='$RELEASE' '$RELEASE_DIR/ops/scripts/server-release.sh' '$RELEASE_DIR'"
 ```
@@ -909,7 +909,7 @@ ssh "$DESTINATION" "RELEASE='$RELEASE' '$RELEASE_DIR/ops/scripts/server-release.
 # Usage (on the server, called by deploy.sh): server-release.sh <release-dir>
 set -euo pipefail
 
-readonly RELEASE_DIR="${1:?Usage : server-release.sh <dossier-de-version>}"
+readonly RELEASE_DIR="${1:?Usage: server-release.sh <release-dir>}"
 readonly APP_ROOT=/opt/my-media
 readonly ENV_FILE="$APP_ROOT/shared/production.env"
 readonly KEPT_RELEASES=5
@@ -918,7 +918,7 @@ readonly COMPOSE="$RELEASE_DIR/ops/scripts/compose-production.sh"
 # shellcheck source=SCRIPTDIR/lib.sh
 source "$RELEASE_DIR/ops/scripts/lib.sh"
 
-: "${RELEASE:?RELEASE doit être défini}"
+: "${RELEASE:?RELEASE must be set}"
 
 SITE_DOMAIN="$(read_env_value "$ENV_FILE" SITE_DOMAIN)"
 CMS_DOMAIN="$(read_env_value "$ENV_FILE" CMS_DOMAIN)"
@@ -938,7 +938,7 @@ find "$APP_ROOT/releases" -mindepth 1 -maxdepth 1 -type d -printf '%T@ %p\n' \
   | xargs -r rm -rf
 
 "$RELEASE_DIR/ops/scripts/smoke.sh" "https://$SITE_DOMAIN" "https://$CMS_DOMAIN"
-echo "Version $RELEASE en service."
+echo "Release $RELEASE is live."
 ```
 
 Provisioning runs between Directus and the site: on the first release the database is empty and the site's health check (its home page) passes only once the public permissions exist; on later releases the schema is up to date before the new site starts.
@@ -951,7 +951,7 @@ Expected: no output.
 - [ ] **Step 4: Bootstrap the server**
 
 Run: `ssh debian@<server-ip> 'sudo bash -s' < ops/scripts/bootstrap-server.sh`
-Expected: the firewall status lists `22/tcp (OpenSSH)`, `80/tcp`, `443/tcp`, `443/udp` as `ALLOW IN`, then `Serveur prêt.`
+Expected: the firewall status lists `22/tcp (OpenSSH)`, `80/tcp`, `443/tcp`, `443/udp` as `ALLOW IN`, then `Server ready.`
 
 In a second terminal, run: `ssh media@<server-ip> 'docker compose version && id'`
 Expected: a Compose v2 version and `groups=…docker…`.
@@ -972,7 +972,7 @@ Expected: `600 media`.
 - [ ] **Step 6: Deploy the first release**
 
 Run: `ops/scripts/deploy.sh media@<server-ip>`
-Expected: images built on the server, services healthy, provisioning applied, every smoke check `ok` against `https://example.fr` and `https://cms.example.fr`, then `Version <commit> en service.` Caddy obtains the Let's Encrypt certificates on the first requests (allow a minute).
+Expected: images built on the server, services healthy, provisioning applied, every smoke check `ok` against `https://example.fr` and `https://cms.example.fr`, then `Release <commit> is live.` Caddy obtains the Let's Encrypt certificates on the first requests (allow a minute).
 
 Run: `curl -sI https://example.fr | grep -i strict-transport-security`
 Expected: `strict-transport-security: max-age=31536000`.
@@ -1034,7 +1034,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly SCRIPT_DIR
 readonly APP_ROOT=/opt/my-media
 readonly COMPOSE="$SCRIPT_DIR/compose-production.sh"
-readonly HEALTHCHECK_URL="${HEALTHCHECK_URL:?HEALTHCHECK_URL est obligatoire}"
+readonly HEALTHCHECK_URL="${HEALTHCHECK_URL:?HEALTHCHECK_URL is required}"
 
 # shellcheck source=SCRIPTDIR/lib.sh
 source "$SCRIPT_DIR/lib.sh"
@@ -1079,7 +1079,7 @@ The dump is written under a temporary directory whose name changes every night; 
 
 ```ini
 [Unit]
-Description=Sauvegarde du média (base, fichiers, réglages)
+Description=Media backup (database, files, settings)
 Wants=network-online.target
 After=network-online.target docker.service
 
@@ -1096,7 +1096,7 @@ IOSchedulingClass=idle
 
 ```ini
 [Unit]
-Description=Sauvegarde quotidienne du média
+Description=Daily media backup
 
 [Timer]
 OnCalendar=*-*-* 03:30:00
@@ -1158,7 +1158,7 @@ Expected: the next run is scheduled between 03:30 and 04:00.
 
 - [ ] **Step 1: Prepare a recognisable drill marker in production**
 
-In the production Studio (editor account), create and publish an article titled `Essai de restauration <date>` with one photo. Then run the backup on demand: `ssh debian@<server-ip> 'sudo systemctl start media-backup.service'`.
+In the production Studio (editor account), create and publish an article titled `Restore drill <date>` with one photo. Then run the backup on demand: `ssh debian@<server-ip> 'sudo systemctl start media-backup.service'`.
 Expected: a new snapshot in `restic snapshots --tag my-media`.
 
 - [ ] **Step 2: Write the restore script**
@@ -1172,10 +1172,10 @@ Expected: a new snapshot in `restic snapshots --tag my-media`.
 # Needs the restic variables (RESTIC_REPOSITORY, RESTIC_PASSWORD, AWS_*) in the environment.
 set -euo pipefail
 
-readonly SNAPSHOT="${1:?Usage : restore.sh <instantané|latest> --confirm-overwrite}"
+readonly SNAPSHOT="${1:?Usage: restore.sh <snapshot-id|latest> --confirm-overwrite}"
 
 if [[ "${2:-}" != "--confirm-overwrite" ]]; then
-  echo "La restauration remplace la base et les fichiers actuels. Relancez avec --confirm-overwrite." >&2
+  echo "Restore replaces the current database and files. Re-run with --confirm-overwrite." >&2
   exit 2
 fi
 
@@ -1197,7 +1197,7 @@ restore_volume() {
   volume="$(media_volume_name "$short_name")"
   local source_directory="$WORK_DIR$SERVER_VOLUMES_ROOT/$volume/_data"
   if [[ ! -d "$source_directory" ]]; then
-    echo "Le volume $volume est absent de l’instantané." >&2
+    echo "Volume $volume is missing from the snapshot." >&2
     exit 1
   fi
   docker run --rm \
@@ -1205,15 +1205,15 @@ restore_volume() {
     -v "$source_directory:/source:ro" \
     busybox:stable \
     sh -c 'find /target -mindepth 1 -delete && cp -a /source/. /target/ && chown -R 1000:1000 /target'
-  echo "Volume $volume restauré."
+  echo "Volume $volume restored."
 }
 
-echo "Lecture de l’instantané ${SNAPSHOT}…"
+echo "Reading snapshot ${SNAPSHOT}…"
 restic restore "$SNAPSHOT" --target "$WORK_DIR"
 DUMP_FILE="$(find "$WORK_DIR" -name directus.dump -type f | head -n 1)"
 readonly DUMP_FILE
 if [[ -z "$DUMP_FILE" ]]; then
-  echo "Aucun fichier directus.dump dans l’instantané." >&2
+  echo "No directus.dump file in the snapshot." >&2
   exit 1
 fi
 
@@ -1223,13 +1223,13 @@ fi
 "$COMPOSE" exec -T database dropdb --username=directus --maintenance-db=postgres --if-exists --force directus
 "$COMPOSE" exec -T database createdb --username=directus --maintenance-db=postgres --owner=directus directus
 "$COMPOSE" exec -T database pg_restore --username=directus --dbname=directus --no-owner --exit-on-error < "$DUMP_FILE"
-echo "Base restaurée."
+echo "Database restored."
 
 restore_volume uploads
 restore_volume public-media
 
 "$COMPOSE" up -d --wait
-echo "Restauration terminée. Lancez ops/scripts/smoke.sh pour vérifier."
+echo "Restore finished. Run ops/scripts/smoke.sh to verify."
 ```
 
 The volume copy runs inside a throwaway container, so the same script works on the server and on a laptop where Docker volumes live inside a virtual machine. `production.env` is restored separately (see the runbook) because it decides which stack the script targets.
@@ -1249,7 +1249,7 @@ time MEDIA_ENV_FILE=ops/rehearsal.env ops/scripts/restore.sh latest --confirm-ov
 ops/scripts/smoke.sh https://site.localhost https://cms.localhost --insecure
 ```
 
-Expected: `Base restaurée.`, both `Volume … restauré.` lines, `Restauration terminée.`; smoke checks all `ok`.
+Expected: `Database restored.`, both `Volume … restored.` lines, `Restore finished.`; smoke checks all `ok`.
 
 Then:
 1. Open `https://site.localhost/articles/<slug of the drill article>`: title and photo displayed.
@@ -1261,62 +1261,62 @@ Then:
 `docs/exploitation/sauvegarde-et-restauration.md`:
 
 ```markdown
-# Sauvegarde et restauration
+# Backup and restore
 
-## Ce qui est sauvegardé
+## What gets backed up
 
-Chaque nuit entre 3 h 30 et 4 h (`media-backup.timer`), `ops/scripts/backup.sh` envoie vers le bucket restic :
+Every night between 03:30 and 04:00 (`media-backup.timer`), `ops/scripts/backup.sh` sends to the restic bucket:
 
-- l’export de la base Postgres (`directus.dump`) ;
-- les fichiers déposés dans Directus (volume `uploads`) ;
-- les copies publiques des images publiées (volume `public-media`) ;
-- les réglages de production (`/opt/my-media/shared/production.env`), chiffrés comme le reste par restic.
+- the Postgres export (`directus.dump`);
+- files stored in Directus (volume `uploads`);
+- published image copies (volume `public-media`);
+- production settings (`/opt/my-media/shared/production.env`), encrypted like everything else by restic.
 
-Rétention : 7 sauvegardes quotidiennes, 4 hebdomadaires, 6 mensuelles. Healthchecks.io alerte par e-mail si la sauvegarde n’a pas réussi depuis 26 heures.
+Retention: 7 daily, 4 weekly, 6 monthly backups. Healthchecks.io emails if backup has not succeeded for 26 hours.
 
-Le mot de passe restic, les clés S3 et le contenu de `backup.env` sont dans le gestionnaire de mots de passe : sans eux, les sauvegardes sont illisibles.
+The restic password, S3 keys and `backup.env` contents live in the password manager: without them, backups cannot be read.
 
-Les commandes « en root » se lancent depuis le compte d’administration : `ssh debian@<serveur>` puis `sudo -i`.
+Run “as root” from the admin account: `ssh debian@<server>` then `sudo -i`.
 
-## Lancer une sauvegarde à la demande
+## Run a backup on demand
 
-En root sur le serveur : `systemctl start media-backup.service`, puis `journalctl -u media-backup.service -n 30`.
+As root on the server: `systemctl start media-backup.service`, then `journalctl -u media-backup.service -n 30`.
 
-## Lister les sauvegardes
+## List backups
 
-En root : `set -a && . /etc/my-media/backup.env && set +a && restic snapshots --tag my-media`.
+As root: `set -a && . /etc/my-media/backup.env && set +a && restic snapshots --tag my-media`.
 
-## Restaurer sur le serveur existant
+## Restore on the existing server
 
-1. Prévenir : le site et le CMS sont indisponibles pendant l’opération (quelques minutes).
-2. En root : charger `backup.env` comme ci-dessus.
-3. `MEDIA_ENV_FILE=/opt/my-media/shared/production.env /opt/my-media/current/ops/scripts/restore.sh <instantané|latest> --confirm-overwrite`
-4. `/opt/my-media/current/ops/scripts/smoke.sh https://<domaine> https://cms.<domaine>`
-5. Si la restauration s’arrête sur une erreur, le site et le CMS restent arrêtés : corrigez la cause, puis relancez la même commande de restauration (le script recrée la base et vide chaque volume avant la copie, donc une relance est possible).
+1. Warn users: the site and CMS are down for a few minutes.
+2. As root: load `backup.env` as above.
+3. `MEDIA_ENV_FILE=/opt/my-media/shared/production.env /opt/my-media/current/ops/scripts/restore.sh <snapshot-id|latest> --confirm-overwrite`
+4. `/opt/my-media/current/ops/scripts/smoke.sh https://<domain> https://cms.<domain>`
+5. If restore stops on an error, the site and CMS stay stopped: fix the cause, then run the same restore command again (the script recreates the database and empties each volume before copy, so a retry is safe).
 
-## Reconstruire sur un nouveau serveur
+## Rebuild on a new server
 
-1. Commander un VPS, lancer `ssh debian@<nouvelle-adresse> 'sudo bash -s' < ops/scripts/bootstrap-server.sh`, faire pointer le DNS vers la nouvelle adresse.
-2. En root, installer `restic` (déjà fait par le script) et `/etc/my-media/backup.env` depuis le gestionnaire de mots de passe.
-3. Récupérer les réglages : `restic restore latest --tag my-media --include /opt/my-media/shared/production.env --target /`, puis `chown media:media /opt/my-media/shared/production.env && chmod 600 /opt/my-media/shared/production.env`.
-4. Depuis le poste : `ops/scripts/deploy.sh media@<nouvelle-adresse>` (le premier déploiement crée une base vide).
-5. En root : restaurer comme ci-dessus (étapes 2 à 4 de la section précédente), puis réinstaller le timer de sauvegarde (plan 3, Task 5, Step 5).
+1. Order a VPS, run `ssh debian@<new-address> 'sudo bash -s' < ops/scripts/bootstrap-server.sh`, point DNS to the new address.
+2. As root, install `restic` (already done by the script) and `/etc/my-media/backup.env` from the password manager.
+3. Recover settings: `restic restore latest --tag my-media --include /opt/my-media/shared/production.env --target /`, then `chown media:media /opt/my-media/shared/production.env && chmod 600 /opt/my-media/shared/production.env`.
+4. From the laptop: `ops/scripts/deploy.sh media@<new-address>` (first deploy creates an empty database).
+5. As root: restore as above (steps 2–4 of the previous section), then reinstall the backup timer (plan 3, Task 5, Step 5).
 
-## Essai de restauration
+## Restore drill
 
-Refaire l’essai au moins une fois par trimestre, sur la répétition locale (`ops/rehearsal.env`), et le consigner dans `docs/validation/restauration.md`.
+Repeat the drill at least once per quarter on the local rehearsal stack (`ops/rehearsal.env`) and record it in `docs/validation/restauration.md`.
 ```
 
 `docs/validation/restauration.md`:
 
 ```markdown
-# Essai de restauration
+# Restore drill
 
-| Date | Instantané | Cible | Durée de `restore.sh` | Article témoin visible | Images visibles | Contenu identique à la production | Vérifications `smoke.sh` | Opérateur |
+| Date | Snapshot | Target | `restore.sh` duration | Marker article visible | Images visible | Same content as production | `smoke.sh` checks | Operator |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| | | répétition locale | | | | | | |
+| | | local rehearsal | | | | | | |
 
-Écarts constatés et corrections : …
+Gaps found and fixes: …
 ```
 
 Fill the first row from Step 3 (snapshot id from `restic snapshots`, duration from `time`).
@@ -1364,42 +1364,42 @@ Expected: an "up" email at the next check.
 `docs/exploitation/surveillance-et-mises-a-jour.md`:
 
 ```markdown
-# Surveillance et mises à jour
+# Monitoring and updates
 
-## Alertes
+## Alerts
 
-| Alerte | Source | Première action |
+| Alert | Source | First action |
 | --- | --- | --- |
-| « Site down » | UptimeRobot, toutes les 5 min | `ssh media@<serveur>` puis `/opt/my-media/current/ops/scripts/compose-production.sh ps` et `… logs --tail 100 site` |
-| « CMS down » | UptimeRobot, toutes les 5 min | même chose avec `directus`, puis `database` |
-| « Sauvegarde my-media » en retard ou en échec | Healthchecks.io, quotidien | `ssh debian@<serveur>` puis `sudo journalctl -u media-backup.service -n 50` |
+| “Site down” | UptimeRobot, every 5 min | `ssh media@<server>` then `/opt/my-media/current/ops/scripts/compose-production.sh ps` and `… logs --tail 100 site` |
+| “CMS down” | UptimeRobot, every 5 min | same with `directus`, then `database` |
+| “Sauvegarde my-media” late or failed | Healthchecks.io, daily | `ssh debian@<server>` then `sudo journalctl -u media-backup.service -n 50` |
 
-Redémarrer un service : `/opt/my-media/current/ops/scripts/compose-production.sh restart <service>`. Ne jamais lancer `… down -v` en production : l’option supprime les volumes.
+Restart a service: `/opt/my-media/current/ops/scripts/compose-production.sh restart <service>`. Never run `… down -v` in production: that flag deletes volumes.
 
-## Mises à jour automatiques
+## Automatic updates
 
-Les correctifs de sécurité Debian s’installent chaque jour (`unattended-upgrades`). Si `/var/run/reboot-required` existe, redémarrer à une heure creuse : les conteneurs repartent seuls (`restart: unless-stopped`).
+Debian security patches install daily (`unattended-upgrades`). If `/var/run/reboot-required` exists, reboot at a quiet time: containers come back on their own (`restart: unless-stopped`).
 
-## Revue mensuelle (15 minutes)
+## Monthly review (15 minutes)
 
-1. `df -h /` : alerte si plus de 80 % utilisés ; nettoyer avec `docker image prune -a --filter "until=720h"`.
-2. En root : `set -a && . /etc/my-media/backup.env && set +a && restic snapshots --tag my-media` : une sauvegarde par jour.
-3. Notes de version et avis de sécurité Directus (`https://github.com/directus/directus/releases`, `https://github.com/directus/directus/security/advisories`).
-4. En root : `apt update`, puis `apt list --upgradable` ; si des paquets attendent, `apt full-upgrade`.
+1. `df -h /`: alert if over 80% used; clean with `docker image prune -a --filter "until=720h"`.
+2. As root: `set -a && . /etc/my-media/backup.env && set +a && restic snapshots --tag my-media`: one backup per day.
+3. Directus release notes and security advisories (`https://github.com/directus/directus/releases`, `https://github.com/directus/directus/security/advisories`).
+4. As root: `apt update`, then `apt list --upgradable`; if packages wait, `apt full-upgrade`.
 
-Les commandes « root » se lancent depuis le compte d’administration : `ssh debian@<serveur>` puis `sudo -i`. Le compte `media` sert aux déploiements et n’a pas de droits root.
+Run “root” commands from the admin account: `ssh debian@<server>` then `sudo -i`. The `media` account is for deploys and has no root rights.
 
-## Mettre à jour Directus
+## Update Directus
 
-1. Lire les notes de version entre 12.5.0 et la cible ; repérer les changements sur le MCP, les flows, les permissions et la licence Core (3 sièges, 25 collections, 5 flows).
-2. Sur une branche : remplacer `directus/directus:12.5.0` dans `compose.yaml` et `Dockerfile`, et la version attendue dans `cms/tests/src/server.test.ts` ; en cas de changement de version majeure, aussi la plage `host` de `cms/extensions/editorial/package.json`.
-3. En local : `pnpm cms:up && pnpm provision && pnpm test && pnpm test:cms && pnpm test:e2e`.
-4. En root sur le serveur, lancer une sauvegarde à la demande (`systemctl start media-backup.service`, puis vérifier `journalctl -u media-backup.service -n 30`) ; ensuite, depuis le poste : `ops/scripts/deploy.sh media@<serveur>`.
-5. Refaire un essai de connexion MCP depuis Claude et ChatGPT.
+1. Read release notes from 12.5.0 to the target; note MCP, flows, permissions and Core licence changes (3 seats, 25 collections, 5 flows).
+2. On a branch: replace `directus/directus:12.5.0` in `compose.yaml` and `Dockerfile`, and the expected version in `cms/tests/src/server.test.ts`; on a major bump, also the `host` range in `cms/extensions/editorial/package.json`.
+3. Locally: `pnpm cms:up && pnpm provision && pnpm test && pnpm test:cms && pnpm test:e2e`.
+4. As root on the server, run an on-demand backup (`systemctl start media-backup.service`, then check `journalctl -u media-backup.service -n 30`); then from the laptop: `ops/scripts/deploy.sh media@<server>`.
+5. Retry MCP connection from Claude and ChatGPT.
 
-## Mettre à jour Postgres, Caddy, Node
+## Update Postgres, Caddy, Node
 
-`postgres:17-alpine`, `caddy:2-alpine` et `node:24-alpine` suivent leurs correctifs : chaque déploiement (`deploy.sh`) récupère leur dernière version (`pull` et `build --pull` dans `server-release.sh`). Changer de version majeure de Postgres demande un export et une restauration : suivre `docs/exploitation/sauvegarde-et-restauration.md`.
+`postgres:17-alpine`, `caddy:2-alpine` and `node:24-alpine` track patch releases: each deploy (`deploy.sh`) pulls their latest images (`pull` and `build --pull` in `server-release.sh`). A major Postgres version change needs export and restore: follow `docs/exploitation/sauvegarde-et-restauration.md`.
 ```
 
 - [ ] **Step 4: Commit**
@@ -1423,7 +1423,7 @@ git commit -m "docs(ops): document monitoring and maintenance"
 
 - [ ] **Step 1: Enter the real editorial settings (project owner)**
 
-In the production Studio as the editor: "Réglages du média" (name, contact email, presentation, legal notice with the publication director and the host's name and address), "Ligne éditoriale", rubriques, watch sources. The demo content from development is not imported (spec §13).
+In the production Studio as the editor: "Réglages du média" (name, contact email, presentation, legal notice with the publication director and the host's name and address), "Ligne éditoriale", sections, watch sources. The demo content from development is not imported (spec §13).
 
 Run: `curl -s https://example.fr/a-propos | grep -c 'Mentions légales'`
 Expected: `1` or more, and the page shows the legal notice text.
@@ -1461,7 +1461,7 @@ Expected: `401`.
 
 1. Claude: remove the test connector from plan 1, add `https://cms.example.fr/mcp`, sign in as the production assistant account, approve.
 2. ChatGPT: same with its connector (if the Plus plan allowed it in plan 1, Task 9).
-3. With each client: "Lis le protocole de la rédaction et la ligne éditoriale, puis prépare un brouillon de test intitulé « Essai de connexion production » avec une source." Check the draft in the Studio.
+3. With each client: "Read the editorial protocol and the editorial line, then prepare a test draft titled « Essai de connexion production » with one source." Check the draft in the Studio.
 4. With each client: "Publie ce brouillon." Expected: refusal or tool error; no published version created.
 5. Delete the test drafts in the Studio.
 
@@ -1484,48 +1484,48 @@ Repeat plan 1 Task 10 Step 3 on today's date (latest release, security advisorie
 `docs/exploitation/mise-en-production.md`:
 
 ```markdown
-# Mise en production et déploiements
+# Production go-live and deploys
 
 ## Architecture
 
-Un VPS (voir `docs/adr/0002-hebergement.md`) fait tourner, avec Docker Compose (`ops/compose.production.yaml`) :
+One VPS (see `docs/adr/0002-hebergement.md`) runs, with Docker Compose (`ops/compose.production.yaml`):
 
-- Caddy : HTTPS automatique pour `<domaine>` (site), `www.<domaine>` (redirection) et `cms.<domaine>` (Directus) ;
-- le site Astro, en lecture seule ;
-- Directus 12.5.0 avec l’extension `editorial` ;
-- Postgres 17, sur un réseau interne sans accès à Internet.
+- Caddy: automatic HTTPS for `<domain>` (site), `www.<domain>` (redirect) and `cms.<domain>` (Directus);
+- the Astro site, read-only;
+- Directus 12.5.0 with the `editorial` extension;
+- Postgres 17 on an internal network with no internet access.
 
-Fichiers sur le serveur : `/opt/my-media/current` (version en service), `/opt/my-media/releases/` (5 dernières versions), `/opt/my-media/shared/production.env` (secrets, 600), `/etc/my-media/backup.env` (sauvegarde, root, 600).
+Files on the server: `/opt/my-media/current` (live release), `/opt/my-media/releases/` (last 5 releases), `/opt/my-media/shared/production.env` (secrets, mode 600), `/etc/my-media/backup.env` (backup, root, mode 600).
 
-Comptes sur le serveur : `media` (clé SSH, groupe `docker`, sans sudo) pour déployer ; `debian` (clé SSH, sudo) pour l’administration système. Connexion root et mots de passe SSH refusés. Préparer un nouveau serveur : `ssh debian@<adresse> 'sudo bash -s' < ops/scripts/bootstrap-server.sh`.
+Server accounts: `media` (SSH key, `docker` group, no sudo) for deploys; `debian` (SSH key, sudo) for system admin. Root login and SSH passwords are disabled. Prepare a new server: `ssh debian@<address> 'sudo bash -s' < ops/scripts/bootstrap-server.sh`.
 
-## Déployer une nouvelle version
+## Deploy a new release
 
-Avant le tout premier déploiement, déposer `production.env` sur le serveur (commande de la section « Modifier un réglage de production »).
+Before the first deploy ever, put `production.env` on the server (command in “Change a production setting” below).
 
-Depuis le poste, sur un dépôt sans modification en cours :
+From the laptop, on a clean committed tree:
 
-    ops/scripts/deploy.sh media@<serveur>
+    ops/scripts/deploy.sh media@<server>
 
-Le script envoie le code commité et construit les images sur le serveur ; il démarre d’abord la base et Directus, exécute le conteneur de provisionnement (`compose run --rm provision` : schéma, accès, flow « Publier », réglages MCP), relance l’ensemble des services, puis lance les vérifications publiques (`smoke.sh`). Pendant le provisionnement, les droits de lecture publics sont réécrits : le site peut répondre en erreur quelques secondes, d’où un déploiement à une heure creuse. Revenir en arrière : se placer sur le commit précédent et relancer la même commande.
+The script sends committed code and builds images on the server; it starts the database and Directus first, runs the provision container (`compose run --rm provision`: schema, access, “Publier” flow, MCP settings), brings all services up, then runs public checks (`smoke.sh`). During provisioning, public read permissions are rewritten: the site may error for a few seconds, so deploy at a quiet time. Roll back: check out the previous commit and run the same command again.
 
-Si les vérifications échouent, la nouvelle version tourne déjà et `/opt/my-media/current` pointe vers elle : lire les journaux (`/opt/my-media/current/ops/scripts/compose-production.sh logs --tail 100 site directus`), puis corriger et redéployer, ou revenir au commit précédent comme ci-dessus.
+If checks fail, the new release is already running and `/opt/my-media/current` points to it: read logs (`/opt/my-media/current/ops/scripts/compose-production.sh logs --tail 100 site directus`), fix and redeploy, or roll back to the previous commit as above.
 
-## Modifier un réglage de production
+## Change a production setting
 
-Modifier la copie de `production.env` du gestionnaire de mots de passe, l’envoyer (`ssh media@<serveur> 'umask 077 && cat > /opt/my-media/shared/production.env' < production.env`), puis redéployer avec `ops/scripts/deploy.sh media@<serveur>`.
+Edit the password-manager copy of `production.env`, upload it (`ssh media@<server> 'umask 077 && cat > /opt/my-media/shared/production.env' < production.env`), then redeploy with `ops/scripts/deploy.sh media@<server>`.
 
 ## Secrets
 
-- `ADMIN_TOKEN` donne tous les droits sur Directus ; il ne quitte jamais le serveur et le gestionnaire de mots de passe. En cas de doute, en générer un nouveau dans le Studio (compte admin) et mettre à jour `production.env`.
-- Les comptes « Rédaction » et « Assistant IA » n’ont pas de jeton statique en production ; l’assistant se connecte par OAuth MCP.
-- Les deux comptes humains et l’assistant occupent au plus 3 sièges (limite Directus Core).
+- `ADMIN_TOKEN` grants full Directus access; it never leaves the server and the password manager. If in doubt, generate a new one in the Studio (admin account) and update `production.env`.
+- The “Rédaction” and “Assistant IA” accounts have no static token in production; the assistant connects through MCP OAuth only.
+- The two human accounts and the assistant use at most 3 seats (Directus Core limit).
 
-## Connecter un assistant
+## Connect an assistant
 
-Adresse MCP : `https://cms.<domaine>/mcp`, connexion avec le compte « Assistant IA ». Les domaines autorisés sont dans `MCP_OAUTH_CIMD_ALLOWED_DOMAINS` et `MCP_OAUTH_ALLOWED_REDIRECT_DOMAINS`. Un nouveau client refusé apparaît dans les journaux Directus avec le domaine à ajouter.
+MCP URL: `https://cms.<domain>/mcp`, sign in with the “Assistant IA” account. Allowed domains are in `MCP_OAUTH_CIMD_ALLOWED_DOMAINS` and `MCP_OAUTH_ALLOWED_REDIRECT_DOMAINS`. A rejected new client shows the domain to add in Directus logs.
 
-## Voir aussi
+## See also
 
 - `docs/exploitation/sauvegarde-et-restauration.md`
 - `docs/exploitation/surveillance-et-mises-a-jour.md`
@@ -1536,41 +1536,41 @@ Adresse MCP : `https://cms.<domaine>/mcp`, connexion avec le compte « Assistant
 `docs/validation/mise-en-service.md`:
 
 ```markdown
-# Mise en service — <date>
+# Go-live — <date>
 
-Version déployée : <commit>. Domaine : <domaine>.
+Deployed version: <commit>. Domain: <domain>.
 
-| Critère (spec §12) | Résultat | Preuve |
+| Criterion (spec §12) | Result | Evidence |
 | --- | --- | --- |
-| Parcours manuel | | `docs/validation/2026-10-parcours-manuel.md` |
-| Parcours MCP | | `docs/validation/2026-10-mcp-clients.md` ; connexion production (étape 4) |
-| Images par assistant | | `docs/validation/2026-10-mcp-clients.md` |
-| Refus de publication IA | | tests `cms/tests` (`access`, `publication`, `mcp`) ; refus en production (étape 4) |
-| Liberté du publieur humain | | test « publie malgré des points ouverts » ; parcours manuel |
-| Confidentialité | | tests `access` et site (`article`, `navigation`, `preview`) ; `smoke.sh` en production |
-| Correction | | tests « brouillon de révision isolé » et « republication » |
-| Reprise | | tests de clé de création ; scénario de reprise des clients |
-| Erreur de publication | | test de retour arrière ; parcours manuel, étape 5 |
-| Sources publiques | | test site `article` ; vérification sur téléphone (étape 5) |
-| Présentation | | `docs/validation/2026-10-site-public.md` ; vérification sur téléphone (étape 5) |
-| Exploitation | | `docs/adr/0002-hebergement.md` (relevé réel) ; `docs/validation/restauration.md` |
+| Manual journey | | `docs/validation/2026-10-parcours-manuel.md` |
+| MCP journey | | `docs/validation/2026-10-mcp-clients.md`; production connection (step 4) |
+| Assistant images | | `docs/validation/2026-10-mcp-clients.md` |
+| AI publish refused | | `cms/tests` (`access`, `publication`, `mcp`); refusal in production (step 4) |
+| Human publisher freedom | | test “publishes despite open points”; manual journey |
+| Confidentiality | | `access` and site tests (`article`, `navigation`, `preview`); production `smoke.sh` |
+| Revision | | tests “revision draft isolated” and “republish” |
+| Resumption | | creation-key tests; client resumption scenario |
+| Publication error | | rollback test; manual journey, step 5 |
+| Public sources | | site `article` test; phone check (step 5) |
+| Presentation | | `docs/validation/2026-10-site-public.md`; phone check (step 5) |
+| Operations | | `docs/adr/0002-hebergement.md` (actual invoice record); `docs/validation/restauration.md` |
 
-## Coût mensuel réel
+## Actual monthly cost
 
-Total TTC : … € (plafond 30 €).
+Total incl. tax: … € (cap 30 €).
 
-## Licence et version
+## Licence and version
 
-Vérifiées le … : …
+Checked on …: …
 
-## Réserves
+## Open issues
 
 - …
 
-Décision de mise en ligne : prise par … le …
+Go-live decision: made by … on …
 ```
 
-Fill every cell with "Conforme" or the observed gap, the real total from the ADR table, and the licence check result. The site is announced only after the owner writes the decision line.
+Fill every cell with “Compliant” or the observed gap, the real total from the ADR table, and the licence check result. The site is announced only after the owner writes the decision line.
 
 - [ ] **Step 9: Final verification and commit**
 

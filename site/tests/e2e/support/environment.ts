@@ -9,7 +9,7 @@ const values = parseEnv(readFileSync(new URL('.env', repositoryRoot), 'utf8'));
 function requireValue(name: string): string {
   const value = values[name];
   if (value === undefined || value === '') {
-    throw new Error(`${name} manque dans le fichier .env à la racine du dépôt.`);
+    throw new Error(`${name} is missing from the .env file at the repository root.`);
   }
   return value;
 }

@@ -54,12 +54,12 @@ jobs:
         run: |
           marker='<!-- my-media-preview -->'
           body="$marker
-          **Preview** de \`${COMMIT:0:7}\` :
+          **Preview** for \`${COMMIT:0:7}\`:
 
-          - Site : $SITE_URL
-          - CMS : $CMS_URL/admin
+          - Site: $SITE_URL
+          - CMS: $CMS_URL/admin
 
-          Données de démonstration. Supprimée à la fermeture de la PR ou 72 h après la dernière livraison."
+          Demo data. Removed when the PR closes or 72 h after the last delivery."
           existing="$(gh api "repos/$REPOSITORY/issues/$NUMBER/comments" --paginate \
             --jq "map(select(.body | startswith(\"$marker\"))) | first | .id // empty")"
           if [[ -n "$existing" ]]; then

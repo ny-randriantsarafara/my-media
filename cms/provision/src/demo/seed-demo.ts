@@ -23,7 +23,7 @@ export async function seedDemoContent(account: DemoAccount, log: Log): Promise<v
   const client = createEditorClient(account.directusUrl, accessToken);
   const existing = await client.request(readItems('articles', { fields: ['id'], limit: 1 }));
   if (existing.length > 0) {
-    log('Démo ignorée : le CMS contient déjà des articles.');
+    log('Demo skipped: the CMS already has articles.');
     return;
   }
 
@@ -39,7 +39,7 @@ export async function seedDemoContent(account: DemoAccount, log: Log): Promise<v
   for (const article of demoArticles) {
     const sectionId = sectionIds.get(article.sectionSlug);
     if (sectionId === undefined) {
-      throw new Error(`Rubrique de démo inconnue : ${article.sectionSlug}`);
+      throw new Error(`Unknown demo section: ${article.sectionSlug}`);
     }
     const articleId = await createArticle(client, article, sectionId);
     await publish(account.directusUrl, accessToken, flowId, articleId);
@@ -48,7 +48,7 @@ export async function seedDemoContent(account: DemoAccount, log: Log): Promise<v
       await feature(client, articleId, article.placement, sort);
     }
   }
-  log(`Démo chargée : ${demoArticles.length} articles publiés.`);
+  log(`Demo loaded: ${demoArticles.length} published articles.`);
 }
 
 async function signIn(account: DemoAccount): Promise<string> {
@@ -58,12 +58,12 @@ async function signIn(account: DemoAccount): Promise<string> {
     body: JSON.stringify({ email: account.email, password: account.password, mode: 'json' }),
   });
   if (!response.ok) {
-    throw new Error(`Connexion du compte Rédaction refusée pour la démo (HTTP ${response.status}).`);
+    throw new Error(`Editor account login refused for demo (HTTP ${response.status}).`);
   }
   const payload: unknown = await response.json();
   const token = isRecord(payload) && isRecord(payload['data']) ? payload['data']['access_token'] : undefined;
   if (typeof token !== 'string') {
-    throw new Error('Directus n’a pas renvoyé de jeton d’accès pour la démo.');
+    throw new Error('Directus did not return an access token for the demo.');
   }
   return token;
 }
@@ -71,7 +71,7 @@ async function signIn(account: DemoAccount): Promise<string> {
 async function readPublicationFlowId(client: EditorClient): Promise<string> {
   const [flow] = await client.request(readFlows({ filter: { name: { _eq: PUBLICATION_FLOW_NAME } }, fields: ['id'], limit: 1 }));
   if (flow === undefined) {
-    throw new Error(`Flow « ${PUBLICATION_FLOW_NAME} » introuvable : le provisionnement doit précéder la démo.`);
+    throw new Error(`Flow "${PUBLICATION_FLOW_NAME}" not found: run provision before the demo.`);
   }
   return flow.id;
 }
@@ -124,7 +124,7 @@ async function publish(directusUrl: string, accessToken: string, flowId: string,
     body: JSON.stringify({ collection: 'articles', keys: [articleId] }),
   });
   if (!response.ok) {
-    throw new Error(`Publication de démo refusée (HTTP ${response.status}) : ${await response.text()}`);
+    throw new Error(`Demo publication refused (HTTP ${response.status}): ${await response.text()}`);
   }
 }
 
@@ -133,7 +133,7 @@ async function feature(client: EditorClient, articleId: string, placement: 'lead
     readItems('published_articles', { filter: { article: { _eq: articleId } }, fields: ['id'], limit: 1 }),
   );
   if (publication === undefined) {
-    throw new Error('Article de démo introuvable après publication.');
+    throw new Error('Demo article not found after publication.');
   }
   await client.request(createItem('home_features', { published_article: publication.id, placement, sort }));
 }

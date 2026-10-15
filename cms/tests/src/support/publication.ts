@@ -49,7 +49,7 @@ export async function triggerPublication(token: string, flowId: string, articleI
   }
   const [error] = errorResponse.parse(body).errors;
   if (error === undefined) {
-    throw new Error(`Réponse d’erreur sans détail (HTTP ${response.status}).`);
+    throw new Error(`Error response without details (HTTP ${response.status}).`);
   }
   return { status: 'rejected', httpStatus: response.status, code: error.extensions.code, message: error.message };
 }

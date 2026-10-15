@@ -21,7 +21,7 @@ async function createPublishableDraft(suffix: string): Promise<string> {
 async function publishAsEditor(articleId: string): Promise<void> {
   const attempt = await triggerPublication(testEnvironment.editorToken, flowId, [articleId]);
   if (attempt.status !== 'published') {
-    throw new Error(`Publication de préparation refusée : ${attempt.code} ${attempt.message}`);
+    throw new Error(`Setup publication was rejected: ${attempt.code} ${attempt.message}`);
   }
 }
 
@@ -114,7 +114,7 @@ describe('publication', () => {
     const attempt = await triggerPublication(testEnvironment.editorToken, flowId, [articleId]);
 
     if (attempt.status !== 'rejected') {
-      throw new Error('La publication devait être refusée.');
+      throw new Error('Publication should have been rejected.');
     }
     expect(attempt.code).toBe('PUBLICATION_FAILED');
     expect(attempt.message).toContain('n’est pas pris en charge');

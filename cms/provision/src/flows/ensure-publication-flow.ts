@@ -36,7 +36,7 @@ async function ensureFlow(client: AdminClient, log: Log): Promise<string> {
   const [existing] = await client.request(readFlows({ filter: { name: { _eq: PUBLICATION_FLOW_NAME } }, fields: ['id'], limit: 1 }));
   if (existing === undefined) {
     const created = await client.request(createFlow(publicationFlow, { fields: ['id'] }));
-    log('Flow « Publier » créé');
+    log('Flow "Publier" created');
     return created.id;
   }
   await client.request(updateFlow(existing.id, publicationFlow));
@@ -58,7 +58,7 @@ async function ensureOperation(client: AdminClient, flowId: string, log: Log): P
       await client.request(
         updateOperation(existing.id, { flow: flowId, key: PUBLICATION_OPERATION_KEY, ...declared }),
       );
-      log('Opération de publication mise à jour');
+      log('Publication operation updated');
     }
     await client.request(updateFlow(flowId, { operation: existing.id }));
     return;
@@ -70,7 +70,7 @@ async function ensureOperation(client: AdminClient, flowId: string, log: Log): P
     ),
   );
   await client.request(updateFlow(flowId, { operation: created.id }));
-  log('Opération de publication créée');
+  log('Publication operation created');
 }
 
 function storedOperationFields(operation: {

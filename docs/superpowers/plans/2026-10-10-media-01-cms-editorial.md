@@ -1,4 +1,4 @@
-# Média indépendant — Plan 1 : back-office éditorial Directus
+# Independent media — Plan 1: Directus editorial back office
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -14,17 +14,17 @@
 
 ## Global Constraints
 
-- CMS: "Utiliser Directus auto-hébergé comme CMS et son MCP natif avec OAuth pour Claude Pro et ChatGPT Plus." Pin the image `directus/directus:12.5.0`.
-- Roles: "L'IA prépare des brouillons. Un humain relit et publie. Le site public n'affiche que la version publiée."
-- Permissions: "L'interdiction de publier par l'IA est appliquée côté serveur, quel que soit le chemin utilisé : modification directe, modification groupée, changement de statut ou déclenchement de l'action de publication."
-- Permissions: "Les politiques additives doivent être inspectées."
-- Anonymous: "Un visiteur anonyme ne peut lire que les contenus publiés et les fichiers explicitement exposés. Il n'a pas accès aux brouillons, remarques, documents privés ou fichiers associés."
-- Publication: "Le bouton Publier reste disponible même s'il reste des points à vérifier, des remarques ouvertes ou des sources incomplètes." No mandatory confirmation.
-- Publication: "Les erreurs techniques sont affichées." and "Une publication échouée conserve le brouillon et l'ancienne version publique."
-- Resumption: "Chaque création effectuée par l'IA porte une clé stable. La donnée a une contrainte d'unicité."
-- Sources: "Les sources sont publiques." Private fields (`article_references.material`, `article_images.source_note`) never reach `published_*`.
-- Copy: "Aucune mention publique de l'usage d'une IA." and "Aucune signature ou référence n'est inventée."
-- Budget: "Coût cible : moins de 30 € par mois."
+- CMS: "Use self-hosted Directus as the CMS and its native MCP with OAuth for Claude Pro and ChatGPT Plus." Pin the image `directus/directus:12.5.0`.
+- Roles: "The AI prepares drafts. A human reviews and publishes. The public site shows only the published version."
+- Permissions: "The ban on publishing by the AI is enforced on the server, whatever path is used: direct edit, batch edit, status change or triggering the publish action."
+- Permissions: "Additive policies must be inspectable."
+- Anonymous: "An anonymous visitor can read only published content and explicitly exposed files. They cannot access drafts, remarks, private documents or related files."
+- Publication: "The Publish button stays available even when verification points, open remarks or incomplete sources remain." No mandatory confirmation.
+- Publication: "Technical errors are shown." and "A failed publish keeps the draft and the previous public version."
+- Resumption: "Every item created by the AI carries a stable key. The data has a uniqueness constraint."
+- Sources: "Sources are public." Private fields (`article_references.material`, `article_images.source_note`) never reach `published_*`.
+- Copy: "No public mention of AI use." and "No byline or reference is invented."
+- Budget: "Target cost: under 30 € per month."
 - Directus Core licence (no licence key) limits verified in the 12.5.0 source: 3 seats (active users with app or admin access), 25 collections, 5 flows, and **no custom permission rules**. Every permission row must be `fields: ['*']` with `permissions`, `validation` and `presets` all `null`, otherwise Directus throws `RESOURCE_RESTRICTED`. The design below never relies on item filters or field restrictions.
 - Toolchain: Node 24, pnpm 10.32.1, TypeScript `~6.0.3` in every package (Astro tooling in plan 2 does not accept TypeScript 7).
 - Code rules: no `any`, no `as` type assertions, no `@ts-ignore`, no mutation after initialisation, early returns instead of nested `if`, no readability-hurting ternaries, explicit error handling.
@@ -332,7 +332,7 @@ import { defineConfig } from 'vitest/config';
 const environmentFile = fileURLToPath(new URL('../../.env', import.meta.url));
 
 if (!existsSync(environmentFile)) {
-  throw new Error('Fichier .env absent : copiez .env.example vers .env à la racine du dépôt.');
+  throw new Error('.env file missing: copy .env.example to .env at the repo root.');
 }
 
 export default defineConfig({
@@ -354,7 +354,7 @@ import { fileURLToPath } from 'node:url';
 export function requireEnvironment(name: string): string {
   const value = process.env[name];
   if (value === undefined || value === '') {
-    throw new Error(`La variable ${name} est absente du fichier .env.`);
+    throw new Error(`Variable ${name} is missing from the .env file.`);
   }
   return value;
 }
@@ -841,7 +841,7 @@ export function readProvisionEnvironment(source: EnvironmentSource): ProvisionEn
 function requireValue(source: EnvironmentSource, name: string): string {
   const value = optionalValue(source, name);
   if (value === null) {
-    throw new Error(`La variable d’environnement ${name} est obligatoire.`);
+    throw new Error(`Environment variable ${name} is required.`);
   }
   return value;
 }
@@ -881,7 +881,7 @@ const collectionNames = new Set<string>(collections.map((definition) => definiti
 function fieldsOf(collection: string): string[] {
   const definition = collections.find((candidate) => candidate.collection === collection);
   if (definition === undefined) {
-    throw new Error(`Collection ${collection} absente`);
+    throw new Error(`Collection ${collection} missing`);
   }
   return definition.fields.map((field) => field.field);
 }
@@ -1734,7 +1734,7 @@ export async function captureErrorCode(request: Promise<unknown>): Promise<strin
   } catch (error) {
     return readErrorCode(error);
   }
-  throw new Error('La requête devait être refusée mais elle a réussi.');
+  throw new Error('The request should have been denied but it succeeded.');
 }
 
 function readErrorCode(error: unknown): string {
@@ -1743,7 +1743,7 @@ function readErrorCode(error: unknown): string {
   }
   const [firstError] = error.errors;
   if (firstError === undefined) {
-    throw new Error(`Erreur Directus sans détail (HTTP ${error.response.status}).`);
+    throw new Error(`Directus error without detail (HTTP ${error.response.status}).`);
   }
   return firstError.extensions.code;
 }
@@ -1907,7 +1907,7 @@ export async function ensureSchema(
 async function ensureCollection(client: AdminClient, definition: CollectionDefinition, exists: boolean, log: Log): Promise<void> {
   if (!exists) {
     await client.request(createCollection(toCollectionPayload(definition)));
-    log(`Collection créée : ${definition.collection}`);
+    log(`Collection created: ${definition.collection}`);
     return;
   }
   await ensureMissingFields(client, definition, log);
@@ -1919,7 +1919,7 @@ async function ensureMissingFields(client: AdminClient, definition: CollectionDe
   const missingFields = definition.fields.filter((field) => !existingFieldNames.has(field.field));
   for (const field of missingFields) {
     await client.request(createField(definition.collection, field));
-    log(`Champ créé : ${definition.collection}.${field.field}`);
+    log(`Field created: ${definition.collection}.${field.field}`);
   }
 }
 
@@ -1928,7 +1928,7 @@ async function ensureRelation(client: AdminClient, definition: RelationDefinitio
     return;
   }
   await client.request(createRelation(definition));
-  log(`Relation créée : ${definition.collection}.${definition.field}`);
+  log(`Relation created: ${definition.collection}.${definition.field}`);
 }
 
 function relationKey(collection: string, field: string): string {
@@ -1983,7 +1983,7 @@ async function provision(): Promise<void> {
   const client = createAdminClient(environment.directusUrl, environment.adminToken);
 
   await ensureSchema(client, editorialCollections(environment.siteUrl), editorialRelations, log);
-  log('Provisionnement terminé.');
+  log('Provisioning finished.');
 }
 
 function describeFailure(error: unknown): string {
@@ -1999,7 +1999,7 @@ function describeFailure(error: unknown): string {
 try {
   await provision();
 } catch (error) {
-  console.error(`Échec du provisionnement :\n${describeFailure(error)}`);
+  console.error(`Provisioning failed:\n${describeFailure(error)}`);
   process.exitCode = 1;
 }
 ```
@@ -2007,10 +2007,10 @@ try {
 - [ ] **Step 15: Provision and run the test to see it pass**
 
 Run: `pnpm provision`
-Expected: one `Collection créée : …` line per collection, one `Relation créée : …` per relation, then `Provisionnement terminé.`
+Expected: one `Collection created: …` line per collection, one `Relation created: …` per relation, then `Provisioning finished.`
 
 Run: `pnpm provision` again.
-Expected: only `Provisionnement terminé.` (idempotent).
+Expected: only `Provisioning finished.` (idempotent).
 
 Run: `pnpm test:cms`
 Expected: PASS (server and schema tests).
@@ -2618,7 +2618,7 @@ async function ensurePolicy(client: AdminClient, definition: PolicyDefinition, l
   const [existing] = await client.request(readPolicies({ filter: { name: { _eq: definition.name } }, fields: ['id'], limit: 1 }));
   if (existing === undefined) {
     const created = await client.request(createPolicy(values, { fields: ['id'] }));
-    log(`Politique créée : ${definition.name}`);
+    log(`Policy created: ${definition.name}`);
     return created.id;
   }
   await client.request(updatePolicy(existing.id, values));
@@ -2633,7 +2633,7 @@ async function replacePermissions(client: AdminClient, policyId: string, grants:
     await client.request(deletePermissions(storedIds));
   }
   await client.request(createPermissions(toPermissionRows(policyId, grants)));
-  log(`Permissions appliquées à la politique ${policyId}`);
+  log(`Permissions applied to policy ${policyId}`);
 }
 
 async function ensureRole(client: AdminClient, definition: RoleDefinition, log: Log): Promise<void> {
@@ -2644,7 +2644,7 @@ async function ensureRole(client: AdminClient, definition: RoleDefinition, log: 
   await client.request(
     createRole({ id: definition.id, name: definition.name, icon: definition.icon, policies: [{ policy: definition.policyId }] }),
   );
-  log(`Rôle créé : ${definition.name}`);
+  log(`Role created: ${definition.name}`);
 }
 
 async function ensureUser(client: AdminClient, definition: UserDefinition, log: Log): Promise<void> {
@@ -2661,7 +2661,7 @@ async function ensureUser(client: AdminClient, definition: UserDefinition, log: 
         token: account.token,
       }),
     );
-    log(`Utilisateur créé : ${account.email}`);
+    log(`User created: ${account.email}`);
     return;
   }
   await client.request(updateUser(existing.id, { role: account.roleId, status: 'active', token: account.token }));
@@ -2691,7 +2691,7 @@ async function provision(): Promise<void> {
 
   await ensureSchema(client, editorialCollections(environment.siteUrl), editorialRelations, log);
   await ensureAccess(client, environment, log);
-  log('Provisionnement terminé.');
+  log('Provisioning finished.');
 }
 
 function describeFailure(error: unknown): string {
@@ -2707,7 +2707,7 @@ function describeFailure(error: unknown): string {
 try {
   await provision();
 } catch (error) {
-  console.error(`Échec du provisionnement :\n${describeFailure(error)}`);
+  console.error(`Provisioning failed:\n${describeFailure(error)}`);
   process.exitCode = 1;
 }
 ```
@@ -2715,7 +2715,7 @@ try {
 - [ ] **Step 8: Provision and run the tests to see them pass**
 
 Run: `pnpm provision`
-Expected: `Politique créée` twice, `Permissions appliquées` three times, `Rôle créé` twice, `Utilisateur créé` twice, then `Provisionnement terminé.` No `RESOURCE_RESTRICTED` error.
+Expected: `Policy created` twice, `Permissions applied` three times, `Role created` twice, `User created` twice, then `Provisioning finished.` No `RESOURCE_RESTRICTED` error.
 
 Run: `pnpm test:cms`
 Expected: PASS (server, schema, access, limits).
@@ -3010,7 +3010,7 @@ describe('creation key', () => {
 - [ ] **Step 7: Run it to see it fail**
 
 Run: `pnpm test:cms`
-Expected: FAIL in `creation-key.test.ts`: `La requête devait être refusée mais elle a réussi.` (no hook loaded yet).
+Expected: FAIL in `creation-key.test.ts`: `The request should have been denied but it succeeded.` (no hook loaded yet).
 
 - [ ] **Step 8: Build and mount the extension**
 
@@ -3503,7 +3503,7 @@ export function createFileSystemMediaStore(directory: string): PublicMediaStore 
 
 function resolvePublicFile(directory: string, fileName: string): string {
   if (!PUBLIC_FILE_NAME.test(fileName)) {
-    throw new PublicationError({ reason: `nom de fichier public refusé « ${fileName} »` });
+    throw new PublicationError({ reason: `public file name rejected "${fileName}"` });
   }
   return join(directory, fileName);
 }
@@ -3695,7 +3695,7 @@ export async function triggerPublication(token: string, flowId: string, articleI
   }
   const [error] = errorResponse.parse(body).errors;
   if (error === undefined) {
-    throw new Error(`Réponse d’erreur sans détail (HTTP ${response.status}).`);
+    throw new Error(`Error response without detail (HTTP ${response.status}).`);
   }
   return { status: 'rejected', httpStatus: response.status, code: error.extensions.code, message: error.message };
 }
@@ -3761,7 +3761,7 @@ async function createPublishableDraft(suffix: string): Promise<string> {
 async function publishAsEditor(articleId: string): Promise<void> {
   const attempt = await triggerPublication(testEnvironment.editorToken, flowId, [articleId]);
   if (attempt.status !== 'published') {
-    throw new Error(`Publication de préparation refusée : ${attempt.code} ${attempt.message}`);
+    throw new Error(`Setup publication refused: ${attempt.code} ${attempt.message}`);
   }
 }
 
@@ -3854,7 +3854,7 @@ describe('publication', () => {
     const attempt = await triggerPublication(testEnvironment.editorToken, flowId, [articleId]);
 
     if (attempt.status !== 'rejected') {
-      throw new Error('La publication devait être refusée.');
+      throw new Error('Publication should have been refused.');
     }
     expect(attempt.code).toBe('PUBLICATION_FAILED');
     expect(attempt.message).toContain('n’est pas pris en charge');
@@ -3995,7 +3995,7 @@ async function writePublicationOrRollBack(dependencies: PublishDependencies, pla
   try {
     return await dependencies.database.transaction((transaction) => writePublication(dependencies, transaction, plan, publishedAt));
   } catch (error) {
-    dependencies.logger.error({ err: error }, `Publication annulée pour l’article ${plan.article.article}`);
+    dependencies.logger.error({ err: error }, `Publication cancelled for article ${plan.article.article}`);
     await removePublicFiles(dependencies, plan.images.map((image) => image.values.public_file_name));
     throw toPublicationFailure(error);
   }
@@ -4047,7 +4047,7 @@ async function saveArticle(
 
 function requireStringKey(key: PrimaryKey): string {
   if (typeof key !== 'string') {
-    throw new PublicationError({ reason: `identifiant de version publiée inattendu (${String(key)})` });
+    throw new PublicationError({ reason: `unexpected published version id (${String(key)})` });
   }
   return key;
 }
@@ -4070,7 +4070,7 @@ async function removePublicFiles(dependencies: PublishDependencies, fileNames: s
   const results = await Promise.allSettled(fileNames.map((fileName) => dependencies.mediaStore.remove(fileName)));
   results.forEach((result, index) => {
     if (result.status === 'rejected') {
-      dependencies.logger.warn({ err: result.reason }, `Fichier public non supprimé : ${fileNames[index] ?? ''}`);
+      dependencies.logger.warn({ err: result.reason }, `Public file not deleted: ${fileNames[index] ?? ''}`);
     }
   });
 }
@@ -4198,7 +4198,7 @@ async function ensureFlow(client: AdminClient, log: Log): Promise<string> {
   const [existing] = await client.request(readFlows({ filter: { name: { _eq: PUBLICATION_FLOW_NAME } }, fields: ['id'], limit: 1 }));
   if (existing === undefined) {
     const created = await client.request(createFlow(publicationFlow, { fields: ['id'] }));
-    log('Flow « Publier » créé');
+    log('Flow "Publier" created');
     return created.id;
   }
   await client.request(updateFlow(existing.id, publicationFlow));
@@ -4220,7 +4220,7 @@ async function ensureOperation(client: AdminClient, flowId: string, log: Log): P
     ),
   );
   await client.request(updateFlow(flowId, { operation: created.id }));
-  log('Opération de publication créée');
+  log('Publication operation created');
 }
 ```
 
@@ -4238,14 +4238,14 @@ async function provision(): Promise<void> {
   await ensureSchema(client, editorialCollections(environment.siteUrl), editorialRelations, log);
   await ensureAccess(client, environment, log);
   await ensurePublicationFlow(client, log);
-  log('Provisionnement terminé.');
+  log('Provisioning finished.');
 }
 ```
 
 - [ ] **Step 9: Build, provision and run the tests to see them pass**
 
 Run: `pnpm build:extension && pnpm provision`
-Expected: build `Done`; provisioning prints `Flow « Publier » créé` and `Opération de publication créée`.
+Expected: build `Done`; provisioning prints `Flow "Publier" created` and `Publication operation created`.
 
 Run: `docker compose logs --since 2m directus | grep -i -E "extension|error"`
 Expected: the extension reloaded, no error.
@@ -4305,7 +4305,7 @@ async function postMcp(token: string, method: string, params: Record<string, unk
     body: JSON.stringify({ jsonrpc: '2.0', id: randomUUID(), method, params }),
   });
   if (!response.ok) {
-    throw new Error(`MCP a répondu HTTP ${response.status} : ${await response.text()}`);
+    throw new Error(`MCP returned HTTP ${response.status}: ${await response.text()}`);
   }
   return response.json();
 }
@@ -4351,7 +4351,7 @@ const editorArticleId = await createArticle(editorClient, draftArticleValues(uni
 await triggerPublication(testEnvironment.editorToken, flowId, [editorArticleId]);
 const publication = await readPublicationOf(editorArticleId);
 if (publication === null) {
-  throw new Error('Publication de préparation absente.');
+  throw new Error('Setup publication missing.');
 }
 
 describe('MCP for the assistant', () => {
@@ -4405,7 +4405,7 @@ describe('MCP for the assistant', () => {
 - [ ] **Step 2: Run them to see them fail**
 
 Run: `pnpm test:cms`
-Expected: FAIL in `mcp.test.ts` with `MCP a répondu HTTP …` (MCP is disabled until the settings are applied).
+Expected: FAIL in `mcp.test.ts` with `MCP returned HTTP …` (MCP is disabled until the settings are applied).
 
 - [ ] **Step 3: Write the assistant protocol**
 
@@ -4485,7 +4485,7 @@ export async function ensureSettings(
       mcp_oauth_dcr_enabled: environment.mcpOAuth.dcrEnabled,
     }),
   );
-  log('Réglages MCP appliqués');
+  log('MCP settings applied');
 }
 ```
 
@@ -4516,7 +4516,7 @@ async function provision(): Promise<void> {
   await ensureAccess(client, environment, log);
   await ensurePublicationFlow(client, log);
   await ensureSettings(client, environment, assistantProtocol, log);
-  log('Provisionnement terminé.');
+  log('Provisioning finished.');
 }
 
 function describeFailure(error: unknown): string {
@@ -4532,7 +4532,7 @@ function describeFailure(error: unknown): string {
 try {
   await provision();
 } catch (error) {
-  console.error(`Échec du provisionnement :\n${describeFailure(error)}`);
+  console.error(`Provisioning failed:\n${describeFailure(error)}`);
   process.exitCode = 1;
 }
 ```
@@ -4540,7 +4540,7 @@ try {
 - [ ] **Step 5: Provision and run the tests to see them pass**
 
 Run: `pnpm provision && pnpm test:cms`
-Expected: `Réglages MCP appliqués`, then PASS including 10 MCP tests.
+Expected: `MCP settings applied`, then PASS including 10 MCP tests.
 
 If `trigger-flow` or `flows` report a different code than `FORBIDDEN`, read the tool error text: any refusal is acceptable for this guarantee, but update the expected code to the observed Directus code rather than weakening the `isError` assertion.
 
@@ -4584,7 +4584,7 @@ MCP_OAUTH_DCR_ENABLED=true
 ```
 
 Run: `pnpm cms:up && pnpm provision`
-Expected: Directus recreated and healthy; `Réglages MCP appliqués`.
+Expected: Directus recreated and healthy; `MCP settings applied`.
 
 Run: `curl -s -o /dev/null -w "%{http_code}\n" -X POST https://<random-words>.trycloudflare.com/mcp`
 Expected: `401` (OAuth challenge).
@@ -4599,12 +4599,12 @@ Decision rule: if sign-in or consent fails because the assistant has no Studio a
 
 Use a neutral test subject (for example the publication of a public report). In a new Claude conversation:
 
-1. "Lis le protocole de la rédaction puis prépare un brouillon sur <sujet> avec au moins deux sources réelles et un point à vérifier." Check in the Studio as the editor: one article with a `creation_key`, sources with `sort`, `[^N]` calls in the text, a verification point, a `handoff_note`, no byline invented.
-2. "Publie cet article." Expected: refusal or tool error. Check that `published_articles` has no row for this article.
-3. "Modifie directement la version publiée de <un article publié par la rédaction>." Expected: tool error `FORBIDDEN`; the public copy is unchanged.
-4. Photo import: "Importe cette photo et ajoute-la comme image 1 avec un crédit : <URL d’une image Wikimedia Commons sous licence libre>." Check the file exists and the `article_images` row has alt text, credit and `source_note`.
-5. AI illustration: "Génère une illustration pour cet article et ajoute-la comme image 2." Record exactly what happens. The Directus `files` tool only imports from a public URL, so a generated image that has no public URL is expected to fail; record the limitation and the workaround (download, then upload by the editor in the Studio).
-6. Resumption: in the middle of a draft, close the conversation. In a new conversation: "Reprends le brouillon <creation_key>." Check that no duplicate article exists and the draft continued.
+1. "Read the editorial protocol then prepare a draft on <topic> with at least two real sources and one verification point." Check in the Studio as the editor: one article with a `creation_key`, sources with `sort`, `[^N]` calls in the text, a verification point, a `handoff_note`, no byline invented.
+2. "Publish this article." Expected: refusal or tool error. Check that `published_articles` has no row for this article.
+3. "Edit the published version of <an article published by the desk> directly." Expected: tool error `FORBIDDEN`; the public copy is unchanged.
+4. Photo import: "Import this photo and add it as image 1 with a credit: <URL of a Wikimedia Commons image under a free licence>." Check the file exists and the `article_images` row has alt text, credit and `source_note`.
+5. AI illustration: "Generate an illustration for this article and add it as image 2." Record exactly what happens. The Directus `files` tool only imports from a public URL, so a generated image that has no public URL is expected to fail; record the limitation and the workaround (download, then upload by the editor in the Studio).
+6. Resumption: in the middle of a draft, close the conversation. In a new conversation: "Resume draft <creation_key>." Check that no duplicate article exists and the draft continued.
 7. Remarks: as the editor, add a review remark on the draft in the Studio. Ask Claude to process open remarks. Check `status = addressed` and a `response_note`.
 
 Then, as the editor in the Studio, click "Publier" on the draft and check the success notification and the new `published_articles` row.
@@ -4620,33 +4620,33 @@ If the Plus plan does not offer custom MCP connectors, record the exact screen a
 Create `docs/validation/2026-10-mcp-clients.md` with the observed results (save screenshots in `docs/validation/captures/`):
 
 ```markdown
-# Validation des clients MCP — <date de l’essai>
+# MCP client validation — <trial date>
 
-Directus 12.5.0, stack locale exposée par tunnel Cloudflare. Compte utilisé : rôle « Assistant IA ».
+Directus 12.5.0, local stack exposed through a Cloudflare tunnel. Account used: “Assistant IA” role.
 
-| Essai | Claude Pro | ChatGPT Plus |
+| Trial | Claude Pro | ChatGPT Plus |
 | --- | --- | --- |
-| Connexion OAuth (CIMD pour Claude, DCR pour ChatGPT) | | |
-| Accès Studio nécessaire pour le consentement (`AI_APP_ACCESS`) | | |
-| Lecture du protocole et du contexte | | |
-| Brouillon complet (clé, sources, appels, point à vérifier, note) | | |
-| Refus de publier | | |
-| Refus de modifier la version publiée | | |
-| Import d’une photo par URL | | |
-| Transfert d’une illustration générée | | |
-| Reprise sans doublon | | |
-| Traitement d’une remarque de relecture | | |
+| OAuth connection (CIMD for Claude, DCR for ChatGPT) | | |
+| Studio access needed for consent (`AI_APP_ACCESS`) | | |
+| Read protocol and context | | |
+| Full draft (key, sources, calls, verification point, note) | | |
+| Publish refused | | |
+| Edit published version refused | | |
+| Photo import by URL | | |
+| Generated illustration transfer | | |
+| Resumption without duplicate | | |
+| Review remark handled | | |
 
-## Décisions
+## Decisions
 
-- `AI_APP_ACCESS` retenu : … (sièges utilisés : …)
-- ChatGPT Plus : …
-- Images générées : …
+- `AI_APP_ACCESS` kept: … (seats used: …)
+- ChatGPT Plus: …
+- Generated images: …
 
-## Valeurs observées pour la production
+## Values observed for production
 
-- Domaines CIMD vus dans les journaux Directus : …
-- Domaines de redirection OAuth vus : …
+- CIMD domains seen in Directus logs: …
+- OAuth redirect domains seen: …
 ```
 
 Fill every cell with what you observed ("OK", the error text, or the limitation) and every `…` with the observed value. The two production values come from `docker compose logs directus` during the OAuth flows; plan 3 uses them for `MCP_OAUTH_CIMD_ALLOWED_DOMAINS` and `MCP_OAUTH_ALLOWED_REDIRECT_DOMAINS`.
@@ -4683,8 +4683,8 @@ git commit -m "docs(validation): record MCP client trials"
 
 Sign in at `http://localhost:8055` with `EDITOR_EMAIL`. Without the assistant:
 
-1. Fill "Réglages du média" (test values) and "Ligne éditoriale"; create two rubriques.
-2. Create an article: title, slug, chapô, text with `[^1]`, rubrique, format; add one source; upload one photo as image 1 with alt text and credit; add one verification point and leave it open.
+1. Fill "Réglages du média" (test values) and "Ligne éditoriale"; create two sections.
+2. Create an article: title, slug, lead, text with `[^1]`, section, format; add one source; upload one photo as image 1 with alt text and credit; add one verification point and leave it open.
 3. Click "Publier" in the item sidebar. Expected: success notification, no confirmation dialog, a "Version publiée" entry on the article.
 4. Change the title, check that "Versions publiées" still shows the old title, click "Publier" again, check the new title and the unchanged first publication date.
 5. Attach a PDF as image 2 and click "Publier". Expected: an error notification whose message contains "n’est pas pris en charge"; the public copy is unchanged. Remove the PDF image afterwards.
@@ -4697,25 +4697,25 @@ Note the Studio wording and anything confusing for a non-technical editor.
 `docs/validation/2026-10-parcours-manuel.md`:
 
 ```markdown
-# Parcours manuel dans le Studio — <date>
+# Manual Studio journey — <date>
 
-Compte : rôle « Rédaction ». Directus 12.5.0.
+Account: “Rédaction” role. Directus 12.5.0.
 
-| Étape | Résultat observé |
+| Step | Observed result |
 | --- | --- |
-| Réglages, ligne éditoriale, rubriques | |
-| Création d’un article avec source, photo et point à vérifier | |
-| Publication sans confirmation, point ouvert conservé | |
-| Révision puis republication (version publique remplacée, première date conservée) | |
-| Erreur technique affichée (fichier non image) | |
-| Mise en avant sur l’accueil | |
+| Settings, editorial line, sections | |
+| Create an article with source, photo and verification point | |
+| Publish without confirmation, open point kept | |
+| Revise then republish (public version replaced, first date kept) | |
+| Technical error shown (non-image file) | |
+| Home feature | |
 
-## Points d’ergonomie à reprendre
+## Ergonomics to improve
 
 - …
 ```
 
-Fill every cell and list the ergonomic issues found (or "aucun").
+Fill every cell and list the ergonomic issues found (or “none”).
 
 - [ ] **Step 3: Record the licence and version check**
 
@@ -4724,15 +4724,15 @@ Check the latest Directus release notes and security advisories (`https://github
 `docs/validation/2026-10-licence-et-version.md`:
 
 ```markdown
-# Licence et version Directus — <date>
+# Directus licence and version — <date>
 
-- Version installée : 12.5.0 (`directus/directus:12.5.0`). Dernière version publiée à cette date : …
-- Correctifs de sécurité publiés depuis 12.5.0 : …
-- Licence : … (texte livré dans l’image, `/directus/node_modules/@directus/api/license` ; Directus 12.5.0 est sous MSCL-1.0-GPL : tout usage sauf « Competing Use », sans seuil de chiffre d’affaires, limites de la clé non contournables).
-- Limites Core relevées dans le code 12.5.0 : 3 sièges, 25 collections, 5 flows, règles de permission personnalisées interdites.
-- Utilisation actuelle : … collections personnalisées sur 25, 1 flow sur 5, … utilisateurs actifs sur 3.
-- Conséquence de conception : permissions par collection uniquement ; protections fines dans l’extension `editorial` (clé de création, publication) et copies publiques séparées.
-- Option : une clé gratuite (programme Open Innovation, conditions à vérifier) lèverait ces limites ; la V1 n’en dépend pas.
+- Installed version: 12.5.0 (`directus/directus:12.5.0`). Latest release on this date: …
+- Security fixes published since 12.5.0: …
+- Licence: … (text shipped in the image, `/directus/node_modules/@directus/api/license`; Directus 12.5.0 is under MSCL-1.0-GPL: any use except “Competing Use”, no revenue threshold, licence key limits not bypassable).
+- Core limits read in 12.5.0 code: 3 seats, 25 collections, 5 flows, custom permission rules forbidden.
+- Current usage: … custom collections of 25, 1 flow of 5, … active users of 3.
+- Design consequence: permissions per collection only; fine-grained guards in the `editorial` extension (creation key, publication) and separate public copies.
+- Option: a free key (Open Innovation programme, terms to check) would lift these limits; V1 does not depend on it.
 ```
 
 Replace each `…` with the observed value; the usage numbers come from `pnpm test:cms` (`limits.test.ts`) or the Studio.
@@ -4742,24 +4742,24 @@ Replace each `…` with the observed value; the usage numbers come from `pnpm te
 `docs/developpement-local.md`:
 
 ```markdown
-# Développement local
+# Local development
 
-Prérequis : Node 24, pnpm 10 (`corepack enable`), Docker.
+Requirements: Node 24, pnpm 10 (`corepack enable`), Docker.
 
-1. `cp .env.example .env`, puis remplacer chaque valeur `change-me…` par `openssl rand -hex 32`.
+1. `cp .env.example .env`, then replace each `change-me…` value with `openssl rand -hex 32`.
 2. `pnpm install`
-3. `pnpm build:extension` — construit l’extension `editorial` (clé de création, publication).
-4. `pnpm cms:up` — Postgres et Directus sur http://localhost:8055.
-5. `pnpm provision` — collections, accès, flow « Publier », réglages MCP. Relançable sans risque.
-6. `pnpm test` (tests unitaires) et `pnpm test:cms` (tests d’intégration contre le Directus local).
+3. `pnpm build:extension` — builds the `editorial` extension (creation key, publication).
+4. `pnpm cms:up` — Postgres and Directus at http://localhost:8055.
+5. `pnpm provision` — collections, access, “Publier” flow, MCP settings. Safe to run again.
+6. `pnpm test` (unit tests) and `pnpm test:cms` (integration tests against local Directus).
 
-Pendant le développement de l’extension : `pnpm --filter directus-extension-editorial dev`. Directus recharge l’extension à chaque construction.
+While developing the extension: `pnpm --filter directus-extension-editorial dev`. Directus reloads the extension on each build.
 
-Repartir de zéro : `docker compose down -v && rm -rf .data`, puis les étapes 4 et 5.
+Start from scratch: `docker compose down -v && rm -rf .data`, then steps 4 and 5.
 
-Comptes locaux : administrateur, « Rédaction » et « Assistant IA », définis dans `.env`. Les jetons `EDITOR_TOKEN` et `AI_TOKEN` n’existent qu’en local pour les tests ; en production l’assistant se connecte uniquement par OAuth MCP.
+Local accounts: administrator, “Rédaction” and “Assistant IA”, defined in `.env`. Tokens `EDITOR_TOKEN` and `AI_TOKEN` exist only locally for tests; in production the assistant connects only through MCP OAuth.
 
-Tester avec Claude ou ChatGPT : voir `docs/validation/2026-10-mcp-clients.md` (tunnel HTTPS et réglages OAuth).
+Test with Claude or ChatGPT: see `docs/validation/2026-10-mcp-clients.md` (HTTPS tunnel and OAuth settings).
 ```
 
 - [ ] **Step 5: Run the full verification**

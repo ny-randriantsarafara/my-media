@@ -1,30 +1,30 @@
-# Média indépendant
+# Independent news site
 
-Vocabulaire du travail éditorial d’un média indépendant assisté par IA.
+Vocabulary for editorial work on an AI-assisted independent news site. French labels in the CMS and on the site match the terms in bold where noted.
 
-## Langage
+## Language
 
-**Brouillon** :
-Contenu en préparation, qui n’est pas encore accessible aux lecteurs.
+**Draft (*brouillon*)**:
+Content being prepared, not yet available to readers.
 
-**Brouillon de révision** :
-Nouvelle version de travail d’un article déjà publié. Sa préparation ne change pas l’article visible par les lecteurs ; une republication humaine est nécessaire pour remplacer cette version visible.
+**Revision draft (*brouillon de révision*)**:
+A new working version of an article that is already published. Preparing it does not change what readers see; a human must publish again to replace the live version.
 
-**Version publiée** :
-Version d’un article choisie par une personne pour être visible par les lecteurs, avec son texte, ses images et ses sources. Les modifications d’un brouillon ne changent pas cette version.
+**Published version (*version publiée*)**:
+The version of an article a person chose to show readers, with its text, images, and sources. Changes to a draft do not change this version.
 
-**À vérifier** :
-Signal éditorial associé à une information insuffisamment confirmée ou contredite par les sources. Il conserve les points incertains et leurs références pour permettre une reprise du travail, sans interdire la publication.
+**To verify (*à vérifier*)**:
+An editorial flag on information that is not confirmed enough or is contradicted by sources. It keeps open points and their references so work can continue, without blocking publication.
 
-**Relecture** :
-Examen humain du contenu préparé avant de décider de sa publication. La personne peut corriger le texte ou laisser des remarques pour une reprise par l’IA.
+**Review (*relecture*)**:
+A human reads prepared content before deciding to publish. The person may edit the text or leave notes for the AI to pick up.
 
-**Publication** :
-Mise à disposition d’un contenu auprès des lecteurs, déclenchée par une personne avec le bouton de publication.
-_Éviter_ : publication autonome par l’IA
+**Publication (*publication*)**:
+Making content available to readers, triggered by a person with the publish button.
+_Avoid_: publication by the AI alone.
 
-**Ligne éditoriale** :
-Ensemble des choix qui orientent les contenus du média : thèmes, public visé, ton et sources suivies. Elle peut évoluer après le lancement.
+**Editorial line (*ligne éditoriale*)**:
+The choices that steer the site’s content: themes, audience, tone, and sources to follow. It can change after launch.
 
-**Source** :
-Référence qui permet de retrouver l’origine d’une information utilisée dans un article. Les sources de l’article sont visibles par les lecteurs pour étayer son contenu.
+**Source (*source*)**:
+A reference that lets readers find where information in an article came from. An article’s sources are visible to readers to support the content.

@@ -1,104 +1,104 @@
-# Cadrage du média indépendant
+# Independent news site — scope
 
-Document de travail, alimenté par les réponses de l’utilisateur. Le CMS est choisi ; le design détaillé reste à préciser.
+Working document, filled from the owner’s answers. The CMS is chosen; detailed design still needs refinement.
 
-## Exigences confirmées
+## Confirmed requirements
 
-- Créer une plateforme de média indépendant.
-- La thématique éditoriale, le nom du média et l’adresse du site ne sont pas encore définis.
-- Gérer le média depuis un CMS.
-- Le CMS doit exposer un accès MCP pour permettre à l’IA d’agir sur les contenus.
-- L’IA doit aider à produire le contenu, piloter le CMS et automatiser le travail du média en amont de la publication.
-- Les seules interventions humaines prévues sont la relecture et le clic sur le bouton de publication.
-- La publication finale est donc une action humaine.
-- La préparation des contenus combine une veille automatique et des matériaux fournis par l’utilisateur.
-- La veille utilise des sources définies, et les références sont conservées dans chaque brouillon pour faciliter la relecture.
-- Le premier lancement couvre uniquement des articles publiés sur le site, avec images et sources.
-- Les articles sont accessibles gratuitement.
-- Les articles sont en français uniquement au lancement.
-- La newsletter et les publications sur les réseaux sociaux sont hors du périmètre initial.
-- Le budget mensuel annoncé est inférieur à 30 €.
-- Au lancement, utiliser un abonnement Claude ou ChatGPT existant et connecter l’assistant au CMS via MCP.
-- Après validation du fonctionnement, envisager une application IA dédiée ou des workflows.
-- L’utilisateur dispose de ChatGPT Plus et Claude Pro. Il mentionne aussi un abonnement Gemini, dont la formule exacte est incertaine.
-- L’utilisateur choisit un petit serveur à maintenir pour garder davantage de contrôle, plutôt qu’un hébergement géré.
-- La limitation des interventions humaines à la relecture et à la publication concerne le travail éditorial ; la maintenance du serveur est acceptée.
-- Directus auto-hébergé est retenu comme CMS, avec un site public léger à construire.
-- L’accès IA doit permettre de préparer les brouillons ; la publication est réservée au compte humain par les permissions du CMS, avec vérification prévue lors de l’implémentation.
-- Les images combinent des photos fournies ou issues de banques d’images et des illustrations générées par IA, selon le sujet.
-- Si les sources sont contradictoires ou insuffisantes, l’IA conserve le travail dans un brouillon « À vérifier », avec les points incertains et les sources concernées.
-- L’IA ne doit pas inventer les informations manquantes pour compléter ces brouillons.
-- Pendant la relecture, l’utilisateur peut modifier directement le texte dans le CMS ou laisser des remarques pour que l’IA reprenne le brouillon.
-- Au lancement, l’IA récupère les remarques lors d’une prochaine session MCP ; une reprise déclenchée automatiquement relève des futurs workflows.
-- Le travail éditorial complet est aussi réalisable manuellement dans le CMS, sans passer par l’IA : définir la ligne éditoriale, gérer les sources et matériaux, créer et modifier les articles, gérer leurs images, relire et publier.
-- Les points « À vérifier » sont des avertissements éditoriaux : ils ne bloquent jamais la publication par le compte humain. L’utilisateur peut publier en connaissance de cause même si des points incertains subsistent.
-- Les corrections d’un article publié passent par un nouveau brouillon de révision, qu’elles soient préparées par l’IA ou manuellement. L’article visible reste inchangé jusqu’à la republication humaine.
-- Les sources sont visibles par les lecteurs dans l’article public, afin de permettre la consultation des références qui étayent le contenu.
-- La relecture permet aussi de vérifier et de corriger les références conservées avec chaque article.
-- Le site public ne comporte aucune mention de l’utilisation de l’IA, pour les textes comme pour les images : ni badge, ni mention de préparation, ni indication de génération.
-- Les références publiques étayent les informations de l’article ; elles ne sont pas une mention de l’outil ayant préparé le contenu.
-- Le périmètre public du lancement comprend l’accueil, les rubriques, une recherche, les pages article et une page « À propos » avec contact.
-- L’accueil présente les articles récents et les articles mis en avant.
-- Les rubriques classent les articles par thème.
-- La page article présente le titre, le résumé, l’image, le texte, les dates et les sources.
-- Le nom, la présentation du média et les rubriques sont modifiables depuis le CMS.
-- L’utilisateur a accepté le compagnon visuel pour comparer les présentations du site.
-- L’utilisateur retient la direction « Revue minimaliste », à retravailler pour obtenir un rendu moins générique et plus abouti, inspiré des grands médias français et internationaux.
-- La nouvelle proposition éditoriale (`revue-editoriale-v4.html`) est acceptée comme base de la V1, avec possibilité de faire évoluer le style plus tard.
-- Le site public affiche uniquement la version publiée. Notes et documents de travail restent privés.
-- Une préparation interrompue conserve le travail déjà enregistré et peut reprendre sans créer de doublons ; une publication échouée affiche l’erreur.
-- Les vérifications doivent couvrir le parcours manuel et MCP, le refus de publication pour l’IA, la publication humaine malgré les incertitudes et les corrections sans modification immédiate de la version publique.
+- Build an independent news platform.
+- Editorial theme, media name, and site URL are not fixed yet.
+- Run the site from a CMS.
+- The CMS must expose MCP access so AI can work on content.
+- AI should help produce content, drive the CMS, and automate upstream work before publication.
+- The only planned human steps are review and clicking publish.
+- Final publication is therefore a human action.
+- Content prep combines automated monitoring and materials the owner provides.
+- Monitoring uses defined sources; references are kept in each draft to support review.
+- The first launch covers only articles on the site, with images and sources.
+- Articles are free to read.
+- Articles are French only at launch.
+- Newsletter and social posts are out of scope initially.
+- Stated monthly budget is under €30.
+- At launch, use an existing Claude or ChatGPT subscription and connect the assistant to the CMS via MCP.
+- After validation, consider a dedicated AI app or workflows.
+- The owner has ChatGPT Plus and Claude Pro. They also mention Gemini; the exact plan is unclear.
+- The owner prefers a small self-managed server for more control over managed hosting.
+- Limiting human work to review and publish applies to editorial work; server maintenance is accepted.
+- Self-hosted Directus is the CMS, with a light public site to build.
+- AI access must allow draft prep; publication stays on the human account via CMS permissions, to be verified in implementation.
+- Images mix supplied photos, stock images, and AI illustrations by topic.
+- If sources conflict or are thin, the AI keeps work in a draft with “To verify” points, open items, and related sources.
+- The AI must not invent missing facts to complete those drafts.
+- During review, the owner may edit text in the CMS or leave notes for the AI to continue the draft.
+- At launch, the assistant picks up notes on a later MCP session; automatic re-runs are a later workflow.
+- Full editorial work is also possible manually in the CMS without AI: editorial line, sources and materials, articles, images, review, and publish.
+- “To verify” points are editorial warnings: they never block publication for the human account. The owner may publish knowing open items remain.
+- Fixes to a published article go through a new revision draft, whether from AI or manual work. The live article stays unchanged until republication.
+- Sources are visible to readers in the public article so they can check references.
+- Review also covers checking and fixing references stored with each article.
+- The public site must not mention AI use, for text or images: no badge, prep note, or generation hint.
+- Public references support the article’s claims; they are not a credit for the tool that prepared content.
+- Public launch scope: home, sections, search, article pages, and an About page with contact.
+- Home shows recent articles and featured items.
+- Sections group articles by theme.
+- The article page shows title, summary, image, body, dates, and sources.
+- Media name, presentation, and sections are editable in the CMS.
+- The owner accepted the visual companion to compare site layouts.
+- They chose direction “Minimal review”, to refine for a less generic, higher-quality look inspired by major French and international news sites.
+- The new editorial proposal (`revue-editoriale-v4.html`) is accepted as the V1 base, with room to evolve style later.
+- The public site shows only the published version. Work notes and documents stay private.
+- An interrupted prep run keeps saved work and can resume without duplicates; a failed publish shows an error.
+- Checks must cover manual and MCP paths, AI publish refusal, human publish despite open items, and fixes without immediate change to the live version.
 
-## Circuit éditorial approuvé
+## Approved editorial flow
 
-1. Ligne éditoriale configurable dans le CMS : thèmes, public visé, ton et sources à suivre. Elle peut être définie plus tard et modifiée.
-2. Préparation depuis l’assistant : consulter les sources et les matériaux fournis, choisir les sujets, rédiger, ajouter les images et conserver les références de chaque article.
-3. Relecture dans le CMS : texte, aperçu de l’article, sources, incertitudes et remarques. Modification manuelle et reprise par l’IA sont toutes deux possibles.
-4. Publication par le compte humain, y compris si des points « À vérifier » restent ouverts. Aucune règle éditoriale ne désactive le bouton de publication.
-5. Correction d’un article publié dans un brouillon de révision ; la version publique reste inchangée jusqu’à la republication humaine.
+1. Editorial line in the CMS: themes, audience, tone, sources to follow. Can be set later and changed.
+2. Prep from the assistant: read sources and supplied materials, pick topics, write, add images, keep references per article.
+3. Review in the CMS: text, article preview, sources, open items, and notes. Manual edits and AI follow-up are both allowed.
+4. Publication by the human account, even if “To verify” points remain. No editorial rule disables the publish button.
+5. Fixing a published article in a revision draft; the public version stays until human republication.
 
-Les sources accompagnent la version publiée de l’article et restent consultables par les lecteurs. Leur présence est une exigence éditoriale ; conformément à la décision de publication humaine, le CMS ne transforme pas les problèmes éditoriaux en interdiction de publier.
+Sources go with the published article and stay available to readers. That is an editorial requirement; given human publication, the CMS does not turn editorial issues into hard publish blocks.
 
-L’IA est une façon d’utiliser le CMS, pas un passage obligatoire. Les fonctions éditoriales de ce circuit restent accessibles manuellement.
+AI is one way to use the CMS, not a required path. The editorial steps above remain available manually.
 
-## Progression prévue
+## Planned progression
 
-1. **Lancement** : site, CMS et accès MCP pour préparer les contenus depuis l’assistant choisi. L’IA prend en charge le travail éditorial, puis l’humain relit et publie.
-2. **Évolution** : application IA ou workflows pour automatiser davantage le déclenchement et l’exécution du travail éditorial. La publication reste humaine.
+1. **Launch**: site, CMS, and MCP access to prep from the chosen assistant. AI handles editorial prep; humans review and publish.
+2. **Later**: dedicated AI app or workflows to automate triggering and running editorial work. Publication stays human.
 
-Le client à utiliser pour la première validation reste à choisir entre les abonnements disponibles. Le MCP expose les actions du CMS ; le déclenchement des sessions de préparation dépend du client ou du futur workflow. Aucune exécution permanente n’est promise pour le lancement.
+Which client to use for first validation is still open among available subscriptions. MCP exposes CMS actions; who starts prep sessions depends on the client or future workflow. No always-on runner is promised at launch.
 
-## Faisabilité documentaire vérifiée le 10 octobre 2026
+## Documentation checked on 10 October 2026
 
-- [Claude : connecteurs MCP distants](https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp) : connexion à des serveurs MCP personnalisés et outils de lecture/écriture. Le connecteur distant doit être accessible depuis l’infrastructure de Claude.
-- [ChatGPT : ajouter un serveur MCP personnalisé](https://developers.openai.com/api/docs/guides/custom-mcp-server) : prise en charge des outils de lecture et d’écriture. Les permissions du compte et de l’espace s’appliquent.
-- [Claude : facturation de l’API](https://support.claude.com/en/articles/8977456-how-do-i-pay-for-my-claude-api-usage) : l’API utilise des crédits ; certaines formules incluent des crédits mensuels. Le budget de la future automatisation devra être vérifié selon la formule exacte.
+- [Claude: remote MCP connectors](https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp): connect custom MCP servers with read/write tools. The remote connector must be reachable from Claude’s infrastructure.
+- [ChatGPT: add a custom MCP server](https://developers.openai.com/api/docs/guides/custom-mcp-server): read and write tools supported. Account and workspace permissions apply.
+- [Claude: API billing](https://support.claude.com/en/articles/8977456-how-do-i-pay-for-my-claude-api-usage): API uses credits; some plans include monthly credits. Future automation budget depends on the exact plan.
 
-Ces vérifications concernent les capacités documentées, pas une connexion testée sur le compte de l’utilisateur.
+These checks are documented capabilities, not a tested connection on the owner’s accounts.
 
-## Réglages et validations avant mise en service
+## Settings and validation before go-live
 
-- Sources précises de la veille et modalités d’apport des matériaux personnels.
-- Connexion effective des comptes Claude et ChatGPT au CMS.
-- Hypothèse budgétaire à confirmer à la relecture de la spec : plafond de 30 € de dépenses supplémentaires, hors abonnements IA existants.
-- Public et thématique éditoriale.
-- Détails de la ligne éditoriale et critères de sélection des sujets, à renseigner avant la production réelle des contenus.
-- Déclenchement et fréquence de la préparation des contenus.
-- Configuration de la relecture pour conserver les points incertains et distinguer les références publiques des documents privés.
-- Choix photo/illustration IA par sujet et automatisation de l’ajout des images au CMS avec les abonnements disponibles.
-- Choix de l’hébergeur et dimensionnement compatibles avec le budget.
-- Organisation des mises à jour, des sauvegardes et de la surveillance du serveur.
-- Présentation de la relecture dans le CMS.
+- Exact monitoring sources and how personal materials are supplied.
+- Effective connection of Claude and ChatGPT accounts to the CMS.
+- Budget assumption to confirm when re-reading the spec: €30 cap on new spend, excluding existing AI subscriptions.
+- Audience and editorial theme.
+- Editorial line details and topic selection criteria, before real content production.
+- How often prep runs and how content is prepared.
+- Review setup to keep open points and separate public references from private documents.
+- Photo vs AI illustration by topic and automating image upload to the CMS with current subscriptions.
+- Host choice and sizing within budget.
+- Updates, backups, and server monitoring.
+- How review is presented in the CMS.
 
-## Études disponibles
+## Available studies
 
-- [Spécification de conception de la V1](superpowers/specs/2026-10-10-media-independant-design.md) : synthèse complète à relire avant le plan d’implémentation.
-- [Comparaison des CMS](recherche-cms.md) : Directus auto-hébergé retenu.
-- [Décision de CMS](adr/0001-directus-cms-mcp.md) : raisons du choix et conséquences.
-- [Hébergement](recherche-hebergement.md) : tarifs observés et limites des estimations.
-- [Maquettes de présentation](maquettes.md) : revue minimaliste retenue et nouvelle proposition acceptée comme base de la V1.
-- [Références éditoriales](references-editoriales.md) : observations des médias et choix de composition de la nouvelle maquette.
+- [V1 design spec](superpowers/specs/2026-10-10-media-independant-design.md): full summary to read before the implementation plan.
+- [CMS comparison](recherche-cms.md): self-hosted Directus chosen.
+- [CMS decision](adr/0001-directus-cms-mcp.md): reasons and consequences.
+- [Hosting](recherche-hebergement.md): observed prices and limits of estimates.
+- [Presentation mockups](maquettes.md): minimal review chosen; new proposal accepted as V1 base.
+- [Editorial references](references-editoriales.md): news site observations and layout choices for the new mockup.
 
-## État du travail
+## Work status
 
-Conception synthétisée dans la spécification, en attente de relecture du document. Aucune implémentation du produit commencée ; les maquettes sont uniquement des supports de discussion.
+Design summarized in the spec, pending owner review. No product implementation started; mockups are discussion aids only.

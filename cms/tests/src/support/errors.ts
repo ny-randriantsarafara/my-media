@@ -6,7 +6,7 @@ export async function captureErrorCode(request: Promise<unknown>): Promise<strin
   } catch (error) {
     return readErrorCode(error);
   }
-  throw new Error('La requête devait être refusée mais elle a réussi.');
+  throw new Error('The request should have been denied but it succeeded.');
 }
 
 function readErrorCode(error: unknown): string {
@@ -15,7 +15,7 @@ function readErrorCode(error: unknown): string {
   }
   const [firstError] = error.errors;
   if (firstError === undefined) {
-    throw new Error(`Erreur Directus sans détail (HTTP ${error.response.status}).`);
+    throw new Error(`Directus error without details (HTTP ${error.response.status}).`);
   }
   return firstError.extensions.code;
 }

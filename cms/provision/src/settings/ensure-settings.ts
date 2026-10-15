@@ -21,5 +21,5 @@ export async function ensureSettings(
       mcp_oauth_dcr_enabled: environment.mcpOAuth.dcrEnabled,
     }),
   );
-  log('Réglages MCP appliqués');
+  log('MCP settings applied');
 }

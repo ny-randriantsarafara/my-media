@@ -6,7 +6,7 @@ import { defineConfig } from 'vitest/config';
 const environmentFile = fileURLToPath(new URL('../../.env', import.meta.url));
 
 if (!existsSync(environmentFile)) {
-  throw new Error('Fichier .env absent : copiez .env.example vers .env à la racine du dépôt.');
+  throw new Error('Missing .env file: copy .env.example to .env at the repository root.');
 }
 
 export default defineConfig({

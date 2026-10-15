@@ -1,26 +1,26 @@
-# Références pour la revue minimaliste
+# References for the minimal review
 
-Consultation du 10 octobre 2026. L’utilisateur a demandé une revue minimaliste moins générique, inspirée des grands médias français et internationaux, avec une meilleure qualité de présentation.
+Review on 10 October 2026. The owner asked for a less generic minimal review, inspired by major French and international news sites, with better presentation quality.
 
 ## Observations
 
-- [Le Monde](https://www.lemonde.fr/) : structure et affichage inspectés. Titres avec empattements, rubriques distinctes, sélection éditoriale séparée des actualités horodatées et articles complémentaires autour des sujets principaux.
-- [Financial Times](https://www.ft.com/) : structure et affichage inspectés. Masthead centré, colonnes de poids différents, photographie importante et hiérarchie des sujets par taille des titres.
-- [The Guardian](https://www.theguardian.com/international) : cinq entrées principales ; actualités, opinions et lectures longues distinguées. En-tête inspecté visuellement.
-- [Mediapart](https://www.mediapart.fr/) : structure textuelle consultée ; formats éditoriaux et auteurs présents dans les entrées d’articles. Aucune observation de sa typographie ou de ses couleurs n’est revendiquée.
+- [Le Monde](https://www.lemonde.fr/): structure and layout inspected. Serif headlines, distinct sections, editorial selection separate from dated news, related articles around lead topics.
+- [Financial Times](https://www.ft.com/): structure and layout inspected. Centered masthead, columns of different weight, strong photography, hierarchy by headline size.
+- [The Guardian](https://www.theguardian.com/international): five main entries; news, opinion, and long reads separated. Header inspected visually.
+- [Mediapart](https://www.mediapart.fr/): text structure reviewed; editorial formats and authors in article entries. No claim about its typography or colors.
 
-## Choix de composition proposés
+## Proposed layout choices
 
-Une ouverture avec un sujet principal, une sélection secondaire, puis les publications récentes. Les différents niveaux sont portés par la typographie et l’ordre des contenus. Les photographies sont présentées séparément du texte ; les filets délimitent les sections.
+An opening with one lead story, a secondary selection, then recent posts. Levels come from typography and content order. Photos sit apart from text; rules separate sections.
 
-La page article garde une largeur de lecture limitée, des métadonnées discrètes, des appels de référence dans le texte et une section de sources détaillées. Un accès aux sources est proposé près de la signature.
+The article page keeps a limited reading width, quiet metadata, in-text reference markers, and a detailed sources section. A sources link is offered near the byline.
 
-La qualité supérieure demandée est un objectif de conception, pas un résultat mesuré face aux médias existants. La validation reste visuelle à ce stade ; l’accessibilité, les performances et l’utilisabilité devront être vérifiées sur le produit implémenté.
+Higher quality is a design goal, not a measured outcome against existing sites. Validation is visual at this stage; accessibility, performance, and usability must be checked on the built product.
 
-## Matériaux de démonstration
+## Demo materials
 
-- [Wyatt Simpson, rue parisienne](https://unsplash.com/photos/a-picturesque-street-in-paris-with-buildings-Ue3BrDS3xQQ).
-- [Annie Spratt, façades et arbres](https://unsplash.com/photos/buildings-and-trees-on-a-street-in-paris-oS5b0AkN7iE).
-- [Insee, Parc de logements au 1er janvier 2026](https://www.insee.fr/fr/statistiques/9055697) : référence effective du court exemple de page article.
+- [Wyatt Simpson, Paris street](https://unsplash.com/photos/a-picturesque-street-in-paris-with-buildings-Ue3BrDS3xQQ).
+- [Annie Spratt, façades and trees](https://unsplash.com/photos/buildings-and-trees-on-a-street-in-paris-oS5b0AkN7iE).
+- [Insee, housing stock on 1 January 2026](https://www.insee.fr/fr/statistiques/9055697): real reference for the short article page example.
 
-Le nom, les rubriques et les titres de démonstration ne fixent pas la future identité ou la thématique du média.
+Demo name, sections, and headlines do not fix future media identity or theme.

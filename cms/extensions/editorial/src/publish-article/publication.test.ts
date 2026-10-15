@@ -34,7 +34,7 @@ function fileNames(...names: string[]): () => string {
   return () => {
     const next = queue.next();
     if (next.done === true) {
-      throw new Error('Plus de noms de fichiers de test');
+      throw new Error('No more test file names');
     }
     return next.value;
   };
