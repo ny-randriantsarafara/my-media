@@ -36,13 +36,13 @@
     "@directus/errors": "3.0.0"
   },
   "devDependencies": {
-    "@directus/extensions-sdk": "18.0.6",
-    "@directus/types": "18.0.0",
+    "@directus/extensions-sdk": "18.1.0",
+    "@directus/types": "18.1.0",
     "@types/node": "^24.19.2",
-    "knex": "3.1.0",
+    "knex": "3.3.0",
     "pino": "9.7.0",
     "sharp": "0.35.5",
     "typescript": "~6.0.3",
-    "vitest": "^5.0.3"
+    "vitest": "^5.0.5"
   }
 }
