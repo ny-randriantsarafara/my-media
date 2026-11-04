@@ -1,13 +1,16 @@
 name: Preview
 
-# One preview per non-draft pull request of this repository, removed when the pull request closes.
-# The VPS holds two previews at most; a refused delivery fails this check, which is not required to merge.
+# CI calls this only after Checks and Integration pass for a trusted, non-draft PR.
+# One global slot, shared with the other apps. A busy slot is refused without eviction.
 on:
+  workflow_call:
   pull_request:
-    types: [opened, reopened, synchronize, ready_for_review, closed]
+    types: [closed]
 
 permissions:
   contents: read
+  actions: read
+  pull-requests: read
 
 concurrency:
   group: preview-${{ github.event.pull_request.number }}
@@ -15,29 +18,62 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  reconcile:
+    name: Reconcile current pull-request state
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      operation: ${{ steps.state.outputs.operation }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PULL_REQUEST: ${{ github.event.pull_request.number }}
+      TESTED_COMMIT: ${{ github.event.pull_request.head.sha }}
+      ALLOW_APPLY: ${{ github.event.action != 'closed' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Choose the current lifecycle operation
+        id: state
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/pulls/$PULL_REQUEST" > "$RUNNER_TEMP/pull-request.json"
+          args=()
+          if [[ "$ALLOW_APPLY" == true ]]; then
+            args+=(--allow-apply)
+          fi
+          python3 deploy/preview-operation.py "$RUNNER_TEMP/pull-request.json" \
+            --repository "$GITHUB_REPOSITORY" --number "$PULL_REQUEST" \
+            --tested-commit "$TESTED_COMMIT" "${args[@]}" >> "$GITHUB_OUTPUT"
+
   images:
-    if: >-
-      github.event.action != 'closed'
-      && !github.event.pull_request.draft
-      && github.event.pull_request.head.repo.full_name == github.repository
+    needs: reconcile
+    if: needs.reconcile.outputs.operation == 'apply'
     permissions:
       contents: read
       packages: write
     uses: ./.github/workflows/images.yml
 
   deploy:
-    needs: images
+    needs: [reconcile, images]
+    if: >-
+      always() && !cancelled() && needs.reconcile.result == 'success'
+      && (needs.reconcile.outputs.operation == 'destroy'
+          || (needs.reconcile.outputs.operation == 'apply' && needs.images.result == 'success'))
     uses: ./.github/workflows/deploy.yml
     with:
       environment: preview
       github-environment: nonprod
+      operation: ${{ needs.reconcile.outputs.operation }}
       pull-request: ${{ github.event.pull_request.number }}
       release: ${{ needs.images.outputs.release }}
     secrets: inherit
 
   comment:
     name: Comment the preview URLs
-    needs: deploy
+    needs: [reconcile, deploy]
+    if: needs.reconcile.outputs.operation == 'apply'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -67,15 +103,3 @@ jobs:
           else
             gh api --method POST "repos/$REPOSITORY/issues/$NUMBER/comments" -f body="$body" > /dev/null
           fi
-
-  destroy:
-    if: >-
-      github.event.action == 'closed'
-      && github.event.pull_request.head.repo.full_name == github.repository
-    uses: ./.github/workflows/deploy.yml
-    with:
-      environment: preview
-      github-environment: nonprod
-      operation: destroy
-      pull-request: ${{ github.event.pull_request.number }}
-    secrets: inherit

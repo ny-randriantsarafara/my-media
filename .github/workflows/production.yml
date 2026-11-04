@@ -1,26 +1,32 @@
 name: Deploy production
 
-# Promotes the images of a successful CI run on main, already delivered to staging. Never rebuilds.
-# Rollback: run again with the run_id of an older successful CI run on main.
+# Promote immutable images after trusted main push CI. Never rebuild a release.
+# Manual rollback selects an explicit older successful main push CI run.
 on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
     inputs:
       run_id:
-        description: CI run on main to promote (empty = the latest successful one)
-        required: false
-        default: ''
+        description: Successful main push CI run to deliver (explicit release or rollback)
+        required: true
+        type: string
 
 permissions:
   contents: read
 
-concurrency:
-  group: production
-  cancel-in-progress: false
-
 jobs:
   release:
-    name: Find the staging release
-    if: github.ref == 'refs/heads/main'
+    name: Validate the selected release
+    if: >-
+      github.ref == 'refs/heads/main'
+      && (github.event_name == 'workflow_dispatch'
+          || (github.event.workflow_run.conclusion == 'success'
+              && github.event.workflow_run.event == 'push'
+              && github.event.workflow_run.head_branch == 'main'
+              && github.event.workflow_run.head_repository.full_name == github.repository))
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -28,48 +34,70 @@ jobs:
       actions: read
     outputs:
       release: ${{ steps.release.outputs.release }}
+      commit: ${{ steps.release.outputs.sha }}
+      run-id: ${{ steps.run.outputs.id }}
     env:
       GH_TOKEN: ${{ github.token }}
-      REQUESTED_RUN: ${{ inputs.run_id }}
+      REQUESTED_RUN: ${{ github.event.workflow_run.id || inputs.run_id }}
+      REQUIRE_CURRENT_MAIN: ${{ github.event_name == 'workflow_run' }}
     steps:
-      - name: Choose the CI run
+      - name: Checkout trusted promotion policy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Validate the CI run
         id: run
         run: |
-          run_id="$REQUESTED_RUN"
-          if [[ -z "$run_id" ]]; then
-            run_id="$(gh run list -R "$GITHUB_REPOSITORY" --workflow ci.yml --branch main --event push \
-              --status success --limit 1 --json databaseId --jq '.[0].databaseId // empty')"
-          fi
-          if [[ ! "$run_id" =~ ^[0-9]+$ ]]; then
-            echo "No successful CI run on main to promote." >&2
+          if [[ ! "$REQUESTED_RUN" =~ ^[1-9][0-9]*$ ]]; then
+            echo "Select a numeric CI run ID." >&2
             exit 1
           fi
-          run="$(gh run view "$run_id" -R "$GITHUB_REPOSITORY" --json workflowName,headBranch,event,conclusion,headSha \
-            --jq '[.workflowName, .headBranch, .event, .conclusion, .headSha] | join(" ")')"
-          read -r workflow branch event conclusion sha <<< "$run"
-          if [[ "$workflow $branch $event $conclusion" != "CI main push success" ]]; then
-            echo "Run $run_id is not a successful CI run on main ($workflow, $branch, $event, $conclusion)." >&2
-            exit 1
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$REQUESTED_RUN" > "$RUNNER_TEMP/run.json"
+          args=()
+          if [[ "$REQUIRE_CURRENT_MAIN" == true ]]; then
+            main_sha="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq '.object.sha')"
+            args+=(--current-main "$main_sha")
           fi
-          echo "id=$run_id" >> "$GITHUB_OUTPUT"
-          echo "Promoting run $run_id (commit $sha)." >> "$GITHUB_STEP_SUMMARY"
-      - name: Download its release
+          python3 deploy/validate-promotion.py "$RUNNER_TEMP/run.json" \
+            --repository "$GITHUB_REPOSITORY" --run-id "$REQUESTED_RUN" "${args[@]}" >> "$GITHUB_OUTPUT"
+          echo "id=$REQUESTED_RUN" >> "$GITHUB_OUTPUT"
+      - name: Download its immutable release
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: release
+          path: ${{ runner.temp }}/selected-release
           run-id: ${{ steps.run.outputs.id }}
           github-token: ${{ github.token }}
-      - name: Release
+      - name: Validate the release commit and images
         id: release
         run: |
-          echo "release=$(jq -c . release.json)" >> "$GITHUB_OUTPUT"
-          { echo '```json'; jq . release.json; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          args=()
+          if [[ "$REQUIRE_CURRENT_MAIN" == true ]]; then
+            main_sha="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq '.object.sha')"
+            args+=(--current-main "$main_sha")
+          fi
+          python3 deploy/validate-promotion.py "$RUNNER_TEMP/run.json" \
+            --repository "$GITHUB_REPOSITORY" --run-id "$REQUESTED_RUN" \
+            --release "$RUNNER_TEMP/selected-release/release.json" "${args[@]}" >> "$GITHUB_OUTPUT"
+          echo "Selected trusted CI run $REQUESTED_RUN." >> "$GITHUB_STEP_SUMMARY"
 
   deploy:
     needs: release
+    # Untrusted/stale triggers must fail release validation before entering this queue.
+    concurrency:
+      group: production
+      queue: max
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      actions: read
     uses: ./.github/workflows/deploy.yml
     with:
       environment: prod
       github-environment: production
       release: ${{ needs.release.outputs.release }}
+      release-commit: ${{ needs.release.outputs.commit }}
+      promotion-run-id: ${{ needs.release.outputs.run-id }}
+      require-current-main: ${{ github.event_name == 'workflow_run' }}
     secrets: inherit

@@ -2,6 +2,7 @@ packages:
   - cms/*
   - cms/extensions/*
   - site
+  - deploy/tests
 onlyBuiltDependencies:
   - esbuild
   - sharp

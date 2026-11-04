@@ -20,7 +20,9 @@ pnpm cms:up && pnpm provision && pnpm test:cms && pnpm test:e2e   # local stack 
 
 Decisions: `docs/superpowers/specs/2026-10-11-cicd-design.md`. Operations: `docs/exploitation/livraison.md`.
 
-- Each non-draft PR gets a preview (`my-media-pr-<n>.apps.nyhasinavalona.com`, CMS on `cms.…`), removed when the PR closes. Staging follows `main`. Production only runs via “Deploy production”, with human approval.
+- Each trusted, non-draft PR can get a preview after Checks and Integration pass (`my-media-pr-<n>.apps.nyhasinavalona.com`, CMS on `cms.…`), removed when the PR closes. One global slot is shared with the other apps; a busy slot is refused without eviction. Preview success is not required to merge.
+- A successful push CI run on the current `main` commit records immutable image digests and automatically triggers production. No staging dependency or second deployment approval. Manual “Deploy production” requires an explicit trusted main push CI run ID, including for rollback; it uses that release's code and images without rebuilding or rolling back data.
+- Nonprod credentials are preview-only. Staging retirement belongs to the platform administrator after pipeline cutover; retain its volumes and private recovery record. Keep the existing OVH backup; do not add scheduled backups.
 - `deploy/` describes delivery on the `vps-services` platform (Compose, Ansible, public checks). Do not add anything the platform rejects: see `vps-services/docs/APP-CONTRACT.md`.
 - The Directus schema is code (`cms/provision`) and applies idempotently on every delivery: no manual schema changes on a deployed Directus.
 - No secrets in Git, logs, or command output.
