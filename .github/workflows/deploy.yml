@@ -5,7 +5,7 @@ on:
   workflow_call:
     inputs:
       environment:
-        description: preview, staging or prod.
+        description: preview or prod.
         type: string
         required: true
       github-environment:
@@ -24,6 +24,18 @@ on:
         description: JSON from images.yml; required for apply.
         type: string
         default: ''
+      release-commit:
+        description: Selected immutable code commit; required for production.
+        type: string
+        default: ''
+      promotion-run-id:
+        description: Trusted main push CI run; required for production.
+        type: string
+        default: ''
+      require-current-main:
+        description: Refuse stale main releases during automatic production delivery.
+        type: boolean
+        default: false
     outputs:
       site-url:
         value: ${{ jobs.deliver.outputs.site-url }}
@@ -32,9 +44,15 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   deliver:
+    if: >-
+      (inputs.environment == 'prod' && inputs.github-environment == 'production'
+       && github.ref == 'refs/heads/main' && inputs.release-commit != '' && inputs.promotion-run-id != '')
+      || (inputs.environment == 'preview' && inputs.github-environment == 'nonprod'
+          && github.event.pull_request.head.repo.full_name == github.repository)
     name: ${{ inputs.operation }} ${{ inputs.environment }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -49,10 +67,20 @@ jobs:
       OPERATION: ${{ inputs.operation }}
       PULL_REQUEST: ${{ inputs.pull-request }}
       RELEASE: ${{ inputs.release }}
+      PROMOTION_RUN: ${{ inputs.promotion-run-id }}
+      REQUIRE_CURRENT_MAIN: ${{ inputs.require-current-main }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{ inputs.release-commit || github.sha }}
+          persist-credentials: false
+      - name: Checkout current trusted production policy
+        if: inputs.environment == 'prod'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          path: .delivery-policy
           persist-credentials: false
       - name: Instance hostnames
         id: hosts
@@ -60,7 +88,6 @@ jobs:
         run: |
           case "$TARGET_ENVIRONMENT" in
             prod) label=my-media ;;
-            staging) label=my-media-staging ;;
             preview) label="my-media-pr-$PULL_REQUEST" ;;
             *) echo "Environnement inconnu : $TARGET_ENVIRONMENT" >&2; exit 1 ;;
           esac
@@ -76,6 +103,28 @@ jobs:
         run: |
           pip install --require-hashes -r deploy/requirements.txt
           ansible-galaxy collection install -r deploy/ansible/requirements.yml
+      - name: Revalidate production immediately before private inputs
+        if: inputs.environment == 'prod'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SELECTED_COMMIT: ${{ inputs.release-commit }}
+        run: |
+          if [[ ! "$PROMOTION_RUN" =~ ^[1-9][0-9]*$ ]]; then
+            echo "Select a numeric CI run ID." >&2
+            exit 1
+          fi
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$PROMOTION_RUN" > "$RUNNER_TEMP/run.json"
+          printf '%s\n' "$RELEASE" > "$RUNNER_TEMP/release.json"
+          args=()
+          if [[ "$REQUIRE_CURRENT_MAIN" == true ]]; then
+            main_sha="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq '.object.sha')"
+            args+=(--current-main "$main_sha")
+          fi
+          python3 .delivery-policy/deploy/validate-promotion.py "$RUNNER_TEMP/run.json" \
+            --repository "$GITHUB_REPOSITORY" --run-id "$PROMOTION_RUN" \
+            --release "$RUNNER_TEMP/release.json" "${args[@]}" > "$RUNNER_TEMP/validated-release"
+          test "$(git rev-parse HEAD)" = "$SELECTED_COMMIT"
+          test "$(jq -r '.commit' "$RUNNER_TEMP/release.json")" = "$SELECTED_COMMIT"
       - name: Private inputs
         env:
           VPS_SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_PRIVATE_KEY }}

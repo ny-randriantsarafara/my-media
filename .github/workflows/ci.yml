@@ -2,6 +2,7 @@ name: CI
 
 on:
   pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
   push:
     branches: [main]
   workflow_dispatch:
@@ -11,7 +12,8 @@ permissions:
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  # CI now includes preview delivery; never interrupt an in-flight vpsctl request.
+  cancel-in-progress: false
 
 jobs:
   checks:
@@ -87,7 +89,21 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
 
-  # main only: build once, deliver to staging, keep the digests for production (production.yml).
+  preview:
+    if: >-
+      github.event_name == 'pull_request'
+      && !github.event.pull_request.draft
+      && github.event.pull_request.head.repo.full_name == github.repository
+    needs: [checks, integration]
+    permissions:
+      contents: read
+      actions: read
+      packages: write
+      pull-requests: write
+    uses: ./.github/workflows/preview.yml
+    secrets: inherit
+
+  # main only: build once and record the digests. production.yml promotes after CI completes.
   images:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [checks, integration]
@@ -96,18 +112,9 @@ jobs:
       packages: write
     uses: ./.github/workflows/images.yml
 
-  staging:
-    needs: images
-    uses: ./.github/workflows/deploy.yml
-    with:
-      environment: staging
-      github-environment: nonprod
-      release: ${{ needs.images.outputs.release }}
-    secrets: inherit
-
   release:
-    name: Record the staging release
-    needs: [images, staging]
+    name: Record the immutable release
+    needs: images
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

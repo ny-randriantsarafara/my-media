@@ -1,6 +1,6 @@
 # Local development
 
-Requirements: Node 24, pnpm 10 (`corepack enable`), Docker.
+Requirements: Node 24, pnpm 10 (`corepack enable`), Python 3 (delivery policy tests), Docker, and ShellCheck.
 
 1. `cp .env.example .env`, then replace each `change-me…` value with `openssl rand -hex 32`.
 2. `pnpm install`
